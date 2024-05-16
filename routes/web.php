@@ -28,6 +28,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('program', function() {return '<h1>Helo tulisan</hi>';} )->middleware(['auth', 'verified', 'role_or_permission:read_program']);
+Route::get('program', function() {return view('program');} )->middleware(['auth', 'verified', 'role_or_permission:read_program']);
 
 require __DIR__.'/auth.php';
