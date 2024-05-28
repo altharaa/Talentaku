@@ -14,7 +14,13 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+        DB::table('user_roles')->delete();
+        
         DB::table('users')->delete();
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
 
         DB::table('users')->insert([
             [

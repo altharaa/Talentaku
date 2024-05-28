@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\MemberController;
+use App\Models\Information;
+use App\Models\Member;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 
@@ -19,10 +22,12 @@ Route::get('/', function () {
 });
 
 Route::get('/test', function () {
-    $user = User::find(1);
-    $role = [1, 2];
+    $info = User::find(1);
+   $list = [1,2];
 
-    $user->role()->sync($role);
+   $info->roles()->sync($list);
 
     echo 'berhasil';
 });
+
+Route::post('/grades/{gradeId}/students', [MemberController::class, 'store']);
