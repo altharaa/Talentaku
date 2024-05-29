@@ -21,13 +21,13 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/test', function () {
-    $info = User::find(1);
-   $list = [1,2];
+// Route::get('/test', function () {
+//     $info = User::find(1);
+//    $list = [1,2];
 
-   $info->roles()->sync($list);
+//    $info->roles()->sync($list);
 
-    echo 'berhasil';
-});
+//     echo 'berhasil';
+// });
 
-Route::post('/grades/{gradeId}/students', [MemberController::class, 'store']);
+// Route::post('/grades/{gradeId}/students', [MemberController::class, 'store']);
