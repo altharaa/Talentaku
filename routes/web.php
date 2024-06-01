@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    echo password_hash('moza1234', PASSWORD_BCRYPT);
 });
 
 // Route::get('/test', function () {
