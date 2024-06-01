@@ -15,19 +15,30 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors()
+            ], 422);
+        }    
+
         $credentials = $request->only('email', 'password');
 
         if (Auth::attempt($credentials)) {
             $user = $request->user();
-            $tokenName = $request->input('token_name', 'auth_token');
-            $token = $user->createToken($tokenName)->plainTextToken;
+            $token = $user->createToken($request->input('token_name', 'auth_token'));
             $roles = $user->roles()->pluck('name')->toArray();
 
             return response()->json([
                 'success' => true,
                 'message' => 'Login successful',
                 'data' => [
-                    'token' => $token,
+                    'token' => $token->plainTextToken,
                     'user' => $user->name,
                     'role' => $roles,
                 ]
@@ -38,17 +49,6 @@ class AuthController extends Controller
             'success' => false,
             'message' => 'Login failed',
         ], 401);
-    }
-
-    public function view(Request $request)
-    {
-        $user = $request->user();
-        $roles = $user->roles()->pluck('name')->toArray();
-
-        return response()->json([
-            'user' => $user,
-            'roles' => $roles
-        ]);
     }
 
     public function destroy(Request $request)
