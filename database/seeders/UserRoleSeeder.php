@@ -79,6 +79,13 @@ class UserRoleSeeder extends Seeder
                 'role_id' => 2,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
+            ],
+            [
+                'id' => 10,
+                'user_id' => 7,
+                'role_id' => 3,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
             ]
         ]);
     }
