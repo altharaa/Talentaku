@@ -15,67 +15,51 @@ class AuthController extends Controller
 {
     public function login(Request $request)
     {
-        // Validate the request
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $credentials = $request->only('email', 'password');
 
-        if ($validator->fails()) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Validation Error.',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
+        if (Auth::attempt($credentials)) {
+            $user = $request->user();
+            $tokenName = $request->input('token_name', 'auth_token');
+            $token = $user->createToken($tokenName)->plainTextToken;
+            $roles = $user->roles()->pluck('name')->toArray();
 
-        // Attempt to log in the user
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-           // Retrieve the authenticated user
-           $user = $request->user();
-           // Create token
-           $token = $user->createToken($request->input('token_name', 'auth_token'));
-            
             return response()->json([
                 'success' => true,
-                'message' => 'Berhasil',
+                'message' => 'Login successful',
                 'data' => [
-                    'token' => $token->plainTextToken,
-                    'user' => [
-                        'name' => $request->user()->name,
-                        // 'address' => $request->user()->address,
-                        // 'birth_date' => $request->user()->birth_date,
-                        // 'photo' => $request->user()->photo,
-                    ],
-                ],
-            ]);
-        } else {
-            return response()->json([
-                'success' => false,
-                'message' => 'Gagal',
-                'data' => null,
+                    'token' => $token,
+                    'user' => $user->name,
+                    'role' => $roles,
+                ]
             ]);
         }
-    }
-
-    public function destroy(Request $request) 
-    {
-        // Retrieve the authenticated user
-        $user = $request->user();
-        
-        // Revoke all tokens for the user
-        $user->currentAccessToken()->delete();
-        
-        // Optionally, revoke the token that was used to authenticate the current request
-        // $request->user()->currentAccessToken()->delete();
-
-        // Optionally, revoke a specific token by token ID
-        // $tokenId = 1; // Replace with the actual token ID you want to revoke
-        // $user->tokens()->where('id', $tokenId)->delete();
 
         return response()->json([
-            'success' => true,
-            'message' => 'Logged out successfully',
+            'success' => false,
+            'message' => 'Login failed',
+        ], 401);
+    }
+
+    public function view(Request $request)
+    {
+        $user = $request->user();
+        $roles = $user->roles()->pluck('name')->toArray();
+
+        return response()->json([
+            'user' => $user,
+            'roles' => $roles
         ]);
+    }
+
+    public function destroy(Request $request)
+    {
+        $user = $request->user();
+
+        if ($user) {
+            $user->tokens()->delete();
+            return response()->json(['message' => 'Logged out successfully']);
+        }
+
+        return response()->json(['error' => 'User not authenticated'], 401);
     }
 }
