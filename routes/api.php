@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -24,4 +25,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'destroy'])->middleware('auth:sanctum');
 });
 
-Route::get('/user', [AuthController::class], 'view');
+Route::prefix('/user')->group(function () {
+    Route::get('/', [UserController::class, 'show'])->middleware('auth:sanctum');
+    Route::put('/update', [UserController::class, 'update'])->middleware('auth:sanctum');
+});
