@@ -27,5 +27,6 @@ Route::prefix('auth')->group(function () {
 
 Route::prefix('/user')->group(function () {
     Route::get('/', [UserController::class, 'show'])->middleware('auth:sanctum');
-    Route::post('/update/photo', [UserController::class, 'updatePhoto'])->middleware('auth:sanctum');
+    Route::post('/update-photo', [UserController::class, 'updatePhoto'])->middleware('auth:sanctum');
+    Route::post('/update-password', [UserController::class, 'updatePassword'])->middleware('auth:sanctum');
 });
