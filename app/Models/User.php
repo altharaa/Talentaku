@@ -56,7 +56,7 @@ class User extends Authenticatable
         return $this->hasMany(Grade::class);
     }
 
-    public function member()
+    public function members()
     {
         return $this->hasMany(Member::class, 'student_id');
     }
