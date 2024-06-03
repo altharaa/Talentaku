@@ -17,6 +17,12 @@ class UserController extends Controller
     public function show(Request $request)
     {
         $user = $request->user();
+
+        $userData = User::select('id', 'name', 'email', 'address', 'photo')
+                ->selectRaw("CONCAT(place_of_birth, ', ', DATE_FORMAT(birth_date, '%Y-%m-%d')) AS birth_information")
+                ->where('id', $user->id) 
+                ->first();
+
         $roles = $user->roles()->pluck('name')->toArray();
     
         if (in_array('Murid SD', $roles) || in_array('Murid KB', $roles)) {
@@ -31,14 +37,14 @@ class UserController extends Controller
     
         if (empty($grades)) {
             return response()->json([
-                'user' => $user,
+                'user' => $userData,
                 'roles' => $roles,
                 'grades' => 'User didn\'t have any class'
             ]);
         }
         
         return response()->json([
-            'user' => $user,
+            'user' => $userData,
             'roles' => $roles,
             'grades' => $grades
         ]);
