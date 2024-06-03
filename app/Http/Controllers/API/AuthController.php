@@ -39,6 +39,7 @@ class AuthController extends Controller
                 'message' => 'Login successful',
                 'data' => [
                     'token' => $token->plainTextToken,
+                    'id' => $user->id,
                     'user' => $user->name,
                     'role' => $roles,
                 ]
