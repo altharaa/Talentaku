@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Grade;
 use App\Models\User;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
@@ -17,10 +18,29 @@ class UserController extends Controller
     {
         $user = $request->user();
         $roles = $user->roles()->pluck('name')->toArray();
-
+    
+        if (in_array('Murid SD', $roles) || in_array('Murid KB', $roles)) {
+            $grades = $user->members()->with('grade')->get()->pluck('grade.name')->toArray();
+        } elseif (in_array('Guru SD', $roles) || in_array('Guru KB', $roles)) {
+            $grades = Grade::where('teacher_id', $user->id)->pluck('name')->toArray();
+        } else {
+            return response()->json([
+                'message' => 'User doesn\'t have a valid role'
+            ], 404);
+        }
+    
+        if (empty($grades)) {
+            return response()->json([
+                'user' => $user,
+                'roles' => $roles,
+                'grades' => 'User didn\'t have any class'
+            ]);
+        }
+        
         return response()->json([
             'user' => $user,
-            'roles' => $roles
+            'roles' => $roles,
+            'grades' => $grades
         ]);
     }
     public function updatePhoto(Request $request)
