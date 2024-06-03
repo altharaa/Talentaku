@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -20,27 +23,41 @@ class UserController extends Controller
             'roles' => $roles
         ]);
     }
-    public function update(Request $request)
+    public function updatePhoto(Request $request)
     {
-        $user = $request->user();
+        $id = $request->user()->id;
+        $user = User::findOrFail($id);
+        
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password' => 'nullable|string|min:8|confirmed',
+            'photo' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return response()->json([
+                'status' => 'error',
+                'errors' => $validator->errors(),
+            ], 422);
         }
 
-        $user->name = $request->name;
-        $user->email = $request->email;
-        if ($request->password) {
-            $user->password = bcrypt($request->password);
+        $validatedData = $validator->validated();
+
+        if ($request->hasFile('photo')) {
+            $photo = $request->file('photo')->storePublicly('photos', 'public');
+            $validatedData['photo'] = Storage::url($photo);
         }
+
+        $user->fill($validatedData);
+
         $user->save();
 
-        return response()->json(['message' => 'User updated successfully']);
+        return response()->json([
+            'status' => 'Photo updated successfully',
+            'data' => [
+                $user->id,
+                $user->name,
+                $user->photo,
+            ]
+        ], 200);
     }
     
 }
