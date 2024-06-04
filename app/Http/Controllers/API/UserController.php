@@ -18,7 +18,7 @@ class UserController extends Controller
     {
         $user = $request->user();
 
-        $userData = User::select('id', 'name', 'email', 'address', 'photo')
+        $userData = User::select('id', 'name', 'email', 'identification_number', 'address', 'photo')
                 ->selectRaw("CONCAT(place_of_birth, ', ', DATE_FORMAT(birth_date, '%Y-%m-%d')) AS birth_information")
                 ->where('id', $user->id) 
                 ->first();
