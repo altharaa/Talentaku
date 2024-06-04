@@ -14,6 +14,9 @@ return new class extends Migration
         Schema::create('grades', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('desc');
+            $table->string('unique_code', 5)->unique();
+            $table->boolean('isactive')->default(true);
             $table->unsignedBigInteger('teacher_id');
             $table->timestamps();
 
