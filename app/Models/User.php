@@ -4,6 +4,7 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -21,6 +22,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
+        'identification_number',
         'address',
         'birth_date',
         'photo',
@@ -51,12 +53,12 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'user_roles')->withTimeStamps();
     }
 
-    public function grades()
+    public function grades() : HasMany
     {
         return $this->hasMany(Grade::class);
     }
 
-    public function members()
+    public function members(): HasMany
     {
         return $this->hasMany(Member::class, 'student_id');
     }

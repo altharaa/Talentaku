@@ -38,3 +38,13 @@ Route::prefix('programs')->group(function () {
     Route::post('/{id}', [ProgramController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [ProgramController::class, 'destroy'])->middleware('auth:sanctum');
 });
+
+Route::middleware('auth:sanctum')->group(function () {
+   Route::prefix('/grades')->group(function () {
+        Route::get('/', 'App\Http\Controllers\API\GradeController@show');
+        Route::post('/add', 'App\Http\Controllers\API\GradeController@store');
+        Route::put('/{id}', 'App\Http\Controllers\API\GradeController@update');
+        Route::patch('{id}/toggle-active', 'App\Http\Controllers\API\GradeController@toggleActive' );
+        Route::post('/join', 'App\Http\Controllers\API\GradeController@join');
+   });
+});
