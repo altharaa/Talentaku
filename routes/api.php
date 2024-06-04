@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -29,4 +30,11 @@ Route::prefix('/user')->group(function () {
     Route::get('/', [UserController::class, 'show'])->middleware('auth:sanctum');
     Route::post('/update-photo', [UserController::class, 'updatePhoto'])->middleware('auth:sanctum');
     Route::post('/update-password', [UserController::class, 'updatePassword'])->middleware('auth:sanctum');
+});
+
+Route::prefix('programs')->group(function () {
+    Route::get('/', [ProgramController::class, 'show']);
+    Route::post('/add', [ProgramController::class, 'store'])->middleware('auth:sanctum');
+    Route::post('/{id}', [ProgramController::class, 'update'])->middleware('auth:sanctum');
+    Route::delete('/{id}', [ProgramController::class, 'destroy'])->middleware('auth:sanctum');
 });
