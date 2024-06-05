@@ -12,6 +12,8 @@ class Information extends Model
     protected $table = 'information';
 
     public function list_desc() {
-        return $this->belongsToMany(ListDesc::class, 'information_list_desc')->withTimeStamps();
+        return $this->belongsToMany(ListDesc::class, 'information_list_desc');
     }
+
+
 }
