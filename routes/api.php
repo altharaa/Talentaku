@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
@@ -38,6 +39,8 @@ Route::prefix('programs')->group(function () {
     Route::post('/{id}', [ProgramController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [ProgramController::class, 'destroy'])->middleware('auth:sanctum');
 });
+
+Route::get('/information',[InformationController::class, 'show']);
 
 Route::middleware('auth:sanctum')->group(function () {
    Route::prefix('/grades')->group(function () {
