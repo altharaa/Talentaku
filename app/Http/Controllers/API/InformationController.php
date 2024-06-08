@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\InfoList;
 use App\Models\Information;
 use Illuminate\Http\Request;
 
@@ -79,6 +80,30 @@ class InformationController extends Controller
             return response()->json([
                 'message' => 'Failed to delete information',
             ], 500);
+        }
+    }
+
+    public function get() 
+    {
+        $informationLists = InfoList::with('pivotLists.listDesc')->get();
+
+        if ($informationLists->isEmpty()) {
+            return response()->json([
+                'message' => 'No information available',
+            ]);
+        } else {
+            $response = $informationLists->map(function ($information) {
+                return [
+                    'information_title' => $information->title,
+                    'information_data' => $information->pivotLists->map(function ($pivotList) {
+                        return [
+                            'title' => $pivotList->listDesc->title,
+                            'desc' => explode(PHP_EOL,$pivotList->listDesc->desc),
+                        ];
+                    })->toArray(),
+                ];
+            });
+            return response()->json($response);
         }
     }
 }
