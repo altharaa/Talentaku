@@ -10,41 +10,75 @@ class InformationController extends Controller
 {
     public function show()
     {
-        $information = Information::with('list_desc')->get();
-        $data = [];
+        $information = Information::select('id', 'title', 'desc')->get();
 
-        foreach ($information as $info) {
-            $descArray = [];
-
-            if ($info->list_desc->isNotEmpty()) {
-                $descList = $info->list_desc->map(function ($desc) {
-                    return [
-                        'title' => $desc->title,
-                        'desc' => explode(PHP_EOL, $desc->desc)
-                    ];
-                })->groupBy('title');
-
-                foreach ($descList as $title => $descs) {
-                    $descArray[] = [
-                        'title' => $title,
-                        'desc' => $descs->pluck('desc')->flatten()->toArray()
-                    ];
-                }
-            } else {
-                $descArray = [
-                    'title' => '',
-                    'desc' => explode(PHP_EOL, $info->desc)
-                ];
-            }
-
-            $dataItem = [
-                'title' => $info->title,
-                'desc' => $descArray
-            ];
-
-            $data[] = $dataItem;
+        if ($information) {
+            return response()->json([
+                'message' => 'Information retrieved successfully',
+                'information' => $information,
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Failed to retrieve information',
+            ], 500);
         }
+    }
+    
+    public function update(Request $request, $id)
+    {
+        $information = Information::findOrFail($id);
+        $validatedData = $request->all();
 
-        return response()->json($data);
+        $information->update($validatedData);
+
+        if ($information) {
+            return response()->json([
+                'message' => 'Information updated successfully',
+                'information' => $information,
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Failed to update information',
+            ], 500);
+        }
+    }
+
+    public function store(Request $request) 
+    {
+
+        $request->validate([
+            'title' => 'required',
+            'desc' => 'required',
+        ]);
+
+        $information = Information::create([
+            'title' => $request->title,
+            'desc' => $request->desc,
+        ]);
+
+        if ($information) {
+            return response()->json([
+                'message' => 'Information added successfully',
+                'information' => $information,
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Failed to add information',
+            ], 500);
+        }
+    }
+
+    public function destroy($id)
+    {
+        $information = Information::findOrFail($id);
+        if ($information->delete()) {
+            return response()->json([
+                'message' => 'Information deleted successfully',
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Failed to delete information',
+            ], 500);
+        }
     }
 }

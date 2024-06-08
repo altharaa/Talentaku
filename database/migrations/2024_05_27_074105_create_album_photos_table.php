@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('album_photos', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('album_id');
+            $table->string('photo');
             $table->timestamps();
 
             $table->foreign('album_id')->references('id')->on('albums')->onDelete('cascade');

@@ -9,11 +9,6 @@ class Information extends Model
 {
     use HasFactory;
 
-    protected $table = 'information';
-
-    public function list_desc() {
-        return $this->belongsToMany(ListDesc::class, 'information_list_desc');
-    }
-
+    protected $fillable = ['title', 'desc'];
 
 }
