@@ -11,14 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('information_list_desc', function (Blueprint $table) {
+        Schema::create('pivot_lists', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('information_id');
             $table->unsignedBigInteger('list_desc_id');
             $table->timestamps();
 
-            $table->foreign('information_id')->references('id')->on('information')->onDelete('cascade');
-            $table->foreign('list_desc_id')->references('id')->on('list_desc')->onDelete('cascade');
+            $table->foreign('information_id')->references('id')->on('info_lists')->onDelete('cascade');
+            $table->foreign('list_desc_id')->references('id')->on('pivot_lists')->onDelete('cascade');
         });
     }
 
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('information_list_desc');
+        Schema::dropIfExists('pivot_lists');
     }
 };

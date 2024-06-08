@@ -45,6 +45,7 @@ Route::prefix('information')->group(function () {
     Route::post('/add', [InformationController::class, 'store'])->middleware('auth:sanctum');
     Route::put('/{id}', [InformationController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [InformationController::class, 'destroy'])->middleware('auth:sanctum');
+    Route::get('/list', [InformationController::class, 'get']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {
