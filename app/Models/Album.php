@@ -12,13 +12,17 @@ class Album extends Model
     // Jika tabel album_photos menggunakan konvensi nama lain, bisa diatur disini.
     protected $table = 'album_photos';
 
-    // Definisikan relasi ke grades
-    public function grades()
+    public function photos()
     {
-        return $this->hasMany(Grade::class, 'album_id', 'album_id');
+        return $this->hasMany(AlbumPhoto::class);
     }
 
-    // Fungsi untuk mengambil data grade
+    public function grades()
+    {
+        return $this->hasMany(Grade::class, 'album_id');
+    }
+    
+
     public function getGrade()
     {
         return $this->grades()->get();

@@ -40,7 +40,12 @@ Route::prefix('programs')->group(function () {
     Route::delete('/{id}', [ProgramController::class, 'destroy'])->middleware('auth:sanctum');
 });
 
-Route::get('/information',[InformationController::class, 'show']);
+Route::prefix('information')->group(function () {
+    Route::get('/', [InformationController::class, 'show']);
+    Route::post('/add', [InformationController::class, 'store'])->middleware('auth:sanctum');
+    Route::put('/{id}', [InformationController::class, 'update'])->middleware('auth:sanctum');
+    Route::delete('/{id}', [InformationController::class, 'destroy'])->middleware('auth:sanctum');
+});
 
 Route::middleware('auth:sanctum')->group(function () {
    Route::prefix('/grades')->group(function () {
@@ -49,5 +54,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{id}', 'App\Http\Controllers\API\GradeController@update');
         Route::patch('{id}/toggle-active', 'App\Http\Controllers\API\GradeController@toggleActive' );
         Route::post('/join', 'App\Http\Controllers\API\GradeController@join');
+       
+        Route::group(['prefix' => '{id}/albums'], function () {
+            Route::post('/add', 'App\Http\Controllers\API\AlbumController@store');
+            Route::delete('/{albumId}', 'App\Http\Controllers\API\AlbumController@destroy');
+        });
    });
 });
+

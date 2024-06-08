@@ -13,9 +13,15 @@ class ProgramController extends Controller
     {
         $programs = Program::all();
 
-        return response()->json([
-            'programs' => $programs
-        ]);   
+        if ($programs) {
+            return response()->json([
+                'programs' => $programs
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'No programs found'
+            ], 404);
+        }
     }
 
     public function store(Request $request)
@@ -27,12 +33,16 @@ class ProgramController extends Controller
             $validatedData['photo'] = Storage::url($photo);
         }
 
-        $program = Program::create($validatedData);
-
-        return response()->json([
-            'message' => 'Program created successfully',
-            'program' => $program
-        ], 201);
+        if ($program = Program::create($validatedData)) {
+            return response()->json([
+                'message' => 'Program created successfully',
+                'program' => $program
+            ], 201);
+        } else {
+            return response()->json([
+                'message' => 'Failed to create program'
+            ], 500);
+        }
     }
 
     public function update(Request $request, $id)
@@ -45,21 +55,29 @@ class ProgramController extends Controller
             $validatedData['photo'] = Storage::url($photo);
         }
 
-        $program->update($validatedData);
-
-        return response()->json([
-            'message' => 'Program updated successfully',
-            'program' => $program
-        ]);
+        if ($program->update($validatedData)) {
+            return response()->json([
+                'message' => 'Program updated successfully',
+                'program' => $program
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Failed to update program'
+            ], 500);
+        }
     }
 
     public function destroy($id)
     {
         $program = Program::findOrFail($id);
-        $program->delete();
-
-        return response()->json([
-            'message' => 'Program deleted successfully'
-        ]);
+        if ($program->delete()) {
+            return response()->json([
+                'message' => 'Program deleted successfully'
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Failed to delete program'
+            ], 500);
+        }
     }
 }
