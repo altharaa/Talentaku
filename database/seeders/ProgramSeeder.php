@@ -52,6 +52,41 @@ class ProgramSeeder extends Seeder
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
+            [
+                'name' => 'Musik & Tari',
+                'desc' => 'Mengembangkan bakat siswa dalam musik dan tari',
+                'category_id' => 2,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'name' => 'Kreasi & Gambar',
+                'desc' => 'Meningkatkan kreativitas siswa dalam seni visual melalui berbagai teknik gambar dan kerajinan',
+                'category_id' => 2,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'name' => 'Batik Eco Print',
+                'desc' => 'Membuatan batik ramah lingkungan dengan memanfaatkan bahan alami',
+                'category_id' => 2,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'name' => 'Cooking',
+                'desc' => 'Membekali siswa dengan keterampilan memasak dasar melalui praktik langsung di dapur sekolah',
+                'category_id' => 2,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'name' => 'Renang',
+                'desc' => 'Meningkatkan kebugaran fisik dan keterampilan berenang siswa',
+                'category_id' => 2,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
         ];
 
         foreach ($mockProgramData as $program) {

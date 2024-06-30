@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\API\AlbumController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\GradeController;
 use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\API\UserController;
@@ -27,7 +29,7 @@ Route::prefix('auth')->group(function () {
     Route::post('/logout', [AuthController::class, 'destroy'])->middleware('auth:sanctum');
 });
 
-Route::prefix('/user')->group(function () {
+Route::prefix('user')->group(function () {
     Route::get('/', [UserController::class, 'show'])->middleware('auth:sanctum');
     Route::post('/update-photo', [UserController::class, 'updatePhoto'])->middleware('auth:sanctum');
     Route::post('/update-password', [UserController::class, 'updatePassword'])->middleware('auth:sanctum');
@@ -49,17 +51,21 @@ Route::prefix('information')->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
-   Route::prefix('/grades')->group(function () {
-        Route::get('/', 'App\Http\Controllers\API\GradeController@show');
-        Route::post('/add', 'App\Http\Controllers\API\GradeController@store');
-        Route::put('/{id}', 'App\Http\Controllers\API\GradeController@update');
-        Route::patch('{id}/toggle-active', 'App\Http\Controllers\API\GradeController@toggleActive' );
-        Route::post('/join', 'App\Http\Controllers\API\GradeController@join');
-       
-        Route::group(['prefix' => '{id}/albums'], function () {
-            Route::post('/add', 'App\Http\Controllers\API\AlbumController@store');
-            Route::delete('/{albumId}', 'App\Http\Controllers\API\AlbumController@destroy');
-        });
-   });
+    Route::prefix('grades')->group(function () {
+        Route::get('/', [GradeController::class, 'show']);
+        Route::get('/{id}', [GradeController::class, 'detail']);
+        Route::post('/add', [GradeController::class, 'store']);
+        Route::put('/{id}', [GradeController::class, 'update']);
+        Route::patch('/{id}/toggle-active', [GradeController::class, 'toggleActive']);
+        Route::post('/join', [GradeController::class, 'join']);
+        Route::delete('/{gradeId}/members/{memberId}', [GradeController::class, 'deleteMember'])->middleware('auth:api');
+    });
+
+    Route::prefix('albums')->group(function () {
+        Route::get('/{id}', [AlbumController::class, 'show']);
+        Route::post('/add', [AlbumController::class, 'store']);
+        Route::delete('/{id}', [AlbumController::class, 'destroy']);
+    });
 });
 
+ 
