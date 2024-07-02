@@ -218,6 +218,7 @@ class GradeController extends Controller
     }
 
     public function detail(Request $request, $id) {
+        $user = $request->user();
         $grade = Grade::with(['teacher', 'members'])->find($id);
 
         if (!$grade) {
@@ -225,6 +226,16 @@ class GradeController extends Controller
                 'status' => 'error',
                 'message' => 'Grade not found.',
             ], 404);
+        }
+
+        $isTeacher = $grade->teacher_id === $user->id;
+        $isMember = $grade->members->contains('id', $user->id);
+    
+        if (!$isTeacher && !$isMember) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You do not have permission to view this grade.',
+            ], 403);
         }
 
         $gradeDetails = [
