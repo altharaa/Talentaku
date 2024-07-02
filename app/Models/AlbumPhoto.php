@@ -9,6 +9,8 @@ class AlbumPhoto extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['album_id', 'photo'];
+
     public function album()
     {
         return $this->belongsTo(Album::class);

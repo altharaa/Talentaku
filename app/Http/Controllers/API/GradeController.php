@@ -16,12 +16,12 @@ class GradeController extends Controller
         $roles = $user->roles->pluck('name')->toArray(); 
 
         if (in_array('Murid SD', $roles) || in_array('Murid KB', $roles)) {
-            $grades = $user->members()->with('grade')->get()->pluck('grade.name')->toArray();
+            $grades = $user->members()->with(['grade', 'grade.teacher', 'grade.members'])->get()->pluck('grade')->toArray();
         } elseif (in_array('Guru SD', $roles) || in_array('Guru KB', $roles)) {
-            $grades = Grade::where('teacher_id', $user->id)->pluck('name')->toArray();
+            $grades = Grade::where('teacher_id', $user->id)->with('teacher', 'members')->get();
         } else {
             return response()->json([
-                'message' => 'User doesn\'t have a valid role'
+                'message' => 'User not authenticated'
             ], 404);
         }
 
@@ -31,8 +31,28 @@ class GradeController extends Controller
             ], 404);
         }
 
+        $formattedGrades = [];
+        foreach ($grades as $grade) {
+            $teacherName = $grade->teacher ? $grade->teacher->name : null;
+            $members = $grade->members->map(function($member) {
+                return [
+                    'name' => $member->name,
+                    'photo' => $member->photo,
+                ];
+            })->toArray();
+
+            $formattedGrade = [
+                'name' => $grade->name,
+                'desc' => $grade->desc,
+                'teacher' => $teacherName,
+                'members' => $members,
+            ];
+
+            $formattedGrades[] = $formattedGrade;
+        }
+
         return response()->json([
-            'grades' => $grades
+            'grades' => $formattedGrades
         ]);
     }
 
@@ -92,6 +112,13 @@ class GradeController extends Controller
 
         $grade = Grade::findOrFail($id);
 
+        if (!$grade->isactive) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'The class is not active. You cannot update an inactive class.',
+            ], 403);
+        }
+
         $roles = $request->user()->roles()->pluck('name')->toArray();
         if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
             return response()->json([
@@ -118,6 +145,16 @@ class GradeController extends Controller
             'unique_code' => 'required|string|size:5',
         ]);
 
+        $user = $request->user();
+        $roles = $user->roles()->pluck('name')->toArray();
+
+        if (!in_array('Murid SD', $roles) && !in_array('Murid KB', $roles)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Only students (Murid SD or Murid KB) can join a class.',
+            ], 403);
+        }
+
         $grade = Grade::with('teacher', 'members')->where('unique_code', $request->unique_code)->first();
 
         if (!$grade) {
@@ -125,6 +162,13 @@ class GradeController extends Controller
                 'status' => 'error',
                 'message' => 'Invalid unique code. Class not found.',
             ], 404);
+        }
+
+        if (!$grade->isactive) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'The class is not active. You cannot join an inactive class.',
+            ], 403);
         }
 
         $grade->members()->attach($request->user()->id);
@@ -169,6 +213,79 @@ class GradeController extends Controller
             'status' => 'success',
             'message' => 'Grade status updated successfully.',
             'data' => $grade,
+        ], 200);
+    }
+
+    public function detail(Request $request, $id) {
+        $grade = Grade::with(['teacher', 'members'])->find($id);
+
+        if (!$grade) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Grade not found.',
+            ], 404);
+        }
+
+        $gradeDetails = [
+            'id' => $grade->id,
+            'name' => $grade->name,
+            'desc' => $grade->desc,
+            'level' => $grade->level,
+            'unique_code' => $grade->unique_code,
+            'isactive' => $grade->isactive ? 'active' : 'inactive',
+            'teacher' => $grade->teacher ? [
+                'id' => $grade->teacher->id,
+                'name' => $grade->teacher->name,
+                'roles' => $grade->teacher->roles()->pluck('name')->toArray()
+            ] : null,
+            'members' => $grade->members->map(function($member) {
+                return [
+                    'id' => $member->id,
+                    'name' => $member->name,
+                    'photo' => $member->photo,
+                    'roles' => $member->roles()->pluck('name')
+                ];
+            }),
+            'created_at' => $grade->created_at
+        ];
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $gradeDetails,
+        ], 200);
+    }
+
+    public function deleteMember(Request $request, $gradeId, $memberId)
+    {
+        $grade = Grade::findOrFail($gradeId);
+
+        $roles = $request->user()->roles()->pluck('name')->toArray();
+        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Only "Guru SD" or "Guru KB" can delete members from a grade.',
+            ], 403);
+        }
+
+        if ($grade->teacher_id !== $request->user()->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You can only delete members from grades you teach.',
+            ], 403);
+        }
+
+        if (!$grade->members()->where('users.id', $memberId)->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'The specified member is not in this grade.',
+            ], 404);
+        }
+
+        $grade->members()->detach($memberId);
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Member removed successfully.',
         ], 200);
     }
 }

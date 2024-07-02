@@ -53,13 +53,23 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'user_roles')->withTimeStamps();
     }
 
-    public function grades() : HasMany
-    {
-        return $this->hasMany(Grade::class);
-    }
-
     public function members(): HasMany
     {
         return $this->hasMany(Member::class, 'student_id');
+    }
+
+    public function grades()
+    {
+        return $this->belongsToMany(Grade::class);
+    }
+
+    public function getGrade()
+    {
+        return $this->grades()->get();
+    }
+
+    public function albums()
+    {
+        return $this->hasMany(Album::class);
     }
 }

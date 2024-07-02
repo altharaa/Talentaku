@@ -9,22 +9,20 @@ class Album extends Model
 {
     use HasFactory;
 
-    // Jika tabel album_photos menggunakan konvensi nama lain, bisa diatur disini.
-    protected $table = 'album_photos';
+    protected $fillable = ['title', 'desc', 'date', 'grade_id'];
 
     public function photos()
     {
         return $this->hasMany(AlbumPhoto::class);
     }
 
-    public function grades()
+    public function grade()
     {
-        return $this->hasMany(Grade::class, 'album_id');
+        return $this->belongsTo(Grade::class);
     }
-    
 
-    public function getGrade()
+    public function user()
     {
-        return $this->grades()->get();
+        return $this->belongsTo(User::class);
     }
 }

@@ -22,7 +22,7 @@ class Grade extends Model
 
     public function teacher()
     {
-        return $this->belongsTo(User::class,);
+        return $this->belongsTo(User::class, 'teacher_id');
     }
 
     public function members(): BelongsToMany
@@ -30,8 +30,8 @@ class Grade extends Model
         return $this->belongsToMany(User::class, 'members', 'grade_id', 'student_id');
     }
 
-    public function album()
+    public function albums()
     {
-        return $this->hasMany(Album::class, 'album_id',);
+        return $this->hasMany(Album::class);
     }
 }

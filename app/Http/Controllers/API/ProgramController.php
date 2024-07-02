@@ -5,21 +5,38 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Program;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProgramController extends Controller
 {
     public function show() 
     {
-        $programs = Program::all();
+        $programs = DB::table('programs')
+            ->join('categories', 'programs.category_id', '=', 'categories.id')
+            ->select('programs.*', 'categories.name as category_name')
+            ->get();
+
+        $groupedPrograms = [];
+        foreach ($programs as $program) {
+            $groupedPrograms[$program->category_name][] = $program;
+        }
+
+        $result = [];
+        foreach ($groupedPrograms as $categoryName => $programs) {
+            $result[] = [
+                'category_name' => $categoryName,
+                'programs' => $programs
+            ];
+        }
 
         if ($programs) {
             return response()->json([
-                'programs' => $programs
+                'programs' => $result
             ]);
         } else {
             return response()->json([
-                'message' => 'No programs found'
+                'error' => 'No programs found'
             ], 404);
         }
     }
