@@ -172,6 +172,13 @@ class GradeController extends Controller
             ], 403);
         }
 
+        if ($grade->members->contains($user->id)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are already a member of this class.',
+            ], 400);
+        }
+
         $grade->members()->attach($request->user()->id);
         $grade->load('members');
 

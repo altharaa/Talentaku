@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Storage;
 
 class StudentReportController extends Controller
 {
-    public function store(Request $request, $gradeId, $studentId) {
+    public function store(Request $request, $gradeId) {
        $validatedData = $request->validate([
         'created' => 'required|date',
         'level' => 'required|in:Semester 1,Semester 2',
@@ -28,20 +28,27 @@ class StudentReportController extends Controller
         'inklusi' => 'required|string',
         'inklusi_point' => 'required|in:Muncul,Kurang,Belum Muncul',
         'catatan' => 'required|string',
-        'media.*' => 'required|file|max:20480|mimes:jpeg,png,mp4,mov,avi',
+        'student_id' => 'required|exists:users,id',
+        // 'media.*' => 'required|file|max:20480|mimes:jpeg,png,mp4,mov,avi',
     ]);
 
-    $grade = Grade::findOrFail($gradeId);
-    $student = User::findOrFail($studentId);
+        $grade = Grade::findOrFail($gradeId);
+        $student = User::findOrFail($request->student_id);
 
-    $studentReport = new StudentReport();
-    $studentReport->fill($validatedData);
-    $studentReport->teacher_id = $request->user()->id;
-    $studentReport->student_id = $student->id;
-    $studentReport->grade_id = $grade->id;
-    $studentReport->save();
-
+        $studentReport = new StudentReport();
+        $studentReport->fill($validatedData);
+        $studentReport->teacher_id = $request->user()->id;
+        $studentReport->student_id = $student->id;
+        $studentReport->grade_id = $grade->id;
+        $studentReport->save();
     
+        foreach ($request->file('media') as $media) {
+            $mediaPath = $media->store('student_reports');
+            $studentReportMedia = new StudentReportMedia();
+            $studentReportMedia->student_report_id = $studentReport->id;
+            $studentReportMedia->path = $mediaPath;
+            $studentReportMedia->save();
+        }
     }
     
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\API\GradeController;
 use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\API\StudentReportController;
+use App\Http\Controllers\API\TempImageController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -61,7 +62,9 @@ Route::prefix('grades')->group(function () {
     Route::delete('/{gradeId}/members/{memberId}', [GradeController::class, 'deleteMember'])->middleware('auth:sanctum');;
 
     Route::prefix('/{gradeId}/student-report')->group(function () {
-        Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');;
+        Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');
     });
 });
- 
+
+Route::post('/temp-image', [TempImageController::class, 'store'])->middleware('auth:sanctum');
+
