@@ -51,28 +51,17 @@ Route::prefix('information')->group(function () {
     Route::get('/list', [InformationController::class, 'get']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::prefix('grades')->group(function () {
-        Route::get('/', [GradeController::class, 'show']);
-        Route::get('/{id}', [GradeController::class, 'detail']);
-        Route::post('/', [GradeController::class, 'store']);
-        Route::put('/{id}', [GradeController::class, 'update']);
-        Route::patch('/{id}/toggle-active', [GradeController::class, 'toggleActive']);
-        Route::post('/join', [GradeController::class, 'join']);
-        Route::delete('/{gradeId}/members/{memberId}', [GradeController::class, 'deleteMember']);
+Route::prefix('grades')->group(function () {
+    Route::get('/', [GradeController::class, 'show'])->middleware('auth:sanctum');;
+    Route::get('/{id}', [GradeController::class, 'detail'])->middleware('auth:sanctum');;
+    Route::post('/', [GradeController::class, 'store'])->middleware('auth:sanctum');;
+    Route::put('/{id}', [GradeController::class, 'update'])->middleware('auth:sanctum');;
+    Route::patch('/{id}/toggle-active', [GradeController::class, 'toggleActive'])->middleware('auth:sanctum');;
+    Route::post('/join', [GradeController::class, 'join'])->middleware('auth:sanctum');;
+    Route::delete('/{gradeId}/members/{memberId}', [GradeController::class, 'deleteMember'])->middleware('auth:sanctum');;
 
-        Route::prefix('/{gradeId}/student-report')->group(function () {
-            Route::post('/{studentId}', [StudentReportController::class, 'store']);
-        });
+    Route::prefix('/{gradeId}/student-report')->group(function () {
+        Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');;
     });
-
-    Route::prefix('albums')->group(function () {
-        Route::get('/{id}', [AlbumController::class, 'show']);
-        Route::post('/add', [AlbumController::class, 'store']);
-        Route::delete('/{id}', [AlbumController::class, 'destroy']);
-    });
-
-    
 });
-
  
