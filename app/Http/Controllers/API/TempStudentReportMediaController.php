@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-class TempStudentReportImageController extends Controller
+class TempStudentReportMediaController extends Controller
 {
     public function store(Request $request) 
     {
@@ -39,10 +39,15 @@ class TempStudentReportImageController extends Controller
                 ], 500);
             }
 
+            $tempStudentReportMedia = new TempStudentReportMedia();
+            $tempStudentReportMedia->path_name = $fileName;
+            $tempStudentReportMedia->save();
+            
             return response()->json([
                 'status' => 'success',
                 'message' => 'File uploaded successfully',
                 'data' => [
+                    'id' => $tempStudentReportMedia->id,
                     'file_name' => $fileName,
                     'original_name' => $originalName,
                     'file_path' => Storage::url($path),
