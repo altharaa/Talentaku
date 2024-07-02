@@ -33,29 +33,28 @@ class GradeController extends Controller
 
         $formattedGrades = [];
         foreach ($grades as $grade) {
-            if (is_object($grade)) {
-                $teacherName = optional($grade->teacher)->name;
-                $members = $grade->members->map(function($member) {
-                    return [
-                        'name' => $member->name,
-                        'photo' => $member->photo,
-                    ];
-                })->toArray();
-
-                $formattedGrade = [
-                    'name' => $grade->name,
-                    'desc' => $grade->desc,
-                    'teacher' => $teacherName,
-                    'members' => $members,
+            $teacherName = $grade['teacher']['name'] ?? null;
+            $members = array_map(function($member) {
+                return [
+                    'name' => $member['name'] ?? null,
+                    'photo' => $member['photo'] ?? null,
                 ];
+            }, $grade['members'] ?? []);    
 
-                $formattedGrades[] = $formattedGrade;
-            }
+            $formattedGrade = [
+                'name' => $grade['name'] ?? null,
+                'desc' => $grade['desc'] ?? null,
+                'teacher' => $teacherName,
+                'members' => $members,
+            ];
+
+            $formattedGrades[] = $formattedGrade;
         }
 
         return response()->json([
             'grades' => $formattedGrades
         ]);
+
     }
 
     public function store(Request $request)
