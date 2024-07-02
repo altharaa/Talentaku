@@ -7,6 +7,7 @@ use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\API\StudentReportController;
 use App\Http\Controllers\API\TempImageController;
+use App\Http\Controllers\API\TempStudentReportImageController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -66,5 +67,5 @@ Route::prefix('grades')->group(function () {
     });
 });
 
-Route::post('/temp-image', [TempImageController::class, 'store'])->middleware('auth:sanctum');
+Route::post('/temp-image', [TempStudentReportImageController::class, 'store'])->middleware('auth:sanctum');
 
