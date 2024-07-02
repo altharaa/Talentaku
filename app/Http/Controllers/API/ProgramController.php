@@ -12,32 +12,17 @@ class ProgramController extends Controller
 {
     public function show() 
     {
-        $programs = DB::table('programs')
-            ->join('categories', 'programs.category_id', '=', 'categories.id')
-            ->select('programs.*', 'categories.name as category_name')
-            ->get();
+        $programs = Program::all();
 
-        $groupedPrograms = [];
-        foreach ($programs as $program) {
-            $groupedPrograms[$program->category_name][] = $program;
-        }
-
-        $result = [];
-        foreach ($groupedPrograms as $categoryName => $programs) {
-            $result[] = [
-                'category_name' => $categoryName,
-                'programs' => $programs
-            ];
-        }
-
-        if ($programs) {
+        if($programs) {
             return response()->json([
-                'programs' => $result
+                'message' => 'Programs retrieved successfully',
+                'programs' => $programs
             ]);
         } else {
             return response()->json([
-                'error' => 'No programs found'
-            ], 404);
+                'message' => 'Failed to retrieve programs'
+            ], 500);
         }
     }
 
