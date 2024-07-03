@@ -244,7 +244,7 @@ class StudentReportController extends Controller
             $studentReport->teacher_id = $request->user()->id;
             $studentReport->student_id = $student->id;
             $studentReport->grade_id = $grade->id;
-            
+
             if (!$grade->members()->where('users.id', $student->id)->exists()) {
                 return response()->json([
                     'status' => 'error',
@@ -311,5 +311,67 @@ class StudentReportController extends Controller
             ], 500);
         }
     }
-    
+
+    public function destroy(Request $request, $gradeId, $studentReportId)
+    {
+        $user = $request->user();
+        $grade = Grade::findOrFail($gradeId);
+
+        if (!$grade) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Grade not found.',
+            ], 404);
+        }
+
+        if ($user->id !== $grade->teacher_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to perform this action for the specified grade.',
+            ], 403);
+        }
+
+        $studentReport = StudentReport::where('id', $studentReportId)->where('grade_id', $gradeId)->first();
+
+        if (!$studentReport) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Student report not found in the specified grade.',
+            ], 404);
+        }
+
+        $roles = $user->roles()->pluck('name')->toArray();
+        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Only (Guru SD or Guru KB) can delete student reports.',
+            ], 403);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $media = StudentReportMedia::where('student_report_id', $studentReport->id)->get();
+            foreach ($media as $item) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $item->file_path));
+                $item->delete();
+            }
+
+            $studentReport->delete();
+
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Student report and associated media deleted successfully',
+            ], 200);
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete student report: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
