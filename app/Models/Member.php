@@ -9,6 +9,8 @@ class Member extends Model
 {
     use HasFactory;
 
-    
+    public function grade() {
+        return $this->belongsTo(Grade::class);
+    }
 
 }

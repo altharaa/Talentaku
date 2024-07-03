@@ -16,7 +16,7 @@ class GradeController extends Controller
         $roles = $user->roles->pluck('name')->toArray(); 
 
         if (in_array('Murid SD', $roles) || in_array('Murid KB', $roles)) {
-            $grades = $user->members()->with(['grade', 'grade.teacher', 'grade.members'])->get()->pluck('grade')->toArray();
+            $grades = $user->members()->with(['grade', 'grade.teacher', 'grade.members'])->get()->pluck('grade')->unique()->values();     
         } elseif (in_array('Guru SD', $roles) || in_array('Guru KB', $roles)) {
             $grades = Grade::where('teacher_id', $user->id)->with('teacher', 'members')->get();
         } else {
@@ -33,17 +33,20 @@ class GradeController extends Controller
 
         $formattedGrades = [];
         foreach ($grades as $grade) {
-            $teacherName = $grade->teacher ? $grade->teacher->name : null;
+            $teacherName = optional($grade->teacher)->name;
             $members = $grade->members->map(function($member) {
                 return [
+                    'id' => $member->id,
                     'name' => $member->name,
                     'photo' => $member->photo,
                 ];
             })->toArray();
 
             $formattedGrade = [
+                'id' => $grade->id,
                 'name' => $grade->name,
                 'desc' => $grade->desc,
+                'isactive' => $grade->isactive ? 'active' : 'inactive',
                 'teacher' => $teacherName,
                 'members' => $members,
             ];
@@ -54,6 +57,7 @@ class GradeController extends Controller
         return response()->json([
             'grades' => $formattedGrades
         ]);
+
     }
 
     public function store(Request $request)
@@ -171,6 +175,13 @@ class GradeController extends Controller
             ], 403);
         }
 
+        if ($grade->members->contains($user->id)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are already a member of this class.',
+            ], 400);
+        }
+
         $grade->members()->attach($request->user()->id);
         $grade->load('members');
 
@@ -217,6 +228,7 @@ class GradeController extends Controller
     }
 
     public function detail(Request $request, $id) {
+        $user = $request->user();
         $grade = Grade::with(['teacher', 'members'])->find($id);
 
         if (!$grade) {
@@ -224,6 +236,16 @@ class GradeController extends Controller
                 'status' => 'error',
                 'message' => 'Grade not found.',
             ], 404);
+        }
+
+        $isTeacher = $grade->teacher_id === $user->id;
+        $isMember = $grade->members->contains('id', $user->id);
+    
+        if (!$isTeacher && !$isMember) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You do not have permission to view this grade.',
+            ], 403);
         }
 
         $gradeDetails = [
