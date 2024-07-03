@@ -15,23 +15,75 @@ use Illuminate\Support\Str;
 
 class StudentReportController extends Controller
 {
+    public function index(Request $request, $gradeId) {
+        $user = $request->user();
+        $grade = Grade::find($gradeId);
+
+        if (!$grade) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Grade not found.',
+            ], 404);
+        }
+
+        if ($user->id !== $grade->teacher_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to perform this action for the specified grade.',
+            ], 403);
+        }
+
+        $studentReports = StudentReport::where('grade_id', $gradeId)->with('media')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $studentReports
+        ]);
+    }
     public function store(Request $request, $gradeId) {
+        
+        $user = $request->user();
+        $grade = Grade::find($gradeId);
+
+        if (!$grade) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Grade not found.',
+            ], 404);
+        }
+
+        if ($user->id !== $grade->teacher_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to perform this action for the specified grade.',
+            ], 403);
+        }
+
        $validatedData = $request->validate([
-        'created' => 'required|date',
-        'level' => 'required|in:Semester 1,Semester 2',
-        'kegiatan_awal' => 'required|string',
-        'awal_point' => 'required|in:Muncul,Kurang,Belum Muncul',
-        'kegiatan_inti' => 'required|string',
-        'inti_point' => 'required|in:Muncul,Kurang,Belum Muncul',
-        'snack' => 'required|string',
-        'snack_point' => 'required|in:Muncul,Kurang,Belum Muncul',
-        'inklusi' => 'required|string',
-        'inklusi_point' => 'required|in:Muncul,Kurang,Belum Muncul',
-        'catatan' => 'required|string',
-        'student_id' => 'required|exists:users,id',
-        'media' => 'nullable|array',
-        'media.*' => 'file|mimes:jpeg,png,jpg,gif,svg,mp4,mov,avi|max:20480',
-    ]);
+            'created' => 'required|date',
+            'level' => 'required|in:Semester 1,Semester 2',
+            'kegiatan_awal' => 'required|string',
+            'awal_point' => 'required|in:Muncul,Kurang,Belum Muncul',
+            'kegiatan_inti' => 'required|string',
+            'inti_point' => 'required|in:Muncul,Kurang,Belum Muncul',
+            'snack' => 'required|string',
+            'snack_point' => 'required|in:Muncul,Kurang,Belum Muncul',
+            'inklusi' => 'required|string',
+            'inklusi_point' => 'required|in:Muncul,Kurang,Belum Muncul',
+            'catatan' => 'required|string',
+            'student_id' => 'required|exists:users,id',
+            'media' => 'nullable|array',
+            'media.*' => 'file|mimes:jpeg,png,jpg,gif,svg,mp4,mov,avi|max:20480',
+        ]);
+
+        $roles = $user->roles()->pluck('name')->toArray();
+
+        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Only (Guru SD or Guru KB) can create grades.',
+            ], 403);
+        }
 
         $grade = Grade::findOrFail($gradeId);
         $student = User::findOrFail($request->student_id);
@@ -43,7 +95,13 @@ class StudentReportController extends Controller
             $studentReport->fill($validatedData);
             $studentReport->teacher_id = $request->user()->id;
             $studentReport->student_id = $student->id;
-            $studentReport->grade_id = $grade->id;
+            $member = $studentReport->grade_id = $grade->id;
+            if (!$grade->members()->where('users.id', $member)->exists()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'The specified member is not in this grade.',
+                ], 404);
+            }
             $studentReport->save();
 
             $mediaData = [];
@@ -94,6 +152,38 @@ class StudentReportController extends Controller
             ], 500);
         }
         
+    }
+    public function show(Request $request, $gradeId, $studentReportId) {
+        $user = $request->user();
+        $grade = Grade::find($gradeId);
+
+        if (!$grade) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Grade not found.',
+            ], 404);
+        }
+
+        if ($user->id !== $grade->teacher_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to perform this action for the specified grade.',
+            ], 403);
+        }
+
+        $studentReport = StudentReport::with('media')->find($studentReportId);
+
+        if (!$studentReport) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Student report not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $studentReport
+        ]);
     }
     
 }

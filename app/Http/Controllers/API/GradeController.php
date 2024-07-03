@@ -43,6 +43,7 @@ class GradeController extends Controller
             })->toArray();
 
             $formattedGrade = [
+                'id' => $grade->id,
                 'name' => $grade->name,
                 'desc' => $grade->desc,
                 'isactive' => $grade->isactive ? 'active' : 'inactive',
