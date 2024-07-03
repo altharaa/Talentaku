@@ -40,7 +40,7 @@ class TempStudentReportMediaController extends Controller
             }
 
             $tempStudentReportMedia = new TempStudentReportMedia();
-            $tempStudentReportMedia->path_name = $fileName;
+            $tempStudentReportMedia->path_name = Storage::url($path);
             $tempStudentReportMedia->save();
             
             return response()->json([
@@ -50,7 +50,7 @@ class TempStudentReportMediaController extends Controller
                     'id' => $tempStudentReportMedia->id,
                     'file_name' => $fileName,
                     'original_name' => $originalName,
-                    'file_path' => Storage::url($path),
+                    'file_path' => $tempStudentReportMedia->path_name,
                     'file_size' => $file->getSize(),
                     'file_type' => $file->getMimeType(),
                 ]
@@ -61,5 +61,30 @@ class TempStudentReportMediaController extends Controller
             'status' => 'error',
             'message' => 'No file was uploaded',
         ], 400);
+    }
+
+    public function destroy($id)
+    {
+        $tempStudentReportMedia = TempStudentReportMedia::find($id);
+
+        if (!$tempStudentReportMedia) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'File not found',
+            ], 404);
+        }
+
+        $path = 'temp/student_reports/' . $tempStudentReportMedia->path_name;
+
+        if (Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
+
+        $tempStudentReportMedia->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'File deleted successfully',
+        ], 200);
     }
 }

@@ -29,7 +29,6 @@ class StudentReportController extends Controller
         'inklusi_point' => 'required|in:Muncul,Kurang,Belum Muncul',
         'catatan' => 'required|string',
         'student_id' => 'required|exists:users,id',
-        // 'media.*' => 'required|file|max:20480|mimes:jpeg,png,mp4,mov,avi',
     ]);
 
         $grade = Grade::findOrFail($gradeId);
@@ -42,13 +41,7 @@ class StudentReportController extends Controller
         $studentReport->grade_id = $grade->id;
         $studentReport->save();
     
-        foreach ($request->file('media') as $media) {
-            $mediaPath = $media->store('student_reports');
-            $studentReportMedia = new StudentReportMedia();
-            $studentReportMedia->student_report_id = $studentReport->id;
-            $studentReportMedia->path = $mediaPath;
-            $studentReportMedia->save();
-        }
+        
     }
     
 }

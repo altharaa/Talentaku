@@ -66,5 +66,8 @@ Route::prefix('grades')->group(function () {
     });
 });
 
-Route::post('/temp-image', [TempStudentReportMediaController::class, 'store'])->middleware('auth:sanctum');
+Route::prefix('/temp-student-report-media')->group(function () {
+    Route::post('/', [TempStudentReportMediaController::class, 'store'])->middleware('auth:sanctum');
+    Route::delete('/{id}', [TempStudentReportMediaController::class, 'destroy'])->middleware('auth:sanctum');
+});
 

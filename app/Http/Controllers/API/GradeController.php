@@ -16,7 +16,7 @@ class GradeController extends Controller
         $roles = $user->roles->pluck('name')->toArray(); 
 
         if (in_array('Murid SD', $roles) || in_array('Murid KB', $roles)) {
-            $grades = $user->members()->with(['grade', 'grade.teacher', 'grade.members'])->get()->pluck('grade')->toArray();
+            $grades = $user->members()->with(['grade', 'grade.teacher', 'grade.members'])->get()->pluck('grade')->unique()->values();     
         } elseif (in_array('Guru SD', $roles) || in_array('Guru KB', $roles)) {
             $grades = Grade::where('teacher_id', $user->id)->with('teacher', 'members')->get();
         } else {
@@ -33,17 +33,19 @@ class GradeController extends Controller
 
         $formattedGrades = [];
         foreach ($grades as $grade) {
-            $teacherName = $grade['teacher']['name'] ?? null;
-            $members = array_map(function($member) {
+            $teacherName = optional($grade->teacher)->name;
+            $members = $grade->members->map(function($member) {
                 return [
-                    'name' => $member['name'] ?? null,
-                    'photo' => $member['photo'] ?? null,
+                    'id' => $member->id,
+                    'name' => $member->name,
+                    'photo' => $member->photo,
                 ];
-            }, $grade['members'] ?? []);    
+            })->toArray();
 
             $formattedGrade = [
-                'name' => $grade['name'] ?? null,
-                'desc' => $grade['desc'] ?? null,
+                'name' => $grade->name,
+                'desc' => $grade->desc,
+                'isactive' => $grade->isactive ? 'active' : 'inactive',
                 'teacher' => $teacherName,
                 'members' => $members,
             ];
