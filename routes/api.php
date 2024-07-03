@@ -65,6 +65,7 @@ Route::prefix('grades')->group(function () {
         Route::get('/', [StudentReportController::class, 'index'])->middleware('auth:sanctum');
         Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');
         Route::get('/{reportId}', [StudentReportController::class, 'show'])->middleware('auth:sanctum');
+        Route::post('/{reportId}', [StudentReportController::class, 'update'])->middleware('auth:sanctum');
     });
 });
 
