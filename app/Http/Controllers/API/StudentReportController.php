@@ -65,6 +65,7 @@ class StudentReportController extends Controller
             'data' => $studentReports
         ]);
     }
+
     public function store(Request $request, $gradeId) {
         $user = $request->user();
         $grade = Grade::find($gradeId);
@@ -176,6 +177,7 @@ class StudentReportController extends Controller
         }
         
     }
+    
     public function show(Request $request, $gradeId, $studentReportId) {
         $user = $request->user();
         $grade = Grade::find($gradeId);

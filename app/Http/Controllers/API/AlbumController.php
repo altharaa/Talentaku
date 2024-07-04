@@ -118,7 +118,7 @@ class AlbumController extends Controller
             $album->fill($validatedData);
             $album->grade_id = $gradeId;
             $album->teacher_id = $user->id;
-            $album->date = today();
+            $album->date = now()->format('l, d-F-Y');
             $album->save();
 
             $albumId = $album->id; 
