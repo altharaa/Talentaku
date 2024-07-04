@@ -17,20 +17,22 @@ class AlbumController extends Controller
     public function index(Request $request, $gradeId)
     {
         $user = $request->user();
-        $grade = Grade::findOrFail($gradeId);
+        $roles = $user->roles->pluck('name')->toArray(); 
+        $isStudent = in_array('Murid SD', $roles) || in_array('Murid KB', $roles);
+        $isTeacher = in_array('Guru SD', $roles) || in_array('Guru KB', $roles);
 
+        if($isStudent && $isTeacher) {
+            return response()->json([
+                'message' => 'User not authenticated'
+            ], 404);
+        }
+
+        $grade = Grade::findOrFail($gradeId);
         if (!$grade) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Grade not found.',
             ], 404);
-        }
-
-        if ($user->id !== $grade->teacher_id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not authorized for the specified grade.',
-            ], 403);
         }
 
         $album = Album::where('grade_id', $gradeId)->with('media')->get();
