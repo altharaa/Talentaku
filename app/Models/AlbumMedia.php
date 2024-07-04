@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class AlbumPhoto extends Model
+class AlbumMedia extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['album_id', 'photo'];
+    protected $fillable = ['album_id', 'media'];
 
     public function album()
     {

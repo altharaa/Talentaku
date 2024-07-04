@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Grade;
 use App\Models\StudentReport;
 use App\Models\StudentReportMedia;
-use App\Models\TempStudentReportMedia;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +28,7 @@ class StudentReportController extends Controller
         if ($user->id !== $grade->teacher_id) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'You are not authorized to perform this action for the specified grade.',
+                'message' => 'You are not for the specified grade.',
             ], 403);
         }
 
@@ -41,7 +40,6 @@ class StudentReportController extends Controller
         ]);
     }
     public function store(Request $request, $gradeId) {
-        
         $user = $request->user();
         $grade = Grade::find($gradeId);
 
@@ -50,6 +48,14 @@ class StudentReportController extends Controller
                 'status' => 'error',
                 'message' => 'Grade not found.',
             ], 404);
+        }
+
+        $roles = $user->roles()->pluck('name')->toArray();
+        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Only (Guru SD or Guru KB) can create grades.',
+            ], 403);
         }
 
         if ($user->id !== $grade->teacher_id) {
@@ -76,15 +82,6 @@ class StudentReportController extends Controller
             'media.*' => 'file|mimes:jpeg,png,jpg,gif,svg,mp4,mov,avi|max:20480',
         ]);
 
-        $roles = $user->roles()->pluck('name')->toArray();
-
-        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Only (Guru SD or Guru KB) can create grades.',
-            ], 403);
-        }
-
         $grade = Grade::findOrFail($gradeId);
         $student = User::findOrFail($request->student_id);
 
@@ -94,8 +91,8 @@ class StudentReportController extends Controller
             $studentReport = new StudentReport();
             $studentReport->fill($validatedData);
             $studentReport->teacher_id = $request->user()->id;
-            $studentReport->student_id = $student->id;
-            $member = $studentReport->grade_id = $grade->id;
+            $member =  $studentReport->student_id = $student->id;
+            $studentReport->grade_id = $grade->id;
             if (!$grade->members()->where('users.id', $member)->exists()) {
                 return response()->json([
                     'status' => 'error',
@@ -112,7 +109,7 @@ class StudentReportController extends Controller
                     $extension = $mediaFile->getClientOriginalExtension();
                     $fileName = Str::uuid() . '.' . $extension;
 
-                    $path = $mediaFile->storeAs('student_reports', $fileName, 'public');
+                    $path = $mediaFile->storeAs('student-reports', $fileName, 'public');
 
                     if (!$path) {
                         throw new \Exception('Failed to upload file');

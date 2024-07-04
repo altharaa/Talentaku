@@ -11,9 +11,9 @@ class Album extends Model
 
     protected $fillable = ['title', 'desc', 'date', 'grade_id'];
 
-    public function photos()
+    public function media()
     {
-        return $this->hasMany(AlbumPhoto::class);
+        return $this->hasMany(AlbumMedia::class);
     }
 
     public function grade()
