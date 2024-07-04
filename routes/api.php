@@ -62,7 +62,8 @@ Route::prefix('grades')->group(function () {
     Route::delete('/{gradeId}/members/{memberId}', [GradeController::class, 'deleteMember'])->middleware('auth:sanctum');;
 
     Route::prefix('/{gradeId}/student-report')->group(function () {
-        Route::get('/', [StudentReportController::class, 'index'])->middleware('auth:sanctum');
+        Route::get('/', [StudentReportController::class, 'displayStudent'])->middleware('auth:sanctum');
+        Route::get('/{studentId}', [StudentReportController::class, 'displayTeacher'])->middleware('auth:sanctum');
         Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');
         Route::get('/{studentReportId}', [StudentReportController::class, 'show'])->middleware('auth:sanctum');
         Route::post('/{studentReportId}', [StudentReportController::class, 'update'])->middleware('auth:sanctum');
@@ -73,6 +74,7 @@ Route::prefix('grades')->group(function () {
         Route::get('/', [AlbumController::class, 'index'])->middleware('auth:sanctum');
         Route::post('/', [AlbumController::class, 'store'])->middleware('auth:sanctum');
         Route::get('/{albumId}', [AlbumController::class, 'show'])->middleware('auth:sanctum');
+        Route::post('/{albumId}', [AlbumController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{albumId}', [AlbumController::class, 'destroy'])->middleware('auth:sanctum');
     });
 });
