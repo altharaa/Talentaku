@@ -68,5 +68,13 @@ Route::prefix('grades')->group(function () {
         Route::post('/{studentReportId}', [StudentReportController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{studentReportId}', [StudentReportController::class, 'destroy'])->middleware('auth:sanctum');
     });
+
+    Route::prefix('/{gradeId}/albums')->group(function () {
+        Route::get('/', [AlbumController::class, 'index'])->middleware('auth:sanctum');
+        Route::post('/', [AlbumController::class, 'store'])->middleware('auth:sanctum');
+        Route::get('/{studentReportId}', [AlbumController::class, 'show'])->middleware('auth:sanctum');
+        Route::post('/{studentReportId}', [AlbumController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{studentReportId}', [AlbumController::class, 'destroy'])->middleware('auth:sanctum');
+    });
 });
 

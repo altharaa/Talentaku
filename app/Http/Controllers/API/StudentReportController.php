@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Grade;
 use App\Models\StudentReport;
 use App\Models\StudentReportMedia;
-use App\Models\TempStudentReportMedia;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +28,7 @@ class StudentReportController extends Controller
         if ($user->id !== $grade->teacher_id) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'You are not authorized to perform this action for the specified grade.',
+                'message' => 'You are not for the specified grade.',
             ], 403);
         }
 
@@ -41,7 +40,6 @@ class StudentReportController extends Controller
         ]);
     }
     public function store(Request $request, $gradeId) {
-        
         $user = $request->user();
         $grade = Grade::find($gradeId);
 
@@ -111,7 +109,7 @@ class StudentReportController extends Controller
                     $extension = $mediaFile->getClientOriginalExtension();
                     $fileName = Str::uuid() . '.' . $extension;
 
-                    $path = $mediaFile->storeAs('student_reports', $fileName, 'public');
+                    $path = $mediaFile->storeAs('student-reports', $fileName, 'public');
 
                     if (!$path) {
                         throw new \Exception('Failed to upload file');
