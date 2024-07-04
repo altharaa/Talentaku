@@ -40,9 +40,39 @@ class AlbumController extends Controller
             'data' => $album
         ]);
     }
-    public function show() 
+    public function show(Request $request, $gradeId, $albumId) 
     {
-        
+        $user = $request->user();
+        $grade = Grade::find($gradeId);
+
+        if (!$grade) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Grade not found.',
+            ], 404);
+        }
+
+        if ($user->id !== $grade->teacher_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to perform this action for the specified grade.',
+            ], 403);
+        }
+
+        $album = Album::with('media')->find($albumId);
+
+        if (!$album) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Album not found.',
+            ], 404);
+        }
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $album
+        ]);
+
     }
     public function store(Request $request, $gradeId)
     {
@@ -101,7 +131,7 @@ class AlbumController extends Controller
                     $path = $file->storeAs('album-media', $fileName, 'public');
 
                     if (!$path) {
-                        throw new \Exception('Failed to upload file');
+                        throw new Exception('Failed to upload file');
                     }
 
                     $albumMedia = new AlbumMedia();
@@ -139,4 +169,67 @@ class AlbumController extends Controller
             ], 500);
         }
     } 
+
+    public function destroy(Request $request, $gradeId, $albumId) 
+    {
+        $user = $request->user();
+        $grade = Grade::findOrFail($gradeId);
+
+        if (!$grade) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Grade not found.',
+            ], 404);
+        }
+
+        if ($user->id !== $grade->teacher_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to perform this action for the specified grade.',
+            ], 403);
+        }
+
+        $album = Album::where('id', $albumId)->where('grade_id', $gradeId)->first();
+
+        if (!$album) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Album not found in the specified grade.',
+            ], 404);
+        }
+
+        $roles = $user->roles()->pluck('name')->toArray();
+        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Only (Guru SD or Guru KB) can delete student reports.',
+            ], 403);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $media = $album->media;
+            $media = AlbumMedia::where('album_id', $album->id)->get();
+            foreach ($media as $item) {
+                Storage::disk('public')->delete(str_replace('/storage/', '', $item->file_path));
+                $item->delete();
+            }
+
+            $album->delete();
+            DB::commit();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Album and associated media deleted successfully',
+            ], 200);
+
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to delete student report: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
 }
