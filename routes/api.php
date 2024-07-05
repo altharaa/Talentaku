@@ -6,8 +6,8 @@ use App\Http\Controllers\API\GradeController;
 use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\API\StudentReport\StudentController;
-use App\Http\Controllers\API\StudentReportController;
-use App\Http\Controllers\API\TeacherController;
+use App\Http\Controllers\API\StudentReport\StudentReportController;
+use App\Http\Controllers\API\StudentReport\TeacherController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -79,5 +79,10 @@ Route::prefix('grades')->group(function () {
         Route::post('/{albumId}', [AlbumController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{albumId}', [AlbumController::class, 'destroy'])->middleware('auth:sanctum');
     });
+});
+
+Route::prefix('student-report')->group(function () {
+    Route::get('/semesters', [StudentReportController::class, 'semesters'])->middleware('auth:sanctum');
+    Route::get('/points', [StudentReportController::class, 'points'])->middleware('auth:sanctum');
 });
 

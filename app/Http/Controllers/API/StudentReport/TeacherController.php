@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\API\StudentReport;
 
 use App\Http\Controllers\Controller;
 use App\Models\Grade;
@@ -76,7 +76,7 @@ class TeacherController extends Controller
 
        $validatedData = $request->validate([
             'created' => 'required|date',
-            'level' => 'required|in:Semester 1,Semester 2',
+            'semester_id' => 'required|exists:student_report_semesters,id',
             'kegiatan_awal' => 'required|string',
             'awal_point' => 'required|in:Muncul,Kurang,Belum Muncul',
             'kegiatan_inti' => 'required|string',
@@ -145,6 +145,7 @@ class TeacherController extends Controller
                 'status' => 'success',
                 'message' => 'Student report created successfully',
                 'data' => [
+                    'semester'=> $studentReport->semesterName,
                     'student_report' => $studentReport,
                     'media' => $mediaData
                 ]
