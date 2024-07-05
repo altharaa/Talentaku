@@ -5,10 +5,10 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\GradeController;
 use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
+use App\Http\Controllers\API\StudentReport\StudentController;
 use App\Http\Controllers\API\StudentReportController;
-use App\Http\Controllers\API\TempStudentReportMediaController;
+use App\Http\Controllers\API\TeacherController;
 use App\Http\Controllers\API\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -62,12 +62,14 @@ Route::prefix('grades')->group(function () {
     Route::delete('/{gradeId}/members/{memberId}', [GradeController::class, 'deleteMember'])->middleware('auth:sanctum');;
 
     Route::prefix('/{gradeId}/student-report')->group(function () {
-        Route::get('/', [StudentReportController::class, 'displayStudent'])->middleware('auth:sanctum');
-        Route::get('/{studentId}', [StudentReportController::class, 'displayTeacher'])->middleware('auth:sanctum');
-        Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');
-        Route::get('/{studentReportId}', [StudentReportController::class, 'show'])->middleware('auth:sanctum');
-        Route::post('/{studentReportId}', [StudentReportController::class, 'update'])->middleware('auth:sanctum');
-        Route::delete('/{studentReportId}', [StudentReportController::class, 'destroy'])->middleware('auth:sanctum');
+        Route::get('/', [StudentController::class, 'display'])->middleware('auth:sanctum');
+        Route::get('/students/{studentId}', [TeacherController::class, 'display'])->middleware('auth:sanctum');
+        Route::get('/{studentReportId}', [StudentController::class, 'show'])->middleware('auth:sanctum');
+        Route::post('/', [TeacherController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{studentReportId}', [TeacherController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{studentReportId}', [TeacherController::class, 'destroy'])->middleware('auth:sanctum');
+        Route::get('/students/{studentId}/{semester}', [TeacherController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
+        Route::get('/students/{studentId}/{semester}', [StudentController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
     });
 
     Route::prefix('/{gradeId}/albums')->group(function () {

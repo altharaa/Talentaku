@@ -12,27 +12,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class StudentReportController extends Controller
-{
-    public function displayStudent(Request $request, $gradeId) {
-        $user = $request->user();
-        $grade = Grade::find($gradeId);
-
-        if (!$grade) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Grade not found.',
-            ], 404);
-        }
-         $studentReports = StudentReport::where('grade_id', $gradeId)->where('student_id', $user->id)->with('media')->get();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $studentReports
-        ]);
-    }
-
-    public function displayTeacher(Request $request, $gradeId, $studentId) {
+class TeacherController extends Controller
+{   
+    public function display(Request $request, $gradeId, $studentId) {
         $user = $request->user();
         $grade = Grade::find($gradeId);
         $roles = $user->roles()->pluck('name')->toArray();
@@ -176,40 +158,7 @@ class StudentReportController extends Controller
             ], 500);
         }
         
-    }
-    
-    public function show(Request $request, $gradeId, $studentReportId) {
-        $user = $request->user();
-        $grade = Grade::find($gradeId);
-
-        if (!$grade) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Grade not found.',
-            ], 404);
-        }
-
-        if ($user->id !== $grade->teacher_id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not authorized to perform this action for the specified grade.',
-            ], 403);
-        }
-
-        $studentReport = StudentReport::with('media')->find($studentReportId);
-
-        if (!$studentReport) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Student report not found.',
-            ], 404);
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $studentReport
-        ]);
-    }
+    }   
 
     public function update(Request $request, $gradeId, $studentReportId)
     {
@@ -222,12 +171,14 @@ class StudentReportController extends Controller
                 'message' => 'Grade not found.',
             ], 404);
         }
+
         if ($user->id !== $grade->teacher_id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to perform this action for the specified grade.',
             ], 403);
         }
+
         $studentReport = StudentReport::find($studentReportId);
         if (!$studentReport) {
             return response()->json([
@@ -235,6 +186,7 @@ class StudentReportController extends Controller
                 'message' => 'Student report not found.',
             ], 404);
         }
+
         $validatedData = $request->validate([
             'created' => 'required|date',
             'level' => 'required|in:Semester 1,Semester 2',
@@ -398,5 +350,40 @@ class StudentReportController extends Controller
                 'message' => 'Failed to delete student report: ' . $e->getMessage(),
             ], 500);
         }
+    }
+
+    public function displayStudentReportsBySemester(Request $request, $gradeId, $studentId, $semester)
+    {
+        $user = $request->user();
+        $grade = Grade::find($gradeId);
+        $roles = $user->roles()->pluck('name')->toArray();
+
+        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Only (Guru SD or Guru KB) can perform this action.',
+            ], 403);
+        }
+
+        if ($user->id !== $grade->teacher_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to perform this action for the specified grade.',
+            ], 403);
+        }
+
+        if (!$grade) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Grade not found.',
+            ], 404);
+        }
+
+        $studentReports = StudentReport::where('teacher_id', $user->id)->where('grade_id', $gradeId)->where('student_id', $studentId)->where('level', $semester)->with('media')->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $studentReports
+        ]);
     }
 }
