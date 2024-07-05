@@ -9,7 +9,7 @@ class AlbumMedia extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['album_id', 'media'];
+    protected $fillable = ['album_id', 'file_path'];
 
     public function album()
     {
