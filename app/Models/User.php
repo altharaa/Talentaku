@@ -55,12 +55,12 @@ class User extends Authenticatable
 
     public function members(): HasMany
     {
-        return $this->hasMany(Member::class, 'student_id');
+        return $this->hasMany(GradeMember::class, 'student_id');
     }
 
     public function grades()
     {
-        return $this->belongsToMany(Grade::class);
+        return $this->belongsToMany(Grade::class, 'grade_members', 'student_id', 'grade_id');
     }
 
     public function getGrade()

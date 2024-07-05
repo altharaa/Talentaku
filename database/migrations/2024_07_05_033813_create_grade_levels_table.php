@@ -11,13 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('submission_photos', function (Blueprint $table) {
+        Schema::create('grade_levels', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('submission_id');
-            $table->string('photo_path');
+            $table->string('name');
             $table->timestamps();
-
-            $table->foreign('submission_id')->references('id')->on('submissions')->onDelete('cascade');
         });
     }
 
@@ -26,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('submission_photos');
+        Schema::dropIfExists('grade_levels');
     }
 };

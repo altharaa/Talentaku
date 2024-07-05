@@ -20,13 +20,5 @@ class StudentReportSeeder extends Seeder
             ['id' => 1, 'name' => 'Semester 1', 'created_at' => now(), 'updated_at' => now()],
             ['id' => 2, 'name' => 'Semester 2', 'created_at' => now(), 'updated_at' => now()],
         ]);
-
-        DB::table('student_report_points')->delete();
-
-        DB::table('student_report_points')->insert([
-            ['id' => 1, 'name' => 'Muncul', 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 2, 'name' => 'Kurang', 'created_at' => now(), 'updated_at' => now()],
-            ['id' => 3, 'name' => 'Belum Muncul', 'created_at' => now(), 'updated_at' => now()],
-        ]);
     }
 }

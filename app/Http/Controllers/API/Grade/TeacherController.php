@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\API\Grade;
 
 use App\Http\Controllers\Controller;
 use App\Models\Grade;
@@ -8,56 +8,49 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
-class GradeController extends Controller
+class TeacherController extends Controller
 {
-    public function show(Request $request)
+    public function index(Request $request)
     {
         $user = $request->user();
-        $roles = $user->roles->pluck('name')->toArray(); 
-
-        if (in_array('Murid SD', $roles) || in_array('Murid KB', $roles)) {
-            $grades = $user->members()->with(['grade', 'grade.teacher', 'grade.members'])->get()->pluck('grade')->unique()->values();     
-        } elseif (in_array('Guru SD', $roles) || in_array('Guru KB', $roles)) {
+        $roles = $user->roles->pluck('name')->toArray();
+        if (in_array('Guru SD', $roles) || in_array('Guru KB', $roles)) {
             $grades = Grade::where('teacher_id', $user->id)->with('teacher', 'members')->get();
         } else {
             return response()->json([
-                'message' => 'User not authenticated'
-            ], 404);
+                'message' => 'You are not allowed to perform this action'
+            ], 403);  // Changed from 404 to 403 for "Forbidden"
         }
 
-        if (empty($grades)) {
+        if ($grades->isEmpty()) {
             return response()->json([
                 'message' => 'User has no associated grades'
             ], 404);
         }
 
-        $formattedGrades = [];
-        foreach ($grades as $grade) {
-            $teacherName = optional($grade->teacher)->name;
-            $members = $grade->members->map(function($member) {
-                return [
-                    'id' => $member->id,
-                    'name' => $member->name,
-                    'photo' => $member->photo,
-                ];
-            })->toArray();
-
-            $formattedGrade = [
+        $formattedGrades = $grades->map(function ($grade) {
+            return [
                 'id' => $grade->id,
                 'name' => $grade->name,
                 'desc' => $grade->desc,
-                'isactive' => $grade->isactive ? 'active' : 'inactive',
-                'teacher' => $teacherName,
-                'members' => $members,
+                'isactive' => $grade->isactive,
+                'teacher' => $grade->teacher ? [
+                    'id' => $grade->teacher->id,
+                    'name' => $grade->teacher->name,
+                ] : null,
+                'members' => $grade->members->map(function ($member) {
+                    return [
+                        'id' => $member->id,
+                        'name' => $member->name,
+                        'photo' => $member->photo,
+                    ];
+                }),
             ];
-
-            $formattedGrades[] = $formattedGrade;
-        }
+        });
 
         return response()->json([
             'grades' => $formattedGrades
         ]);
-
     }
 
     public function store(Request $request)
@@ -65,7 +58,7 @@ class GradeController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'desc' => 'required|string',
-            'level' => 'required|in:SD,KB',
+            'level_id' => 'required|exists:grade_levels,id',
         ]);
 
         if ($validator->fails()) {
@@ -87,10 +80,12 @@ class GradeController extends Controller
         $grade = new Grade();
         $grade->name = $request->name;
         $grade->desc = $request->desc;
-        $grade->level = $request->level;
+        $grade->level_id = $request->level_id;
         $grade->unique_code = Str::random(5);
         $grade->teacher_id = $request->user()->id; 
         $grade->save();
+
+        $grade->load('level');
 
         return response()->json([
             'status' => 'success',
@@ -104,7 +99,7 @@ class GradeController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'desc' => 'required|string',
-            'level' => 'required|in:SD,KB',
+            'level_id' => 'required|exists:grade_levels,id',
         ]);
 
         if ($validator->fails()) {
@@ -123,7 +118,8 @@ class GradeController extends Controller
             ], 403);
         }
 
-        $roles = $request->user()->roles()->pluck('name')->toArray();
+        $user = $request->user();
+        $roles = $user->roles()->pluck('name')->toArray();
         if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
             return response()->json([
                 'status' => 'error',
@@ -131,10 +127,15 @@ class GradeController extends Controller
             ], 403);
         }
 
-        $grade->name = $request->name;
-        $grade->desc = $request->desc;
-        $grade->level = $request->level;
-        $grade->save();
+        if ($grade->teacher_id !== $user->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You can only update grades you are teaching.',
+            ], 403);
+        }
+
+        $grade->update($request->only(['name', 'desc', 'level_id']));
+        $grade->load('level');
 
         return response()->json([
             'status' => 'success',
@@ -143,73 +144,12 @@ class GradeController extends Controller
         ], 200);
     }
 
-    public function join(Request $request)
-    {
-        $request->validate([
-            'unique_code' => 'required|string|size:5',
-        ]);
-
-        $user = $request->user();
-        $roles = $user->roles()->pluck('name')->toArray();
-
-        if (!in_array('Murid SD', $roles) && !in_array('Murid KB', $roles)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Only students (Murid SD or Murid KB) can join a class.',
-            ], 403);
-        }
-
-        $grade = Grade::with('teacher', 'members')->where('unique_code', $request->unique_code)->first();
-
-        if (!$grade) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Invalid unique code. Class not found.',
-            ], 404);
-        }
-
-        if (!$grade->isactive) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'The class is not active. You cannot join an inactive class.',
-            ], 403);
-        }
-
-        if ($grade->members->contains($user->id)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are already a member of this class.',
-            ], 400);
-        }
-
-        $grade->members()->attach($request->user()->id);
-        $grade->load('members');
-
-        $data = [
-            'grade_id' => $grade->id,
-            'grade_name' => $grade->name,
-            'teacher_id' => $grade->teacher ? $grade->teacher->id : null,
-            'teacher_name' => $grade->teacher ? $grade->teacher->name : null,
-            'students' => $grade->members->map(function ($member) {
-                return [
-                    'student_id' => $member->id,
-                    'student_name' => $member->name,
-                ];
-            }),
-        ];
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Joined grade successfully.',
-            'data' => $data,
-        ], 200);
-    }
-
     public function toggleActive(Request $request, $id)
     {
         $grade = Grade::findOrFail($id);
 
-        $roles = $request->user()->roles()->pluck('name')->toArray();
+        $user = $request->user();
+        $roles = $user->roles()->pluck('name')->toArray();
         if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
             return response()->json([
                 'status' => 'error',
@@ -217,12 +157,21 @@ class GradeController extends Controller
             ], 403);
         }
 
+        if ($grade->teacher_id !== $user->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You can only toggle status for grades you are teaching.',
+            ], 403);
+        }
+
         $grade->isactive = !$grade->isactive;
         $grade->save();
 
+        $statusMessage = $grade->isactive ? 'activated' : 'deactivated';
+
         return response()->json([
             'status' => 'success',
-            'message' => 'Grade status updated successfully.',
+            'message' => "Grade has been successfully {$statusMessage}.",
             'data' => $grade,
         ], 200);
     }
@@ -281,7 +230,8 @@ class GradeController extends Controller
     {
         $grade = Grade::findOrFail($gradeId);
 
-        $roles = $request->user()->roles()->pluck('name')->toArray();
+        $user = $request->user();
+        $roles = $user->roles()->pluck('name')->toArray();
         if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
             return response()->json([
                 'status' => 'error',
@@ -289,14 +239,15 @@ class GradeController extends Controller
             ], 403);
         }
 
-        if ($grade->teacher_id !== $request->user()->id) {
+        if ($grade->teacher_id !== $user->id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You can only delete members from grades you teach.',
             ], 403);
         }
 
-        if (!$grade->members()->where('users.id', $memberId)->exists()) {
+        $member = $grade->members()->find($memberId);
+        if (!$member) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'The specified member is not in this grade.',

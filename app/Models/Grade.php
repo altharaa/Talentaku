@@ -17,7 +17,7 @@ class Grade extends Model
         'unique_code',
         'isactive',
         'teacher_id',
-        'level'
+        'level_id'
     ];
 
     public function teacher()
@@ -27,11 +27,16 @@ class Grade extends Model
 
     public function members(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'members', 'grade_id', 'student_id');
+        return $this->belongsToMany(User::class, 'grade_members', 'grade_id', 'student_id');
     }
 
     public function albums()
     {
         return $this->hasMany(Album::class);
+    }
+
+    public function level()
+    {
+        return $this->belongsTo(GradeLevel::class, 'level_id');
     }
 }
