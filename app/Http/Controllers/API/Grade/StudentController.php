@@ -92,7 +92,7 @@ class StudentController extends Controller
             ], 400);
         }
 
-        $grade->members()->attach($request->user()->id);
+        $grade->members()->attach($request->user()->id)->timestamps();
         $grade->load('members');
 
         $data = [
