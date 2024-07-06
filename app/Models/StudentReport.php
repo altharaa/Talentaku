@@ -10,7 +10,7 @@ class StudentReport extends Model
     use HasFactory;
 
     protected $fillable = [
-        'created', 'level', 'kegiatan_awal', 'awal_point', 
+        'created', 'semester_id', 'kegiatan_awal', 'awal_point', 
         'kegiatan_inti', 'inti_point', 'snack', 'snack_point', 
         'inklusi', 'inklusi_point', 'catatan', 'teacher_id', 
         'student_id', 'grade_id'
@@ -37,5 +37,10 @@ class StudentReport extends Model
     public function media()
     {
         return $this->hasMany(StudentReportMedia::class);
+    }
+
+    public function semester()
+    {
+        return $this->belongsTo(StudentReportSemester::class, 'semester_id');
     }
 }

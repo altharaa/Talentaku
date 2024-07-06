@@ -11,17 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('grades', function (Blueprint $table) {
+        Schema::create('grade_levels', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('desc');
-            $table->string('unique_code', 5)->unique();
-            $table->boolean('isactive')->default(true);
-            $table->unsignedBigInteger('teacher_id');
-            $table->enum('level', ['SD', 'KB']);
             $table->timestamps();
-
-            $table->foreign('teacher_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 
@@ -30,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('grades');
+        Schema::dropIfExists('grade_levels');
     }
 };

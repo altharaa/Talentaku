@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('student_reports', function (Blueprint $table) {
             $table->id();
             $table->date('created');
-            $table->enum('level', ['Semester 1', 'Semester 2']);
+            $table->unsignedBigInteger('semester_id');
             $table->text('kegiatan_awal');
             $table->enum('awal_point', ['Muncul', 'Kurang', 'Belum Muncul']);
             $table->text('kegiatan_inti');
@@ -29,6 +29,7 @@ return new class extends Migration
             $table->unsignedBigInteger('grade_id');
             $table->timestamps();
 
+            $table->foreign('semester_id')->references('id')->on('student_report_semesters')->onDelete('cascade');
             $table->foreign('teacher_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('student_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('grade_id')->references('id')->on('grades')->onDelete('cascade');

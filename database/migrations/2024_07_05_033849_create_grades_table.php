@@ -11,17 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tasks', function (Blueprint $table) {
+        Schema::create('grades', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('desc');
+            $table->string('unique_code', 5)->unique();
+            $table->boolean('isactive')->default(true);
             $table->unsignedBigInteger('teacher_id');
-            $table->unsignedBigInteger('grade_id');
-            $table->string('title');
-            $table->text('description');
-            $table->timestamp('due_date');
+            $table->unsignedBigInteger('level_id');
             $table->timestamps();
 
             $table->foreign('teacher_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('grade_id')->references('id')->on('grades')->onDelete('cascade');
+            $table->foreign('level_id')->references('id')->on('grade_levels')->onDelete('cascade');
         });
     }
 
@@ -30,6 +31,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tasks');
+        Schema::dropIfExists('grades');
     }
 };
