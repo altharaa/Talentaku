@@ -65,13 +65,13 @@ Route::prefix('grades')->group(function () {
 
     Route::prefix('/{gradeId}/student-report')->group(function () {
         Route::get('/', [StudentController::class, 'display'])->middleware('auth:sanctum');
-        Route::get('/students/{studentId}', [TeacherController::class, 'display'])->middleware('auth:sanctum');
-        Route::get('/{studentReportId}', [StudentController::class, 'show'])->middleware('auth:sanctum');
+        Route::get('/students/{studentId}', [StudentReportController::class, 'displayTeacher'])->middleware('auth:sanctum');
+        Route::get('/{studentReportId}', [StudentReportController::class, 'show'])->middleware('auth:sanctum');
         Route::post('/', [TeacherController::class, 'store'])->middleware('auth:sanctum');
         Route::post('/{studentReportId}', [TeacherController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{studentReportId}', [TeacherController::class, 'destroy'])->middleware('auth:sanctum');
-        Route::get('/students/{studentId}/{semester}', [TeacherController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
-        Route::get('/students/{studentId}/{semester}', [StudentController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
+        Route::get('/student/{studentId}/semester/{semesterId}', [StudentReportController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
+        Route::get('/semester/{semesterId}', [StudentController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
     });
 
     Route::prefix('/{gradeId}/albums')->group(function () {
@@ -84,8 +84,7 @@ Route::prefix('grades')->group(function () {
 });
 
 Route::prefix('student-report')->group(function () {
-    Route::get('/semesters', [StudentReportController::class, 'semesters'])->middleware('auth:sanctum');
-    Route::get('/points', [StudentReportController::class, 'points'])->middleware('auth:sanctum');
+    Route::get('/semesters', [StudentReportController::class, 'displaySemesters'])->middleware('auth:sanctum');
 });
 
 

@@ -14,50 +14,51 @@ use Illuminate\Support\Str;
 
 class TeacherController extends Controller
 {   
-    public function display(Request $request, $gradeId, $studentId) {
-        $user = $request->user();
-        $grade = Grade::find($gradeId);
-        $roles = $user->roles()->pluck('name')->toArray();
-
-        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Only (Guru SD or Guru KB) can perform this action.',
-            ], 403);
+    private function deleteMedia($mediaToDelete, $studentReport)
+    {
+        $deletedMedia = [];
+        if (is_array($mediaToDelete) && !empty($mediaToDelete)) {
+            foreach ($mediaToDelete as $mediaId) {
+                $media = $studentReport->media()->find($mediaId);
+                if ($media) {
+                    Storage::disk('public')->delete(str_replace('/storage/', '', $media->file_path));
+                    $media->delete();
+                    $deletedMedia[] = $mediaId;
+                }
+            }
         }
+        return $deletedMedia;
+    }
 
-        if ($user->id !== $grade->teacher_id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not authorized to perform this action for the specified grade.',
-            ], 403);
+    private function uploadNewMedia($newMedia, $studentReport)
+    {
+        $mediaData = [];
+        if (is_array($newMedia)) {
+            foreach ($newMedia as $mediaFile) {
+                $fileName = Str::uuid() . '.' . $mediaFile->getClientOriginalExtension();
+                $path = $mediaFile->storeAs('student_reports', $fileName, 'public');
+                if (!$path) {
+                    throw new \Exception('Failed to upload file');
+                }
+                $studentReportMedia = $studentReport->media()->create([
+                    'file_path' => Storage::url($path)
+                ]);
+                $mediaData[] = [
+                    'id' => $studentReportMedia->id,
+                    'file_name' => $fileName,
+                    'original_name' => $mediaFile->getClientOriginalName(),
+                    'file_path' => $studentReportMedia->file_path,
+                    'file_size' => $mediaFile->getSize(),
+                    'file_type' => $mediaFile->getMimeType(),
+                ];
+            }
         }
-
-        if (!$grade) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Grade not found.',
-            ], 404);
-        }
-
-        $studentReports = StudentReport::where('teacher_id', $user->id)->where('grade_id', $gradeId)->where('student_id', $studentId)->with('media')->get();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $studentReports
-        ]);
+        return $mediaData;
     }
 
     public function store(Request $request, $gradeId) {
         $user = $request->user();
-        $grade = Grade::find($gradeId);
-
-        if (!$grade) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Grade not found.',
-            ], 404);
-        }
+        $grade = Grade::findOrFail($gradeId);
 
         $roles = $user->roles()->pluck('name')->toArray();
         if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
@@ -70,7 +71,7 @@ class TeacherController extends Controller
         if ($user->id !== $grade->teacher_id) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'You are not authorized to perform this action for the specified grade.',
+                'message' => 'You are not authorized to create reports for this grade.',
             ], 403);
         }
 
@@ -91,61 +92,33 @@ class TeacherController extends Controller
             'media.*' => 'file|mimes:jpeg,png,jpg,gif,svg,mp4,mov,avi|max:20480',
         ]);
 
-        $grade = Grade::findOrFail($gradeId);
         $student = User::findOrFail($request->student_id);
+
+        if (!$grade->members()->where('users.id', $student->id)->exists()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'The specified student is not in this grade.',
+            ], 404);
+        }
 
         DB::beginTransaction();
 
         try {
-            $studentReport = new StudentReport();
-            $studentReport->fill($validatedData);
-            $studentReport->teacher_id = $request->user()->id;
-            $member =  $studentReport->student_id = $student->id;
+            $studentReport = new StudentReport($validatedData);
+            $studentReport->teacher_id = $user->id;
+            $studentReport->student_id = $student->id;
             $studentReport->grade_id = $grade->id;
-            if (!$grade->members()->where('users.id', $member)->exists()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'The specified member is not in this grade.',
-                ], 404);
-            }
             $studentReport->save();
 
-            $mediaData = [];
+            $mediaData = $this->uploadNewMedia($request->file('media'), $studentReport);
 
-            if($request->hasFile('media')) {
-                foreach($request->file('media') as $mediaFile) {
-                    $originalName = $mediaFile->getClientOriginalName();
-                    $extension = $mediaFile->getClientOriginalExtension();
-                    $fileName = Str::uuid() . '.' . $extension;
-
-                    $path = $mediaFile->storeAs('student-reports', $fileName, 'public');
-
-                    if (!$path) {
-                        throw new \Exception('Failed to upload file');
-                    }
-
-                    $studentReportMedia = new StudentReportMedia();
-                    $studentReportMedia->student_report_id = $studentReport->id;
-                    $studentReportMedia->file_path = Storage::url($path);
-                    $studentReportMedia->save();
-
-                    $mediaData[] = [
-                        'id' => $studentReportMedia->id,
-                        'file_name' => $fileName,
-                        'original_name' => $originalName,
-                        'file_path' => $studentReportMedia->file_path,
-                        'file_size' => $mediaFile->getSize(),
-                        'file_type' => $mediaFile->getMimeType(),
-                    ];
-                }
-            }
             DB::commit();
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Student report created successfully',
                 'data' => [
-                    'semester'=> $studentReport->semesterName,
+                    'semester_name' => optional($studentReport->semester)->name,
                     'student_report' => $studentReport,
                     'media' => $mediaData
                 ]
@@ -155,7 +128,7 @@ class TeacherController extends Controller
 
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => 'Failed to create student report: ' . $e->getMessage(),
             ], 500);
         }
         
@@ -165,13 +138,6 @@ class TeacherController extends Controller
     {
         $user = $request->user();
         $grade = Grade::findOrFail($gradeId);
-        
-        if (!$grade) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Grade not found.',
-            ], 404);
-        }
 
         if ($user->id !== $grade->teacher_id) {
             return response()->json([
@@ -179,14 +145,16 @@ class TeacherController extends Controller
                 'message' => 'You are not authorized to perform this action for the specified grade.',
             ], 403);
         }
-
-        $studentReport = StudentReport::find($studentReportId);
-        if (!$studentReport) {
+    
+        $roles = $user->roles()->pluck('name')->toArray();
+        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
             return response()->json([
                 'status' => 'error',
-                'message' => 'Student report not found.',
-            ], 404);
+                'message' => 'Only (Guru SD or Guru KB) can create grades.',
+            ], 403);
         }
+    
+        $studentReport = StudentReport::findOrFail($studentReportId);
 
         $validatedData = $request->validate([
             'created' => 'required|date',
@@ -207,71 +175,31 @@ class TeacherController extends Controller
             'delete_media.*' => 'exists:student_report_media,id'
         ]);
     
-        $roles = $user->roles()->pluck('name')->toArray();
-        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
+        $student = User::findOrFail($request->student_id);
+
+        if (!$grade->members()->where('users.id', $student->id)->exists()) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Only (Guru SD or Guru KB) can update grades.',
-            ], 403);
+                'message' => 'The specified student is not in this grade.',
+            ], 404);
         }
     
-        $student = User::findOrFail($request->student_id);
         DB::beginTransaction();
+
         try {
             $studentReport->fill($validatedData);
-            $studentReport->teacher_id = $request->user()->id;
+            $studentReport->teacher_id = $user->id;
             $studentReport->student_id = $student->id;
             $studentReport->grade_id = $grade->id;
-
-            if (!$grade->members()->where('users.id', $student->id)->exists()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'The specified member is not in this grade.',
-                ], 404);
-            }
-    
             $studentReport->save();
     
             $deletedMedia = [];
-            if ($request->has('delete_media')) {
-                foreach ($request->delete_media as $mediaId) {
-                    $media = StudentReportMedia::where('id', $mediaId)
-                                               ->where('student_report_id', $studentReport->id)
-                                               ->first();
-                    if ($media) {
-                        Storage::disk('public')->delete(str_replace('/storage/', '', $media->file_path));
-                        
-                        $media->delete();
-                        $deletedMedia[] = $mediaId;
-                    }
-                }
-            }
     
-            $mediaData = [];
-            if($request->hasFile('media')) {
-                foreach($request->file('media') as $mediaFile) {
-                    $originalName = $mediaFile->getClientOriginalName();
-                    $extension = $mediaFile->getClientOriginalExtension();
-                    $fileName = Str::uuid() . '.' . $extension;
-                    $path = $mediaFile->storeAs('student_reports', $fileName, 'public');
-                    if (!$path) {
-                        throw new \Exception('Failed to upload file');
-                    }
-                    $studentReportMedia = new StudentReportMedia();
-                    $studentReportMedia->student_report_id = $studentReport->id;
-                    $studentReportMedia->file_path = Storage::url($path);
-                    $studentReportMedia->save();
-                    $mediaData[] = [
-                        'id' => $studentReportMedia->id,
-                        'file_name' => $fileName,
-                        'original_name' => $originalName,
-                        'file_path' => $studentReportMedia->file_path,
-                        'file_size' => $mediaFile->getSize(),
-                        'file_type' => $mediaFile->getMimeType(),
-                    ];
-                }
-            }
+            $deletedMedia = $this->deleteMedia($request->delete_media, $studentReport);
+            $mediaData = $this->uploadNewMedia($request->file('media'), $studentReport);
+
             DB::commit();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Student report updated successfully',
@@ -281,26 +209,20 @@ class TeacherController extends Controller
                     'deleted_media' => $deletedMedia,
                 ]
             ], 200);
+
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
                 'status' => 'error',
-                'message' => $e->getMessage(),
+                'message' => 'Failed to update student report: ' . $e->getMessage(),
             ], 500);
         }
-    }
+    }   
 
     public function destroy(Request $request, $gradeId, $studentReportId)
     {
         $user = $request->user();
         $grade = Grade::findOrFail($gradeId);
-
-        if (!$grade) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Grade not found.',
-            ], 404);
-        }
 
         if ($user->id !== $grade->teacher_id) {
             return response()->json([
@@ -308,31 +230,24 @@ class TeacherController extends Controller
                 'message' => 'You are not authorized to perform this action for the specified grade.',
             ], 403);
         }
-
-        $studentReport = StudentReport::where('id', $studentReportId)->where('grade_id', $gradeId)->first();
-
-        if (!$studentReport) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Student report not found in the specified grade.',
-            ], 404);
-        }
-
+    
         $roles = $user->roles()->pluck('name')->toArray();
-        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
+        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
             return response()->json([
                 'status' => 'error',
-                'message' => 'Only (Guru SD or Guru KB) can delete student reports.',
+                'message' => 'Only (Guru SD or Guru KB) can create grades.',
             ], 403);
         }
+    
+        $studentReport = StudentReport::where('id', $studentReportId)
+                                      ->where('grade_id', $gradeId)
+                                      ->firstOrFail();
 
         DB::beginTransaction();
 
         try {
-            $media = StudentReportMedia::where('student_report_id', $studentReport->id)->get();
-            foreach ($media as $item) {
+            foreach ($studentReport->media as $item) {
                 Storage::disk('public')->delete(str_replace('/storage/', '', $item->file_path));
-                $item->delete();
             }
 
             $studentReport->delete();
@@ -351,40 +266,5 @@ class TeacherController extends Controller
                 'message' => 'Failed to delete student report: ' . $e->getMessage(),
             ], 500);
         }
-    }
-
-    public function displayStudentReportsBySemester(Request $request, $gradeId, $studentId, $semester)
-    {
-        $user = $request->user();
-        $grade = Grade::find($gradeId);
-        $roles = $user->roles()->pluck('name')->toArray();
-
-        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Only (Guru SD or Guru KB) can perform this action.',
-            ], 403);
-        }
-
-        if ($user->id !== $grade->teacher_id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not authorized to perform this action for the specified grade.',
-            ], 403);
-        }
-
-        if (!$grade) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Grade not found.',
-            ], 404);
-        }
-
-        $studentReports = StudentReport::where('teacher_id', $user->id)->where('grade_id', $gradeId)->where('student_id', $studentId)->where('level', $semester)->with('media')->get();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $studentReports
-        ]);
     }
 }
