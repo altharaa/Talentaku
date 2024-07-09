@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class StudentController extends Controller
 {
-    public function displaySemesters(Request $request, $gradeId) {
+    public function display(Request $request, $gradeId) {
         $user = $request->user();
         $grade = Grade::find($gradeId);
 

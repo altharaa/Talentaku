@@ -19,7 +19,7 @@ class TeacherController extends Controller
         } else {
             return response()->json([
                 'message' => 'You are not allowed to perform this action'
-            ], 403);  // Changed from 404 to 403 for "Forbidden"
+            ], 403);  
         }
 
         if ($grades->isEmpty()) {
