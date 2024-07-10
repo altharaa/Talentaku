@@ -16,7 +16,7 @@ class StudentController extends Controller
         if (!in_array('Murid SD', $roles) && !in_array('Murid KB', $roles)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Only students (Murid SD or Murid KB) can view their grades.',
+                'message' => 'Only students Murid SD or Murid KB can view their grades.',
             ], 403);
         }
     
@@ -65,7 +65,7 @@ class StudentController extends Controller
         if (!in_array('Murid SD', $roles) && !in_array('Murid KB', $roles)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Only students (Murid SD or Murid KB) can join a class.',
+                'message' => 'Only students Murid SD or Murid KB can join a class.',
             ], 403);
         }
 
@@ -92,7 +92,7 @@ class StudentController extends Controller
             ], 400);
         }
 
-        $grade->members()->attach($request->user()->id)->timestamps();
+        $grade->members()->attach($request->user()->id, ['created_at' => now(), 'updated_at' => now()]);
         $grade->load('members');
 
         $data = [

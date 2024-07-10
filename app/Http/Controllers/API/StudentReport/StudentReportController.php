@@ -61,7 +61,7 @@ class StudentReportController extends Controller
         $grade = Grade::findOrFail($gradeId);
 
         $roles = $user->roles()->pluck('name')->toArray();
-        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
+        if (!in_array('Guru SD', $roles) || !in_array('Guru KB', $roles)){
             return response()->json([
                 'status' => 'error',
                 'message' => 'Only teachers (Guru SD or Guru KB) can perform this action.',
@@ -112,7 +112,7 @@ class StudentReportController extends Controller
         $user = $request->user();
         
         $roles = $user->roles()->pluck('name')->toArray();
-        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
+        if (!in_array('Guru SD', $roles) || !in_array('Guru KB', $roles)){
             return response()->json([
                 'status' => 'error',
                 'message' => 'Only teachers (Guru SD or Guru KB) can perform this action.',
