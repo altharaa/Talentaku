@@ -25,4 +25,9 @@ class Comment extends Model
     {
         return $this->hasMany(CommentMedia::class);
     }
+
+    public function reply()
+    {
+        return $this->hasMany(CommentReply::class);
+    }
 }

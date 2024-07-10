@@ -2,7 +2,8 @@
 
 use App\Http\Controllers\API\AlbumController;
 use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\CommentController;
+use App\Http\Controllers\API\Comment\CommentController;
+use App\Http\Controllers\API\Comment\ReplyController;
 use App\Http\Controllers\API\Grade\StudentController as GradeStudentController;
 use App\Http\Controllers\API\Grade\TeacherController as GradeTeacherController;
 use App\Http\Controllers\API\InformationController;
@@ -23,10 +24,6 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
@@ -84,10 +81,12 @@ Route::prefix('grades')->group(function () {
     });
 
     Route::prefix('/{gradeId}/comments')->group(function () {
-        Route::get('/', [CommentController::class, 'index'])->middleware('auth:sanctum');
         Route::post('/', [CommentController::class, 'store'])->middleware('auth:sanctum');
         Route::post('/{commentId}', [CommentController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{commentId}', [CommentController::class, 'destroy'])->middleware('auth:sanctum');
+        Route::post('/{commentId}/replies', [ReplyController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{commentId}/replies/{replyId}', [ReplyController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{commentId}/replies/{replyId}', [ReplyController::class, 'destroy'])->middleware('auth:sanctum');
     });
 });
 

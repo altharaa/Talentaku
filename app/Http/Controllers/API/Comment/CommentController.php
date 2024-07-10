@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers\API\Comment;
 
 use App\Http\Controllers\Controller;
 use App\Models\Comment;
@@ -217,11 +217,27 @@ class CommentController extends Controller
             ], 403);
         }
         
-        $comment = Comment::find($commentId);
-        $comment->delete();
+        try{
+            $comment = Comment::find($commentId);
+            $comment->delete();
 
-        return response()->json([
-            'message' => 'Comment deleted successfully',
-        ]);
+            if ($comment->user_id !== $user->id) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'You are not authorized to delete this reply.',
+                ], 403);
+            }
+
+            return response()->json([
+                'message' => 'Comment deleted successfully',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to create comment',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
