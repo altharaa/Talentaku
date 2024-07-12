@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AlbumController;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\Comment\CommentController;
+use App\Http\Controllers\API\Comment\DisplayController;
 use App\Http\Controllers\API\Comment\ReplyController;
 use App\Http\Controllers\API\Grade\StudentController as GradeStudentController;
 use App\Http\Controllers\API\Grade\TeacherController as GradeTeacherController;
@@ -84,6 +85,7 @@ Route::prefix('grades')->group(function () {
         Route::post('/', [CommentController::class, 'store'])->middleware('auth:sanctum');
         Route::post('/{commentId}', [CommentController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{commentId}', [CommentController::class, 'destroy'])->middleware('auth:sanctum');
+        Route::get('/{commentId}', [DisplayController::class, 'detail'])->middleware('auth:sanctum');
         Route::post('/{commentId}/replies', [ReplyController::class, 'store'])->middleware('auth:sanctum');
         Route::post('/{commentId}/replies/{replyId}', [ReplyController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{commentId}/replies/{replyId}', [ReplyController::class, 'destroy'])->middleware('auth:sanctum');
