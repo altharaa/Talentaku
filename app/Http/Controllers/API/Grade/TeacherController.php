@@ -4,7 +4,9 @@ namespace App\Http\Controllers\API\Grade;
 
 use App\Http\Controllers\Controller;
 use App\Models\Grade;
+use App\Models\GradeLevel;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
@@ -68,30 +70,45 @@ class TeacherController extends Controller
             ], 422);
         }
 
-        $roles = $request->user()->roles()->pluck('name')->toArray();
+        $user = $request->user();
+        $roles = $user->roles()->pluck('name')->toArray();
+        $level = GradeLevel::findOrFail($request->level_id);
 
-        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
+        $authorizedRoles = [
+            'SD' => ['Guru SD'],
+            'KB' => ['Guru KB'],
+        ];
+    
+        if (!isset($authorizedRoles[$level->name]) || !array_intersect($roles, $authorizedRoles[$level->name])) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Only "Guru SD" or "Guru KB" can create grades.',
+                'message' => 'You are not authorized to create a class for this level.',
             ], 403);
         }
 
-        $grade = new Grade();
-        $grade->name = $request->name;
-        $grade->desc = $request->desc;
-        $grade->level_id = $request->level_id;
-        $grade->unique_code = Str::random(5);
-        $grade->teacher_id = $request->user()->id; 
-        $grade->save();
+        try {
+            $grade = Grade::create([
+                'name' => $request->name,
+                'desc' => $request->desc,
+                'level_id' => $request->level_id,
+                'unique_code' => Str::random(5),
+                'teacher_id' => $user->id,
+            ]);
 
-        $grade->load('level');
+            $grade->load('level');
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Grade created successfully.',
-            'data' => $grade,
-        ], 201); 
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Grade created successfully.',
+                'data' => $grade,
+            ], 201);
+        } catch (\Exception $e) {
+            Log::error('Error creating grade: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'An error occurred while creating the grade.',
+            ], 500);
+        } 
     }
 
     public function update(Request $request, $id)
