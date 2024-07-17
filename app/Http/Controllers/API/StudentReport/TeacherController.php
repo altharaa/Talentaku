@@ -56,7 +56,8 @@ class TeacherController extends Controller
         return $mediaData;
     }
 
-    public function store(Request $request, $gradeId) {
+    public function store(Request $request, $gradeId) 
+    {
         $user = $request->user();
         $grade = Grade::findOrFail($gradeId);
 
@@ -131,7 +132,6 @@ class TeacherController extends Controller
                 'message' => 'Failed to create student report: ' . $e->getMessage(),
             ], 500);
         }
-        
     }   
 
     public function update(Request $request, $gradeId, $studentReportId)

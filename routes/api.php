@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\API\AlbumController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\Comment\CommentController;
+use App\Http\Controllers\API\Comment\DisplayController;
+use App\Http\Controllers\API\Comment\ReplyController;
 use App\Http\Controllers\API\Grade\StudentController as GradeStudentController;
 use App\Http\Controllers\API\Grade\TeacherController as GradeTeacherController;
 use App\Http\Controllers\API\InformationController;
@@ -9,6 +12,8 @@ use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\API\StudentReport\StudentController;
 use App\Http\Controllers\API\StudentReport\StudentReportController;
 use App\Http\Controllers\API\StudentReport\TeacherController;
+use App\Http\Controllers\API\task\DisplayController as TaskDisplayController;
+use App\Http\Controllers\API\Task\TeacherController as TaskTeacherController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,10 +27,6 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
@@ -80,6 +81,24 @@ Route::prefix('grades')->group(function () {
         Route::get('/{albumId}', [AlbumController::class, 'show'])->middleware('auth:sanctum');
         Route::post('/{albumId}', [AlbumController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{albumId}', [AlbumController::class, 'destroy'])->middleware('auth:sanctum');
+    });
+
+    Route::prefix('/{gradeId}/comments')->group(function () {
+        Route::post('/', [CommentController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{commentId}', [CommentController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{commentId}', [CommentController::class, 'destroy'])->middleware('auth:sanctum');
+        Route::get('/{commentId}', [DisplayController::class, 'detail'])->middleware('auth:sanctum');
+        Route::post('/{commentId}/replies', [ReplyController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{commentId}/replies/{replyId}', [ReplyController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{commentId}/replies/{replyId}', [ReplyController::class, 'destroy'])->middleware('auth:sanctum');
+    });
+
+    Route::prefix('/{gradeId}/tasks')->group(function (){
+        Route::get('/', [TaskDisplayController::class, 'show'])->middleware('auth:sanctum');
+        Route::post('/', [TaskTeacherController::class, 'store'])->middleware('auth:sanctum');
+        Route::get('/{taskId}', [TaskDisplayController::class, 'detail'])->middleware('auth:sanctum');
+        Route::post('/{taskId}', [TaskTeacherController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{taskId}', [TaskTeacherController::class, 'destroy'])->middleware('auth:sanctum');
     });
 });
 

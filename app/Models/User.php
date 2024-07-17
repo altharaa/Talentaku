@@ -55,7 +55,7 @@ class User extends Authenticatable
 
     public function members(): HasMany
     {
-        return $this->hasMany(GradeMember::class, 'student_id');
+        return $this->hasMany(GradeMember::class, 'student_id')->withTimeStamps();
     }
 
     public function grades()

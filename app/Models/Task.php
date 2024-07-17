@@ -9,13 +9,22 @@ class Task extends Model
 {
     use HasFactory;
 
-    public function teacher()
+    protected $fillable = [
+        'grade_id',
+        'teacher_id',
+        'title',
+        'start_date',
+        'end_date',
+        'desc',
+    ];
+
+    public function media()
     {
-        return $this->belongsTo(User::class);
+        return $this->hasMany(TaskMedia::class);
     }
 
-    public function photos()
+    public function links()
     {
-        return $this->hasMany(TaskPhoto::class);
+        return $this->hasMany(TaskLink::class);
     }
 }

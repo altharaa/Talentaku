@@ -5,7 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TaskPhoto extends Model
+class TaskMedia extends Model
 {
     use HasFactory;
+
+    protected $fillable = [
+        'task_id',
+        'file_path',
+    ];
 }
