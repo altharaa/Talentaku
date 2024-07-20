@@ -9,6 +9,7 @@ use App\Models\Grade;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -37,7 +38,7 @@ class AlbumController extends Controller
             ], 403);
         }
     
-        if ($isTeacher && $grade->teacher_id !== $user->id) {
+        if ($isTeacher && $grade->teacher_id != $user->id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not the teacher of this grade.',
@@ -57,21 +58,26 @@ class AlbumController extends Controller
     {
         $user = $request->user();
         $grade = Grade::findOrFail($gradeId);
-
-        if ($user->id !== $grade->teacher_id) {
+        
+        $isTeacher = $grade->teacher_id == $user->id;  
+        $isMember = $grade->members()->where('users.id', $user->id)->exists();
+    
+        if (!$isTeacher && !$isMember) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to view albums for this grade.',
+                'teacher' => $grade->teacher_id,
+                'user_id' => $user->id,
+                'is_teacher' => $isTeacher,
+                'is_member' => $isMember
             ], 403);
         }
-
+    
         $album = Album::with('media')->where('grade_id', $gradeId)->findOrFail($albumId);
-
         return response()->json([
             'status' => 'success',
             'data' => $album
         ]);
-
     }
 
     public function store(Request $request, $gradeId)
@@ -87,15 +93,16 @@ class AlbumController extends Controller
             ], 403);
         }
 
-        if ($user->id !== $grade->teacher_id) {
+        if ($grade->teacher_id != $user->id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to create an album for this grade.',
+                'teacher_id' => $grade->teacher_id
             ], 403);
         }
 
         $validatedData = $request->validate([
-            'desc' => 'required|string',
+            'desc' => 'string',
             'media' => 'required|array',
             'media.*' => 'file|mimes:jpeg,png,jpg,gif,svg,mp4,mov,avi|max:20480',
         ]);
@@ -115,9 +122,7 @@ class AlbumController extends Controller
             $mediaData = [];
             foreach ($request->file('media') as $file) {
                 $originalName = $file->getClientOriginalName();
-                $extension = $file->getClientOriginalExtension();
-                $fileName = Str::uuid() . '.' . $extension;
-                $path = $file->storeAs('album-media', $fileName, 'public');
+                $path = $file->storePublicy('album-media', 'public');
                 
                 if (!$path) {
                     throw new Exception('Failed to upload file: ' . $originalName);
@@ -131,7 +136,6 @@ class AlbumController extends Controller
     
                 $mediaData[] = [
                     'id' => $albumMedia->id,
-                    'file_name' => $fileName,
                     'original_name' => $originalName,
                     'file_path' => $albumMedia->file_path,
                     'file_size' => $file->getSize(),
@@ -160,17 +164,24 @@ class AlbumController extends Controller
 
     public function destroy(Request $request, $gradeId, $albumId) 
     {
-        $user = $request->user();
+         $user = $request->user();
         $grade = Grade::findOrFail($gradeId);
 
-        if ($user->id !== $grade->teacher_id) {
+        Log::info('User ID: ' . $user->id . ' (type: ' . gettype($user->id) . ')');
+        Log::info('Grade teacher ID: ' . $grade->teacher_id . ' (type: ' . gettype($grade->teacher_id) . ')');
+    
+        if ($grade->teacher_id != $user->id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to perform this action for the specified grade.',
+                'teacher_id' => $grade->teacher_id,
+                'user_id' => $user->id
             ], 403);
         }
     
         $roles = $user->roles()->pluck('name')->toArray();
+        Log::info('User roles: ' . implode(', ', $roles));
+    
         if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
             return response()->json([
                 'status' => 'error',

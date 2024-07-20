@@ -30,8 +30,7 @@ class CommentController extends Controller
                 throw new \Exception('File size exceeds 20MB limit');
             }
 
-            $fileName = Str::uuid() . '.' . $mediaFile->getClientOriginalExtension();
-            $path = $mediaFile->storeAs('comment', $fileName, 'public');
+            $path = $mediaFile->storePublicly('comment', 'public');
 
             if (!$path) {
                 throw new \Exception('Failed to upload file');
@@ -39,7 +38,6 @@ class CommentController extends Controller
 
             $commentMedia = $comment->media()->create([
                 'file_path' => Storage::url($path),
-                'file_name' => $fileName,
                 'original_name' => $mediaFile->getClientOriginalName(),
                 'file_size' => $mediaFile->getSize(),
                 'file_type' => $mediaFile->getMimeType(),
@@ -47,7 +45,6 @@ class CommentController extends Controller
 
             $mediaData[] = [
                 'id' => $commentMedia->id,
-                'file_name' => $fileName,
                 'original_name' => $mediaFile->getClientOriginalName(),
                 'file_path' => $commentMedia->file_path,
                 'file_size' => $mediaFile->getSize(),
@@ -79,7 +76,7 @@ class CommentController extends Controller
         $user = $request->user();
         $grade = Grade::findOrFail($gradeId);
 
-        if (($user->id !== $grade->teacher_id) && (!$grade->members->contains($user->id))) {
+        if (($user->id != $grade->teacher_id) && (!$grade->members->contains($user->id))) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to create comments for this grade.',
@@ -142,7 +139,7 @@ class CommentController extends Controller
         $user = $request->user();
         $grade = Grade::findOrFail($gradeId);
 
-        if (($user->id !== $grade->teacher_id) && (!$grade->members->contains($user->id))) {
+        if (($user->id != $grade->teacher_id) && (!$grade->members->contains($user->id))) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to create comments for this grade.',
@@ -210,7 +207,7 @@ class CommentController extends Controller
         $user = $request->user();
         $grade = Grade::findOrFail($gradeId);
 
-        if (($user->id !== $grade->teacher_id) && (!$grade->members->contains($user->id))) {
+        if (($user->id != $grade->teacher_id) && (!$grade->members->contains($user->id))) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to create comments for this grade.',
@@ -221,7 +218,7 @@ class CommentController extends Controller
             $comment = Comment::find($commentId);
             $comment->delete();
 
-            if ($comment->user_id !== $user->id) {
+            if ($comment->user_id != $user->id) {
                 return response()->json([
                     'status' => 'error',
                     'message' => 'You are not authorized to delete this reply.',

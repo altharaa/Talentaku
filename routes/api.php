@@ -9,11 +9,13 @@ use App\Http\Controllers\API\Grade\StudentController as GradeStudentController;
 use App\Http\Controllers\API\Grade\TeacherController as GradeTeacherController;
 use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
+use App\Http\Controllers\API\StreamController;
 use App\Http\Controllers\API\StudentReport\StudentController;
 use App\Http\Controllers\API\StudentReport\StudentReportController;
 use App\Http\Controllers\API\StudentReport\TeacherController;
 use App\Http\Controllers\API\task\DisplayController as TaskDisplayController;
 use App\Http\Controllers\API\Task\TeacherController as TaskTeacherController;
+use App\Http\Controllers\API\Task\StudentController as TaskStudentController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -99,7 +101,11 @@ Route::prefix('grades')->group(function () {
         Route::get('/{taskId}', [TaskDisplayController::class, 'detail'])->middleware('auth:sanctum');
         Route::post('/{taskId}', [TaskTeacherController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{taskId}', [TaskTeacherController::class, 'destroy'])->middleware('auth:sanctum');
+        Route::post('/{taskId}/submit', [TaskStudentController::class, 'store'])->middleware('auth:sanctum');
     });
+
+    Route::get('/{gradeId}/stream', [StreamController::class, 'index'])->middleware('auth:sanctum');
+    Route::get('/{gradeId}/stream/{streamId}', [StreamController::class, 'show'])->middleware('auth:sanctum');
 });
 
 Route::prefix('student-report')->group(function () {

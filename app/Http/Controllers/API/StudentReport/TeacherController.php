@@ -35,8 +35,7 @@ class TeacherController extends Controller
         $mediaData = [];
         if (is_array($newMedia)) {
             foreach ($newMedia as $mediaFile) {
-                $fileName = Str::uuid() . '.' . $mediaFile->getClientOriginalExtension();
-                $path = $mediaFile->storeAs('student_reports', $fileName, 'public');
+                $path = $mediaFile->storePublicy('student_reports', 'public');
                 if (!$path) {
                     throw new \Exception('Failed to upload file');
                 }
@@ -45,7 +44,6 @@ class TeacherController extends Controller
                 ]);
                 $mediaData[] = [
                     'id' => $studentReportMedia->id,
-                    'file_name' => $fileName,
                     'original_name' => $mediaFile->getClientOriginalName(),
                     'file_path' => $studentReportMedia->file_path,
                     'file_size' => $mediaFile->getSize(),
@@ -69,7 +67,7 @@ class TeacherController extends Controller
             ], 403);
         }
 
-        if ($user->id !== $grade->teacher_id) {
+        if ($grade->teacher_id != $user->id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to create reports for this grade.',
@@ -139,18 +137,18 @@ class TeacherController extends Controller
         $user = $request->user();
         $grade = Grade::findOrFail($gradeId);
 
-        if ($user->id !== $grade->teacher_id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not authorized to perform this action for the specified grade.',
-            ], 403);
-        }
-    
         $roles = $user->roles()->pluck('name')->toArray();
         if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
             return response()->json([
                 'status' => 'error',
                 'message' => 'Only (Guru SD or Guru KB) can create grades.',
+            ], 403);
+        }
+        
+        if ($grade->teacher_id != $user->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to perform this action for the specified grade.',
             ], 403);
         }
     
@@ -223,19 +221,19 @@ class TeacherController extends Controller
     {
         $user = $request->user();
         $grade = Grade::findOrFail($gradeId);
-
-        if ($user->id !== $grade->teacher_id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not authorized to perform this action for the specified grade.',
-            ], 403);
-        }
-    
+        
         $roles = $user->roles()->pluck('name')->toArray();
         if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
             return response()->json([
                 'status' => 'error',
                 'message' => 'Only (Guru SD or Guru KB) can create grades.',
+            ], 403);
+        }
+
+        if ($grade->teacher_id != $user->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to perform this action for the specified grade.',
             ], 403);
         }
     

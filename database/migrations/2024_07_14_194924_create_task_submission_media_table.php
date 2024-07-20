@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('task_links', function (Blueprint $table) {
+        Schema::create('task_submission_media', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('task_id');
-            $table->string('link');
+            $table->unsignedBigInteger('submission_id');
+            $table->string('file_path');
             $table->timestamps();
 
-            $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');
+            $table->foreign('submission_id')->references('id')->on('task_submissions')->onDelete('cascade');
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('task_links');
+        Schema::dropIfExists('task_submission_media');
     }
 };

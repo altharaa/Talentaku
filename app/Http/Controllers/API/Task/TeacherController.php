@@ -34,8 +34,7 @@ class TeacherController extends Controller
         $mediaData = [];
         if (is_array($newMedia)) {
             foreach ($newMedia as $mediaFile) {
-                $fileName = Str::uuid() . '.' . $mediaFile->getClientOriginalExtension();
-                $path = $mediaFile->storeAs('tasks', $fileName, 'public');
+                $path = $mediaFile->storePublicly('tasks', 'public');
                 if (!$path) {
                     throw new \Exception('Failed to upload file');
                 }
@@ -44,9 +43,8 @@ class TeacherController extends Controller
                 ]);
                 $mediaData[] = [
                     'id' => $media->id,
-                    'file_name' => $fileName,
                     'original_name' => $mediaFile->getClientOriginalName(),
-                    'file_path' => $task->file_path,
+                    'file_path' => $media->file_path,
                     'file_size' => $mediaFile->getSize(),
                     'file_type' => $mediaFile->getMimeType(),
                 ];
@@ -63,7 +61,7 @@ class TeacherController extends Controller
         if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
             return response()->json([
                 'status' => 'error',
-                'message' => 'Only (Guru SD or Guru KB) can create grades.',
+                'message' => 'Only (Guru SD or Guru KB) can create tasks.',
             ], 403);
         }
 
@@ -114,8 +112,8 @@ class TeacherController extends Controller
                 'message' => 'Task created successfully',
                 'data' => [
                     'grade' => $grade,
-                    'task' => $task,
                     'teacher'=> $user,
+                    'task' => $task,
                     'media' => $mediaData,
                     'links' => $links,
                 ]
