@@ -34,7 +34,7 @@ class StudentReportController extends Controller
             ], 404);
         }
 
-        if ($user->id !== $grade->teacher_id) {
+        if ($grade->teacher_id != $user->id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to perform this action for the specified grade.',
@@ -61,14 +61,14 @@ class StudentReportController extends Controller
         $grade = Grade::findOrFail($gradeId);
 
         $roles = $user->roles()->pluck('name')->toArray();
-        if (!in_array('Guru SD', $roles) || !in_array('Guru KB', $roles)){
+        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
             return response()->json([
                 'status' => 'error',
                 'message' => 'Only teachers (Guru SD or Guru KB) can perform this action.',
             ], 403);
         }
 
-        if ($user->id !== $grade->teacher_id) {
+        if ($grade->teacher_id != $user->id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to perform this action for the specified grade.',
@@ -112,7 +112,7 @@ class StudentReportController extends Controller
         $user = $request->user();
         
         $roles = $user->roles()->pluck('name')->toArray();
-        if (!in_array('Guru SD', $roles) || !in_array('Guru KB', $roles)){
+        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
             return response()->json([
                 'status' => 'error',
                 'message' => 'Only teachers (Guru SD or Guru KB) can perform this action.',

@@ -14,7 +14,7 @@ class DisplayController extends Controller
         $user = $request->user();
         $grade = Grade::findOrFail($gradeId);
 
-        if ($user->id !== $grade->teacher_id && !$grade->members->contains($user->id)) {
+        if ($user->id != $grade->teacher_id && !$grade->members->contains($user->id)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to view tasks for this grade.',
@@ -72,7 +72,7 @@ class DisplayController extends Controller
         $user = $request->user();
         $grade = Grade::findOrFail($gradeId);
 
-        if ($user->id !== $grade->teacher_id && !$grade->members->contains($user->id)) {
+        if ($user->id != $grade->teacher_id && !$grade->members->contains($user->id)) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You are not authorized to view this task.',

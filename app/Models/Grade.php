@@ -39,4 +39,9 @@ class Grade extends Model
     {
         return $this->belongsTo(GradeLevel::class, 'level_id');
     }
+
+    public function userHasAccess($userId)
+    {
+        return $this->teacher_id === $userId || $this->members()->where('id', $userId)->exists();
+    }
 }

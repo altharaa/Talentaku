@@ -17,7 +17,7 @@ class StudentController extends Controller
         if (!in_array('Murid SD', $roles) && !in_array('Murid KB', $roles)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Only students (Murid SD or Murid KB) can join a class.',
+                'message' => 'Only students (Murid SD or Murid KB) can perform this action.',
             ], 403);
         }
 

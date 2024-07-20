@@ -144,7 +144,7 @@ class TeacherController extends Controller
             ], 403);
         }
 
-        if ($grade->teacher_id !== $user->id) {
+        if ($grade->teacher_id != $user->id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You can only update grades you are teaching.',
@@ -174,7 +174,7 @@ class TeacherController extends Controller
             ], 403);
         }
 
-        if ($grade->teacher_id !== $user->id) {
+        if ($grade->teacher_id != $user->id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You can only toggle status for grades you are teaching.',
@@ -204,7 +204,7 @@ class TeacherController extends Controller
             ], 404);
         }
 
-        $isTeacher = $grade->teacher_id === $user->id;
+        $isTeacher = $grade->teacher_id == $user->id;
         $isMember = $grade->members->contains('id', $user->id);
     
         if (!$isTeacher && !$isMember) {
@@ -256,7 +256,7 @@ class TeacherController extends Controller
             ], 403);
         }
 
-        if ($grade->teacher_id !== $user->id) {
+        if ($grade->teacher_id != $user->id) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'You can only delete members from grades you teach.',
