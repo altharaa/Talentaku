@@ -30,14 +30,14 @@ class CommentController extends Controller
                 throw new \Exception('File size exceeds 20MB limit');
             }
 
-            $path = $mediaFile->storePublicly('comment', 'public');
+            $path = $mediaFile->store('public/comments');
 
             if (!$path) {
                 throw new \Exception('Failed to upload file');
             }
 
             $commentMedia = $comment->media()->create([
-                'file_path' => Storage::url($path),
+                'file_path' => url(Storage::url($path)),
                 'original_name' => $mediaFile->getClientOriginalName(),
                 'file_size' => $mediaFile->getSize(),
                 'file_type' => $mediaFile->getMimeType(),
