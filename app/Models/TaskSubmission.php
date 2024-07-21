@@ -15,4 +15,9 @@ class TaskSubmission extends Model
     {
         return $this->hasMany(TaskSubmissionMedia::class, 'submission_id');
     }
+
+    public function student()
+    {
+        return $this->belongsTo(User::class, 'student_id');
+    }
 }

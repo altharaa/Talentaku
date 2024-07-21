@@ -17,7 +17,7 @@ return new class extends Migration
             $table->unsignedBigInteger('teacher_id');
             $table->string('title');
             $table->date('start_date');
-            $table->dateTimeTz('end_date');
+            $table->date('end_date');
             $table->text('desc');
             $table->timestamps();
 

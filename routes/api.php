@@ -102,6 +102,8 @@ Route::prefix('grades')->group(function () {
         Route::post('/{taskId}', [TaskTeacherController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{taskId}', [TaskTeacherController::class, 'destroy'])->middleware('auth:sanctum');
         Route::post('/{taskId}/submit', [TaskStudentController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{taskId}/submission/{submissionId}', [TaskTeacherController::class, 'correction'])->middleware('auth:sanctum');
+        Route::get('/{taskId}/completions', [TaskDisplayController::class, 'completions'])->middleware('auth:sanctum');
     });
 
     Route::get('/{gradeId}/stream', [StreamController::class, 'index'])->middleware('auth:sanctum');

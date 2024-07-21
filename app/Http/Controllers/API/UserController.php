@@ -7,6 +7,8 @@ use App\Models\Grade;
 use App\Models\User;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -14,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
+
     public function show(Request $request)
     {
         $user = $request->user();
@@ -54,25 +57,20 @@ class UserController extends Controller
         $id = $request->user()->id;
         $user = User::findOrFail($id);
         
-        $validator = Validator::make($request->all(), [
-            'photo' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg',
+        $photo = $request->file('photo');
+        
+        $validator = Validator::make(['photo' => $photo], [
+            'photo' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048'
         ]);
 
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'errors' => $validator->errors(),
-            ], 422);
+            return response()->json(['error' => $validator->errors()], 400);
         }
-
-        $validatedData = $validator->validated();
 
         if ($request->hasFile('photo')) {
-            $photo = $request->file('photo')->storePublicly('photos', 'public');
-            $validatedData['photo'] = Storage::url($photo);
+            $imagePath = $request->file('photo')->store('public');
+            $user['photo'] = url(Storage::url($imagePath));
         }
-
-        $user->fill($validatedData);
 
         $user->save();
 
@@ -117,6 +115,5 @@ class UserController extends Controller
             return response()->json([
                 'status' => 'Password updated successfully',
             ], 200);
-        }
-    
+    }  
 }

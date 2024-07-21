@@ -18,12 +18,12 @@ class StudentController extends Controller
         $mediaData = [];
         if (is_array($newMedia)) {
             foreach ($newMedia as $mediaFile) {
-                $path = $mediaFile->storePublicly('task_submissions', 'public');
+                $path = $mediaFile->store('public/task-submissions');
                 if (!$path) {
                     throw new \Exception('Failed to upload file');
                 }
                 $media = $submission->media()->create([
-                    'file_path' => Storage::url($path),
+                    'file_path' => url(Storage::url($path)),
                     'submission_id' => $submission->id
                 ]);
                 $mediaData[] = [

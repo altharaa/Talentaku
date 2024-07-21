@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Grade;
 use App\Models\Task;
 use App\Models\TaskLink;
+use App\Models\TaskSubmission;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 
 class TeacherController extends Controller
@@ -34,12 +36,12 @@ class TeacherController extends Controller
         $mediaData = [];
         if (is_array($newMedia)) {
             foreach ($newMedia as $mediaFile) {
-                $path = $mediaFile->storePublicly('tasks', 'public');
+                $path = $mediaFile->store('public/tasks');
                 if (!$path) {
                     throw new \Exception('Failed to upload file');
                 }
                 $media = $task->media()->create([
-                    'file_path' => Storage::url($path)
+                    'file_path' => url(Storage::url($path))
                 ]);
                 $mediaData[] = [
                     'id' => $media->id,
@@ -74,7 +76,6 @@ class TeacherController extends Controller
 
         $data = $request->validate([
             'title' => 'required|string',
-            'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
             'desc' => 'required|string',
             'media' => 'nullable|array',
@@ -86,6 +87,7 @@ class TeacherController extends Controller
         DB::beginTransaction();
         try{
             $task = new Task($data);
+            $task->start_date = now();
             $task->teacher_id = $user->id;
             $task->grade_id = $grade->id;
             $task->save();
@@ -154,7 +156,6 @@ class TeacherController extends Controller
 
         $validatedData = $request->validate([
             'title' => 'required|string',
-            'start_date' => 'required|date|after_or_equal:today',
             'end_date' => 'required|date|after_or_equal:start_date',
             'desc' => 'required|string',
             'media' => 'nullable|array',
@@ -281,6 +282,69 @@ class TeacherController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Failed to delete task: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function correction(Request $request, $gradeId, $taskId, $submissionId)
+    {
+        $validator = Validator::make($request->all(), [
+            'score' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Validation failed',
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $grade = Grade::findOrFail($gradeId);
+        if ($request->user()->id != $grade->teacher_id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to grade submissions for this class.',
+            ], 403);
+        }
+
+        $task = Task::where('id', $taskId)->where('grade_id', $gradeId)->first();
+        if (!$task) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Task not found in the specified grade.',
+            ], 404);
+        }
+
+        $submission = TaskSubmission::where('id', $submissionId)
+            ->where('task_id', $taskId)
+            ->first();
+
+        if (!$submission) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Submission not found.',
+            ], 404);
+        }
+
+        try {
+            $submission->score = $request->score;
+            $submission->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Submission graded successfully',
+                'data' => [
+                    'submission_id' => $submission->id,
+                    'task_id' => $submission->task_id,
+                    'student_id' => $submission->student_id,
+                    'score' => $submission->score,
+                ],
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Failed to grade submission: ' . $e->getMessage(),
             ], 500);
         }
     }

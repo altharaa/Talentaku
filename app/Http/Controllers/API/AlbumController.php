@@ -122,7 +122,7 @@ class AlbumController extends Controller
             $mediaData = [];
             foreach ($request->file('media') as $file) {
                 $originalName = $file->getClientOriginalName();
-                $path = $file->storePublicy('album-media', 'public');
+                $path = $file->store('public/album-media');
                 
                 if (!$path) {
                     throw new Exception('Failed to upload file: ' . $originalName);
@@ -130,7 +130,7 @@ class AlbumController extends Controller
     
                 $albumMedia = new AlbumMedia([
                     'album_id' => $album->id,
-                    'file_path' => Storage::url($path),
+                    'file_path' => url(Storage::url($path)),
                 ]);
                 $albumMedia->save();
     
