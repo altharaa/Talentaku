@@ -20,13 +20,6 @@ class AlbumController extends Controller
     {
         $grade = $request->getGrade();
     
-        if (!$grade) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Grade not found.',
-            ], 404);
-        }
-    
         $albums = $grade->albums()->with('media')->get();
     
         return response()->json([
