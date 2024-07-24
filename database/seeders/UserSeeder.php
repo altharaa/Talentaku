@@ -113,7 +113,7 @@ class UserSeeder extends Seeder
                 'password' => bcrypt('dimas1234'),
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
-            ]
+            ],
         ]);
     }
 }

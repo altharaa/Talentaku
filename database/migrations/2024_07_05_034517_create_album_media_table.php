@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('album_media', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('album_id');
-            $table->string('file_path');
+            $table->string('file_name');
             $table->timestamps();
 
             $table->foreign('album_id')->references('id')->on('albums')->onDelete('cascade');

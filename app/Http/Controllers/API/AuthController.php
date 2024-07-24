@@ -53,7 +53,7 @@ class AuthController extends Controller
         ], 401);
     }
 
-    public function destroy(Request $request)
+    public function logout(Request $request)
     {
         $user = $request->user();
 

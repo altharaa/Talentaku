@@ -53,9 +53,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'user_roles')->withTimeStamps();
     }
 
-    public function members(): HasMany
+    public function members()
     {
-        return $this->hasMany(GradeMember::class, 'student_id')->withTimeStamps();
+        return $this->hasMany(GradeMember::class, 'student_id');
     }
 
     public function grades()
@@ -72,4 +72,21 @@ class User extends Authenticatable
     {
         return $this->hasMany(Album::class);
     }
+
+    public function isTeacher() 
+    {
+        return $this->roles()->where('name', 'Guru SD')->exists() || $this->roles()->where('name', 'Guru KB')->exists();
+    }
+
+    public function isStudent() 
+    {
+        return $this->roles()->where('name', 'Murid SD')->exists() || $this->roles()->where('name', 'Murid KB')->exists();
+    }
+
+    public function isMember($gradeId)
+    {
+        return $this->grades()->where('grade_id', $gradeId)->exists();
+    }
+
+
 }
