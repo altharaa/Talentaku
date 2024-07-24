@@ -27,4 +27,14 @@ class Task extends Model
     {
         return $this->hasMany(TaskLink::class);
     }
+
+    public function grade()
+    {
+        return $this->belongsTo(Grade::class);
+    }
+
+    public function teacher()
+    {
+        return $this->belongsTo(User::class, 'teacher_id');
+    }
 }

@@ -3,118 +3,54 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AlbumDestroyRequest;
+use App\Http\Requests\AlbumShowByGradeRequest;
+use App\Http\Requests\AlbumShowByIdRequest;
+use App\Http\Requests\AlbumStoreRequest;
+use App\Http\Resources\AlbumResource;
 use App\Models\Album;
 use App\Models\AlbumMedia;
-use App\Models\Grade;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class AlbumController extends Controller
 {
-    public function index(Request $request, $gradeId)
+    public function showByGrade(AlbumShowByGradeRequest $request)
     {
-        $user = $request->user();
-        $roles = $user->roles->pluck('name')->toArray(); 
-        $isStudent = in_array('Murid SD', $roles) || in_array('Murid KB', $roles);
-        $isTeacher = in_array('Guru SD', $roles) || in_array('Guru KB', $roles);
-
-        if (!$isStudent && !$isTeacher) {
+        $grade = $request->getGrade();
+    
+        if (!$grade) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'Unauthorized access. Only students and teachers can view albums.',
-            ], 403);
-        }
-
-        $grade = Grade::findOrFail($gradeId);
-
-        if ($isStudent && !$grade->members->contains($user->id)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not a member of this grade.',
-            ], 403);
+                'message' => 'Grade not found.',
+            ], 404);
         }
     
-        if ($isTeacher && $grade->teacher_id != $user->id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not the teacher of this grade.',
-            ], 403);
-        }
-
         $albums = $grade->albums()->with('media')->get();
-
+    
         return response()->json([
             'status' => 'success',
             'message' => $albums->isEmpty() ? 'No albums found for this grade.' : 'Albums retrieved successfully.',
-            'data' => $albums,
+            'data' => AlbumResource::collection($albums),
         ]);
     }
 
-    public function show(Request $request, $gradeId, $albumId) 
+    public function showById(AlbumShowByIdRequest $request)
     {
-        $user = $request->user();
-        $grade = Grade::findOrFail($gradeId);
-        
-        $isTeacher = $grade->teacher_id == $user->id;  
-        $isMember = $grade->members()->where('users.id', $user->id)->exists();
-    
-        if (!$isTeacher && !$isMember) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not authorized to view albums for this grade.',
-                'teacher' => $grade->teacher_id,
-                'user_id' => $user->id,
-                'is_teacher' => $isTeacher,
-                'is_member' => $isMember
-            ], 403);
-        }
-    
-        $album = Album::with('media')->where('grade_id', $gradeId)->findOrFail($albumId);
-        return response()->json([
-            'status' => 'success',
-            'data' => $album
-        ]);
+        $album = $request->getAlbum();
+        return new AlbumResource($album);
     }
 
-    public function store(Request $request, $gradeId)
+    public function store(AlbumStoreRequest $request, $gradeId)
     {
-        $user = $request->user();
-        $grade = Grade::findOrFail($gradeId);
-
-        $roles = $user->roles()->pluck('name')->toArray();
-        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Only teachers (Guru SD or Guru KB) can create albums.',
-            ], 403);
-        }
-
-        if ($grade->teacher_id != $user->id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not authorized to create an album for this grade.',
-                'teacher_id' => $grade->teacher_id
-            ], 403);
-        }
-
-        $validatedData = $request->validate([
-            'desc' => 'string',
-            'media' => 'required|array',
-            'media.*' => 'file|mimes:jpeg,png,jpg,gif,svg,mp4,mov,avi|max:20480',
-        ]);
-
         DB::beginTransaction();
-
         try {
             $album = new Album();
             $album->fill([
-                'desc' => $validatedData['desc'],
+                'desc' => $request->input('desc'),
                 'grade_id' => $gradeId,
-                'teacher_id' => $user->id,
+                'teacher_id' => $request->user()->id,
                 'date' => now()->toDateString(),
             ]);
             $album->save();
@@ -123,73 +59,31 @@ class AlbumController extends Controller
             foreach ($request->file('media') as $file) {
                 $originalName = $file->getClientOriginalName();
                 $path = $file->store('public/album-media');
-                
+                $fileName = basename($path);
                 if (!$path) {
                     throw new Exception('Failed to upload file: ' . $originalName);
                 }
-    
                 $albumMedia = new AlbumMedia([
                     'album_id' => $album->id,
-                    'file_path' => url(Storage::url($path)),
+                    'file_name' => $fileName,
                 ]);
                 $albumMedia->save();
-    
-                $mediaData[] = [
-                    'id' => $albumMedia->id,
-                    'original_name' => $originalName,
-                    'file_path' => $albumMedia->file_path,
-                    'file_size' => $file->getSize(),
-                    'file_type' => $file->getMimeType(),
-                ];
+                $mediaData[] = $albumMedia;
             }
 
+            $album->media = $mediaData;
             DB::commit();
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Album successfully created.',
-                'data' => [
-                    'album' => $album,
-                    'media' => $mediaData
-                ]
-            ], 201);
+            return $this->resStoreData(new AlbumResource($album));
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to create album: ' . $e->getMessage(),
-            ], 500);
+            return $this->resError($e, 500);
         }
-    } 
+    }
 
-    public function destroy(Request $request, $gradeId, $albumId) 
+    public function destroy(AlbumDestroyRequest $request)
     {
-         $user = $request->user();
-        $grade = Grade::findOrFail($gradeId);
-
-        Log::info('User ID: ' . $user->id . ' (type: ' . gettype($user->id) . ')');
-        Log::info('Grade teacher ID: ' . $grade->teacher_id . ' (type: ' . gettype($grade->teacher_id) . ')');
-    
-        if ($grade->teacher_id != $user->id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not authorized to perform this action for the specified grade.',
-                'teacher_id' => $grade->teacher_id,
-                'user_id' => $user->id
-            ], 403);
-        }
-    
-        $roles = $user->roles()->pluck('name')->toArray();
-        Log::info('User roles: ' . implode(', ', $roles));
-    
-        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Only teachers (Guru SD or Guru KB) can delete albums.',
-            ], 403);
-        }
-
-        $album = Album::where('id', $albumId)->where('grade_id', $gradeId)->firstOrFail();
+        $album = $request->getAlbum();
 
         DB::beginTransaction();
         try {
@@ -197,19 +91,13 @@ class AlbumController extends Controller
             foreach ($media as $item) {
                 Storage::disk('public')->delete(str_replace('/storage/', '', $item->file_path));
             }
-            $album->delete(); 
+            $album->delete();
             DB::commit();
-    
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Album and associated media deleted successfully',
-            ], 200);
+
+            return $this->resDeleteData('Album');
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to delete album: ' . $e->getMessage(),
-            ], 500);
+            return $this->resError($e, 500);
         }
     }
 }

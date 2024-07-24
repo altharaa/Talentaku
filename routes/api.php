@@ -16,6 +16,7 @@ use App\Http\Controllers\API\StudentReport\TeacherController;
 use App\Http\Controllers\API\task\DisplayController as TaskDisplayController;
 use App\Http\Controllers\API\Task\TeacherController as TaskTeacherController;
 use App\Http\Controllers\API\Task\StudentController as TaskStudentController;
+use App\Http\Controllers\API\TaskController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -32,7 +33,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/logout', [AuthController::class, 'destroy'])->middleware('auth:sanctum');
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 });
 
 Route::prefix('user')->group(function () {
@@ -78,10 +79,9 @@ Route::prefix('grades')->group(function () {
     });
 
     Route::prefix('/{gradeId}/albums')->group(function () {
-        Route::get('/', [AlbumController::class, 'index'])->middleware('auth:sanctum');
+        Route::get('/', [AlbumController::class, 'showbyGrade'])->middleware('auth:sanctum');
         Route::post('/', [AlbumController::class, 'store'])->middleware('auth:sanctum');
-        Route::get('/{albumId}', [AlbumController::class, 'show'])->middleware('auth:sanctum');
-        Route::post('/{albumId}', [AlbumController::class, 'update'])->middleware('auth:sanctum');
+        Route::get('/{albumId}', [AlbumController::class, 'showById'])->middleware('auth:sanctum');
         Route::delete('/{albumId}', [AlbumController::class, 'destroy'])->middleware('auth:sanctum');
     });
 
@@ -97,10 +97,10 @@ Route::prefix('grades')->group(function () {
 
     Route::prefix('/{gradeId}/tasks')->group(function (){
         Route::get('/', [TaskDisplayController::class, 'show'])->middleware('auth:sanctum');
-        Route::post('/', [TaskTeacherController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/', [TaskController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{taskId}', [TaskController::class, 'update'])->middleware('auth:sanctum');
         Route::get('/{taskId}', [TaskDisplayController::class, 'detail'])->middleware('auth:sanctum');
-        Route::post('/{taskId}', [TaskTeacherController::class, 'update'])->middleware('auth:sanctum');
-        Route::delete('/{taskId}', [TaskTeacherController::class, 'destroy'])->middleware('auth:sanctum');
+        Route::delete('/{taskId}', [TaskController::class, 'destroy'])->middleware('auth:sanctum');
         Route::post('/{taskId}/submit', [TaskStudentController::class, 'store'])->middleware('auth:sanctum');
         Route::post('/{taskId}/submission/{submissionId}', [TaskTeacherController::class, 'correction'])->middleware('auth:sanctum');
         Route::get('/{taskId}/completions', [TaskDisplayController::class, 'completions'])->middleware('auth:sanctum');

@@ -23,7 +23,7 @@ class StudentController extends Controller
                     throw new \Exception('Failed to upload file');
                 }
                 $media = $submission->media()->create([
-                    'file_path' => url(Storage::url($path)),
+                    'file_path' => Storage::url($path),
                     'submission_id' => $submission->id
                 ]);
                 $mediaData[] = [
