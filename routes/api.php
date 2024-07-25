@@ -13,10 +13,10 @@ use App\Http\Controllers\API\StreamController;
 use App\Http\Controllers\API\StudentReport\StudentController;
 use App\Http\Controllers\API\StudentReport\StudentReportController;
 use App\Http\Controllers\API\StudentReport\TeacherController;
-use App\Http\Controllers\API\Task\TeacherController as TaskTeacherController;
-use App\Http\Controllers\API\Task\StudentController as TaskStudentController;
 use App\Http\Controllers\API\TaskController;
 use App\Http\Controllers\API\TaskDisplayController;
+use App\Http\Controllers\API\TaskSubmissionController;
+use App\Http\Controllers\API\TaskSubmissionCorrectionController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -101,9 +101,9 @@ Route::prefix('grades')->group(function () {
         Route::post('/{taskId}', [TaskController::class, 'update'])->middleware('auth:sanctum');
         Route::get('/{taskId}', [TaskDisplayController::class, 'showById'])->middleware('auth:sanctum');
         Route::delete('/{taskId}', [TaskController::class, 'destroy'])->middleware('auth:sanctum');
-        Route::post('/{taskId}/submit', [TaskStudentController::class, 'store'])->middleware('auth:sanctum');
-        Route::post('/{taskId}/submission/{submissionId}', [TaskTeacherController::class, 'correction'])->middleware('auth:sanctum');
-        // Route::get('/{taskId}/completions', [TaskDisplayController::class, 'completions'])->middleware('auth:sanctum');
+        Route::post('/{taskId}/submit', [TaskSubmissionController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{taskId}/submission/{submissionId}', [TaskSubmissionCorrectionController::class, 'correction'])->middleware('auth:sanctum');
+        Route::get('/{taskId}/completions', [TaskDisplayController::class, 'completions'])->middleware('auth:sanctum');
     });
 
     Route::get('/{gradeId}/stream', [StreamController::class, 'index'])->middleware('auth:sanctum');

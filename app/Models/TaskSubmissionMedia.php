@@ -9,7 +9,7 @@ class TaskSubmissionMedia extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['file_path', 'submission_id'];
+    protected $fillable = ['file_name', 'submission_id'];
 
     public function submission()
     {
