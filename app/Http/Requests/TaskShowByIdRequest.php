@@ -4,13 +4,10 @@ namespace App\Http\Requests;
 
 use App\Models\Grade;
 use App\Models\Task;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Http\FormRequest;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class TaskShowByIdRequest extends FormRequest
 {
-    protected $grade;
     protected $task;
     /**
      * Determine if the user is authorized to make this request.

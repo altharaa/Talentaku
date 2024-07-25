@@ -1,9 +1,5 @@
 <?php
 
-use App\Http\Controllers\MemberController;
-use App\Models\Information;
-use App\Models\Member;
-use App\Models\User;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
@@ -57,6 +53,38 @@ Route::get('/image/album-media/{filename}', function ($filename) {
 
 Route::get('/image/task/{filename}', function ($filename) {
     $path = storage_path('app/public/tasks/' . $filename);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});
+
+Route::get('/image/task-submission/{filename}', function ($filename) {
+    $path = storage_path('app/public/task-submissions/' . $filename);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});
+
+Route::get('/image/student-report/{filename}', function ($filename) {
+    $path = storage_path('app/public/student-reports/' . $filename);
 
     if (!File::exists($path)) {
         abort(404);
