@@ -48,7 +48,6 @@ class TaskController extends Controller
                 $mediaData[] = [
                     'id' => $media->id,
                     'file_name' => $media->file_name,
-                    'file_path' => $path,
                     'file_size' => $mediaFile->getSize(),
                     'file_type' => $mediaFile->getMimeType(),
                 ];

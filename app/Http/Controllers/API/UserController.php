@@ -5,18 +5,10 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UserPasswordRequest;
 use App\Http\Requests\UserPhotoRequest;
-use App\Http\Resources\UserRescource;
-use App\Models\Grade;
+use App\Http\Resources\UserResource;
 use App\Models\User;
-use Illuminate\Auth\Events\Validated;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -31,7 +23,7 @@ class UserController extends Controller
             ], 404);
         }
 
-        return new UserRescource($user);
+        return new UserResource($user);
     }
     public function updatePhoto(UserPhotoRequest $request)
     {

@@ -44,4 +44,9 @@ class Grade extends Model
     {
         return $this->teacher_id === $userId || $this->members()->where('id', $userId)->exists();
     }
+
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
 }

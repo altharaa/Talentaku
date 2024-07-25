@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('task_submission_media', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('submission_id');
-            $table->string('file_path');
+            $table->string('file_name');
             $table->timestamps();
 
             $table->foreign('submission_id')->references('id')->on('task_submissions')->onDelete('cascade');

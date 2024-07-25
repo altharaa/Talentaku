@@ -21,7 +21,7 @@ class TaskResource extends JsonResource
             'end_date' => $this->end_date,
             'desc' => explode(PHP_EOL, $this->desc),
             'grade' => new GradeResource($this->grade),
-            'teacher' => new UserRescource($this->teacher),
+            'teacher' => new UserResource($this->teacher),
             'media' => TaskMediaResource::collection($this->media),
             'links' => TaskLinkResource::collection($this->links),
         ];

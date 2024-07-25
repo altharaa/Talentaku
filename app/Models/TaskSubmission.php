@@ -20,4 +20,9 @@ class TaskSubmission extends Model
     {
         return $this->belongsTo(User::class, 'student_id');
     }
+
+    public function task()
+    {
+        return $this->belongsTo(Task::class, 'task_id');
+    }
 }

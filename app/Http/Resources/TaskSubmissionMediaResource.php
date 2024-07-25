@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class GradeResource extends JsonResource
+class TaskSubmissionMediaResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,12 +16,8 @@ class GradeResource extends JsonResource
     {
         return [
             'id' => $this->id,
-            'name' => $this->name,
-            'desc' => $this->desc,
-            'code' => $this->unique_code,
-            'is_active' => $this->isactive,
-            'teacher' => new UserResource($this->teacher),
-            'level' => $this->level->only(['id', 'name']),
+            'submission_id' => $this->submission_id,
+            'file_name' => $this->file_name,
         ];
     }
 }
