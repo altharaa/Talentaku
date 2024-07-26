@@ -16,12 +16,12 @@ class TaskSubmissionResource extends JsonResource
     public function toArray(Request $request): array
     {
         if ($this->resource instanceof \Illuminate\Database\Eloquent\Collection) {
-            return $this->resource->map(function ($submission) use ($request) {
-                return $this->formatSubmission($submission, $request);
+            return $this->resource->map(function ($submission){
+                return $this->formatSubmission($submission);
             })->toArray();
         }
 
-        return $this->formatSubmission($this->resource, $request);
+        return $this->formatSubmission($this->resource);
     }
 
     /**
@@ -44,11 +44,8 @@ class TaskSubmissionResource extends JsonResource
         return [
             'id' => $submission->id,
             'task_id' => $submission->task_id,
-            'user' => $submission->student ? new UserResource($submission->student) : null,
-            'grade' => $task && $task->grade ? new GradeResource($task->grade) : null,
-            'task' => $task ? new TaskResource($task) : null,
-            'media' => $submission->media ? TaskSubmissionMediaResource::collection($submission->media) : [],
-            'student_name' => $submission->student ? $submission->student->name : null,
+            'student_submitted' => $submission->student ,
+            'submmision_media' => $submission->media ? TaskSubmissionMediaResource::collection($submission->media) : [],
             'submitted_at' => $submissionDate->toDateString(),
             'is_late' => $isLate,
             'status' => $isLate ? 'Late' : 'On Time',

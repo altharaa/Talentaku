@@ -43,23 +43,38 @@ class TaskSubmissionDisplayRequest extends FormRequest
         ];
     }
 
-    public function getCompletions()
+    public function getCompletionsScoreNull()
     {
         if (!$this->completions) {
             $this->completions = TaskSubmission::where('task_id', $this->route('taskId'))
+                ->whereNull('score')
+                ->with(['student:id,name', 'task', 'task.grade'])
+                ->latest()
+                ->get();
+        }
+        return $this->completions;
+    }
+
+    public function getCompletionsById()
+    {
+        if (!$this->completions) {
+            $this->completions = TaskSubmission::where('task_id', $this->route('taskId'))
+                ->where('id', $this->route('submissionId'))
                 ->with(['student:id,name', 'task', 'task.grade'])
                 ->get();
         }
         return $this->completions;
     }
 
-    public function getGrade()
+    public function getCompletionsWithScores()
     {
-        return $this->grade;
-    }
-
-    public function getTask()
-    {
-        return $this->task;
+        if(!$this->completions){
+            $this->completions = TaskSubmission::where('task_id', $this->route('taskId'))
+                ->whereNotNull('score')
+                ->with(['student:id,name', 'task', 'task.grade'])
+                ->latest()
+                ->get();
+        }
+        return $this->completions;
     }
 }
