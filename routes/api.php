@@ -17,6 +17,7 @@ use App\Http\Controllers\API\TaskController;
 use App\Http\Controllers\API\TaskDisplayController;
 use App\Http\Controllers\API\TaskSubmissionController;
 use App\Http\Controllers\API\TaskSubmissionCorrectionController;
+use App\Http\Controllers\API\TaskSubmissionDisplayController;
 use App\Http\Controllers\API\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -103,7 +104,9 @@ Route::prefix('grades')->group(function () {
         Route::delete('/{taskId}', [TaskController::class, 'destroy'])->middleware('auth:sanctum');
         Route::post('/{taskId}/submit', [TaskSubmissionController::class, 'store'])->middleware('auth:sanctum');
         Route::post('/{taskId}/submission/{submissionId}', [TaskSubmissionCorrectionController::class, 'correction'])->middleware('auth:sanctum');
-        Route::get('/{taskId}/completions', [TaskDisplayController::class, 'completions'])->middleware('auth:sanctum');
+        Route::get('/{taskId}/completions', [TaskSubmissionDisplayController::class, 'completions'])->middleware('auth:sanctum');
+        Route::get('/{taskId}/completions/{submissionId}', [TaskSubmissionDisplayController::class, 'show'])->middleware('auth:sanctum');
+        Route::get('/{taskId}/completions-with-scores', [TaskSubmissionDisplayController::class, 'completionsWithScores'])->middleware('auth:sanctum');
     });
 
     Route::get('/{gradeId}/stream', [StreamController::class, 'index'])->middleware('auth:sanctum');

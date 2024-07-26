@@ -36,11 +36,12 @@ class TeacherController extends Controller
         if (is_array($newMedia)) {
             foreach ($newMedia as $mediaFile) {
                 $path = $mediaFile->store('public/student-reports');
+                $fileName = basename($path);
                 if (!$path) {
                     throw new \Exception('Failed to upload file');
                 }
                 $studentReportMedia = $studentReport->media()->create([
-                    'file_path' => Storage::url($path),
+                    'file_path' => $fileName,
                 ]);
                 $mediaData[] = [
                     'id' => $studentReportMedia->id,
