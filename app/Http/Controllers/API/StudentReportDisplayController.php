@@ -13,7 +13,7 @@ class StudentReportDisplayController extends Controller
 {
     public function detail(StudentReportRequest $request)
     {
-        $studentReport = $request->getReportDetail();
+        $studentReport = $request->getReport();
         return new StudentReportResource($studentReport);
     }
 }

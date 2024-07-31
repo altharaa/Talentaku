@@ -12,6 +12,7 @@ use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\API\StreamController;
 use App\Http\Controllers\API\StudentReportController;
 use App\Http\Controllers\API\StudentReportDisplayController;
+use App\Http\Controllers\API\StudentReportDisplayForStudentController;
 use App\Http\Controllers\API\StudentReportDisplayForTeacherController;
 use App\Http\Controllers\API\StudentReportSemesterController;
 // use App\Http\Controllers\API\StudentReport\StudentController;
@@ -76,11 +77,11 @@ Route::prefix('grades')->group(function () {
         Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');
         Route::post('/{studentReportId}', [StudentReportController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{studentReportId}', [StudentReportController::class, 'destroy'])->middleware('auth:sanctum');
-        // Route::get('/', [StudentController::class, 'display'])->middleware('auth:sanctum');
         Route::get('/student/{studentId}', [StudentReportDisplayForTeacherController::class, 'displayAll'])->middleware('auth:sanctum');
         Route::get('/student/{studentId}/semester/{semesterId}', [StudentReportDisplayForTeacherController::class, 'displayBySemester'])->middleware('auth:sanctum');
-//         Route::get('/semester/{semesterId}', [StudentReportDisplayController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
-         Route::get('/{studentReportId}', [StudentReportDisplayController::class, 'detail'])->middleware('auth:sanctum');
+        Route::get('/student', [StudentReportDisplayForStudentController::class, 'displayAll'])->middleware('auth:sanctum');
+        Route::get('/student/semester/{semesterId}', [StudentReportDisplayForStudentController::class, 'displayBySemester'])->middleware('auth:sanctum');
+        Route::get('/{studentReportId}', [StudentReportDisplayController::class, 'detail'])->middleware('auth:sanctum');
     });
 
     Route::prefix('/{gradeId}/albums')->group(function () {
