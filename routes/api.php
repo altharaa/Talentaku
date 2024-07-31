@@ -11,6 +11,8 @@ use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\API\StreamController;
 use App\Http\Controllers\API\StudentReportController;
+use App\Http\Controllers\API\StudentReportDisplayController;
+use App\Http\Controllers\API\StudentReportDisplayForTeacherController;
 use App\Http\Controllers\API\StudentReportSemesterController;
 // use App\Http\Controllers\API\StudentReport\StudentController;
 // use App\Http\Controllers\API\StudentReport\StudentReportController;
@@ -75,10 +77,10 @@ Route::prefix('grades')->group(function () {
         Route::post('/{studentReportId}', [StudentReportController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{studentReportId}', [StudentReportController::class, 'destroy'])->middleware('auth:sanctum');
         // Route::get('/', [StudentController::class, 'display'])->middleware('auth:sanctum');
-        // Route::get('/students/{studentId}', [StudentReportController::class, 'displayTeacher'])->middleware('auth:sanctum');
-        // Route::get('/{studentReportId}', [StudentReportController::class, 'show'])->middleware('auth:sanctum');
-        // Route::get('/student/{studentId}/semester/{semesterId}', [StudentReportController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
-        // Route::get('/semester/{semesterId}', [StudentController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
+        Route::get('/student/{studentId}', [StudentReportDisplayForTeacherController::class, 'displayAll'])->middleware('auth:sanctum');
+        Route::get('/student/{studentId}/semester/{semesterId}', [StudentReportDisplayForTeacherController::class, 'displayBySemester'])->middleware('auth:sanctum');
+//         Route::get('/semester/{semesterId}', [StudentReportDisplayController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
+         Route::get('/{studentReportId}', [StudentReportDisplayController::class, 'detail'])->middleware('auth:sanctum');
     });
 
     Route::prefix('/{gradeId}/albums')->group(function () {
@@ -115,8 +117,4 @@ Route::prefix('grades')->group(function () {
     Route::get('/{gradeId}/stream/{streamId}', [StreamController::class, 'show'])->middleware('auth:sanctum');
 });
 
-Route::prefix('student-report')->group(function () {
-    Route::get('/semesters', [StudentReportSemesterController::class, 'displaySemesters'])->middleware('auth:sanctum');
-});
-
-
+Route::get('student-report/semesters', [StudentReportSemesterController::class, 'displaySemesters'])->middleware('auth:sanctum');
