@@ -10,9 +10,10 @@ use App\Http\Controllers\API\Grade\TeacherController as GradeTeacherController;
 use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\API\StreamController;
-use App\Http\Controllers\API\StudentReport\StudentController;
-use App\Http\Controllers\API\StudentReport\StudentReportController;
-use App\Http\Controllers\API\StudentReport\TeacherController;
+use App\Http\Controllers\API\StudentReportController;
+// use App\Http\Controllers\API\StudentReport\StudentController;
+// use App\Http\Controllers\API\StudentReport\StudentReportController;
+// use App\Http\Controllers\API\StudentReport\TeacherController;
 use App\Http\Controllers\API\TaskController;
 use App\Http\Controllers\API\TaskDisplayController;
 use App\Http\Controllers\API\TaskSubmissionController;
@@ -69,14 +70,14 @@ Route::prefix('grades')->group(function () {
     Route::delete('/{gradeId}/members/{memberId}', [GradeTeacherController::class, 'deleteMember'])->middleware('auth:sanctum');
 
     Route::prefix('/{gradeId}/student-report')->group(function () {
-        Route::get('/', [StudentController::class, 'display'])->middleware('auth:sanctum');
-        Route::get('/students/{studentId}', [StudentReportController::class, 'displayTeacher'])->middleware('auth:sanctum');
-        Route::get('/{studentReportId}', [StudentReportController::class, 'show'])->middleware('auth:sanctum');
-        Route::post('/', [TeacherController::class, 'store'])->middleware('auth:sanctum');
-        Route::post('/{studentReportId}', [TeacherController::class, 'update'])->middleware('auth:sanctum');
-        Route::delete('/{studentReportId}', [TeacherController::class, 'destroy'])->middleware('auth:sanctum');
-        Route::get('/student/{studentId}/semester/{semesterId}', [StudentReportController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
-        Route::get('/semester/{semesterId}', [StudentController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
+        Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');
+        // Route::get('/', [StudentController::class, 'display'])->middleware('auth:sanctum');
+        // Route::get('/students/{studentId}', [StudentReportController::class, 'displayTeacher'])->middleware('auth:sanctum');
+        // Route::get('/{studentReportId}', [StudentReportController::class, 'show'])->middleware('auth:sanctum');
+        // Route::post('/{studentReportId}', [TeacherController::class, 'update'])->middleware('auth:sanctum');
+        // Route::delete('/{studentReportId}', [TeacherController::class, 'destroy'])->middleware('auth:sanctum');
+        // Route::get('/student/{studentId}/semester/{semesterId}', [StudentReportController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
+        // Route::get('/semester/{semesterId}', [StudentController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
     });
 
     Route::prefix('/{gradeId}/albums')->group(function () {
