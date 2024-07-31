@@ -13,7 +13,7 @@ class StudentController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $roles = $user->roles->pluck('name')->toArray(); 
+        $roles = $user->roles->pluck('name')->toArray();
 
         if (!in_array('Murid SD', $roles) && !in_array('Murid KB', $roles)) {
             return response()->json([
@@ -21,8 +21,8 @@ class StudentController extends Controller
                 'message' => 'Only students Murid SD or Murid KB can view their grades.',
             ], 403);
         }
-    
-        $grades = $user->grades()->with(['teacher:id,name', 'members:id,name,photo'])->get();
+
+        $grades = $user->grades()->with(['teacher:id,name'])->get();
 
         if (empty($grades)) {
             return response()->json([
@@ -43,6 +43,8 @@ class StudentController extends Controller
                 'members' => $grade->members->map(function ($member) {
                     return [
                         'id' => $member->id,
+                        'email' => $member->email,
+                        'identification_number' => $member->identification_number,
                         'name' => $member->name,
                         'photo' => $member->photo,
                     ];
