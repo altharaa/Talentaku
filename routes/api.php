@@ -11,6 +11,7 @@ use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
 use App\Http\Controllers\API\StreamController;
 use App\Http\Controllers\API\StudentReportController;
+use App\Http\Controllers\API\StudentReportSemesterController;
 // use App\Http\Controllers\API\StudentReport\StudentController;
 // use App\Http\Controllers\API\StudentReport\StudentReportController;
 // use App\Http\Controllers\API\StudentReport\TeacherController;
@@ -115,7 +116,7 @@ Route::prefix('grades')->group(function () {
 });
 
 Route::prefix('student-report')->group(function () {
-    Route::get('/semesters', [StudentReportController::class, 'displaySemesters'])->middleware('auth:sanctum');
+    Route::get('/semesters', [StudentReportSemesterController::class, 'displaySemesters'])->middleware('auth:sanctum');
 });
 
 

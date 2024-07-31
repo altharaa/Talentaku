@@ -4,13 +4,14 @@ namespace App\Http\Requests;
 
 use App\Models\Grade;
 use App\Models\StudentReport;
+use App\Models\StudentReportSemester;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StudentReportRequest extends FormRequest
 {
-    protected $grade;
     protected $report;
+
+    protected $semester;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -18,16 +19,18 @@ class StudentReportRequest extends FormRequest
     {
         $user = $this->user();
         $gradeId = $this->route('gradeId');
-        $this->grade = Grade::findOrFail($gradeId);
 
-        if ($this->grade->isactive == "inactive") {
-            throw new HttpResponseException(response()->json([
-                'status' => 'error',
-                'message' => 'This action is not allowed due to this associated grade being inactive.',
-            ], 403));
+        if (!$gradeId) {
+            return true;
         }
 
-        return $user->id == $this->grade->teacher_id || $this->grade->members->contains($user->id);
+        $grade = Grade::find($gradeId);
+
+        if (!$grade) {
+            return false;
+        }
+
+        return $user->id == $grade->teacher_id || $grade->members->contains($user->id);
 
     }
 
@@ -52,5 +55,13 @@ class StudentReportRequest extends FormRequest
                 ->firstOrFail();
         }
         return $this->report;
+    }
+
+    public function getSemester()
+    {
+        if(!$this->semester) {
+            $this->semester = StudentReportSemester::all();
+        }
+        return $this->semester;
     }
 }

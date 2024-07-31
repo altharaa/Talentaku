@@ -11,16 +11,6 @@ use Illuminate\Http\Request;
 
 class StudentReportController extends Controller
 {
-    public function displaySemesters()
-    {
-        $semester = StudentReportSemester::all();
-
-        return response()->json([
-            'status' => 'success',
-            'data' => $semester,
-        ]);
-    }
-
     public function show(Request $request, $gradeId, $studentReportId) {
         $user = $request->user();
         $grade = Grade::find($gradeId);
@@ -108,7 +98,7 @@ class StudentReportController extends Controller
     public function displayStudentReportsBySemester(Request $request, $gradeId, $studentId, $semesterId)
     {
         $user = $request->user();
-        
+
         $roles = $user->roles()->pluck('name')->toArray();
         if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)){
             return response()->json([

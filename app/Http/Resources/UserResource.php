@@ -34,7 +34,6 @@ class UserResource extends JsonResource
 
     private function getBirthInformation()
     {
-        // Use Carbon to parse the date string
         $birthDate = $this->birth_date ? Carbon::parse($this->birth_date)->format('Y-m-d') : null;
         return $this->place_of_birth . ($birthDate ? ', ' . $birthDate : '');
     }
