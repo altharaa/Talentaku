@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Hash;
 
 class UserPasswordRequest extends FormRequest
 {
@@ -22,8 +23,25 @@ class UserPasswordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'current_password' => ['required'],
-            'new_password' => ['required', 'string', 'min:8', 'confirmed', 'regex:/[a-z]/', 'regex:/[A-Z]/', 'regex:/[0-9]/',],
+            'current_password' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    if (!Hash::check($value, $this->user()->password)) {
+                        $fail('The current password is incorrect.');
+                    }
+                },
+            ],
+            'new_password' => [
+                'required',
+                'min:8',
+                'different:current_password',
+                function ($attribute, $value, $fail) {
+                    if (Hash::check($value, $this->user()->password)) {
+                        $fail('The new password must be different from the current password.');
+                    }
+                },
+            ],
+            'new_password_confirmation' => 'required|same:new_password',
         ];
     }
 }
