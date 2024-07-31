@@ -18,7 +18,6 @@ class TaskShowByIdRequest extends FormRequest
         $grade = Grade::findOrFail($this->route('gradeId'));
         
         return $user->id == $grade->teacher_id || $grade->members->contains($user->id);
-    
     }
 
     /**

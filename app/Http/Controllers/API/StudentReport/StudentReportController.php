@@ -4,9 +4,7 @@ namespace App\Http\Controllers\API\StudentReport;
 
 use App\Http\Controllers\Controller;
 use App\Models\Grade;
-use App\Models\Semester;
 use App\Models\StudentReport;
-use App\Models\StudentReportPoint;
 use App\Models\StudentReportSemester;
 use App\Models\User;
 use Illuminate\Http\Request;

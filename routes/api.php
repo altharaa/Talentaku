@@ -71,11 +71,11 @@ Route::prefix('grades')->group(function () {
 
     Route::prefix('/{gradeId}/student-report')->group(function () {
         Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{studentReportId}', [StudentReportController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{studentReportId}', [StudentReportController::class, 'destroy'])->middleware('auth:sanctum');
         // Route::get('/', [StudentController::class, 'display'])->middleware('auth:sanctum');
         // Route::get('/students/{studentId}', [StudentReportController::class, 'displayTeacher'])->middleware('auth:sanctum');
         // Route::get('/{studentReportId}', [StudentReportController::class, 'show'])->middleware('auth:sanctum');
-        // Route::post('/{studentReportId}', [TeacherController::class, 'update'])->middleware('auth:sanctum');
-        // Route::delete('/{studentReportId}', [TeacherController::class, 'destroy'])->middleware('auth:sanctum');
         // Route::get('/student/{studentId}/semester/{semesterId}', [StudentReportController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
         // Route::get('/semester/{semesterId}', [StudentController::class, 'displayStudentReportsBySemester'])->middleware('auth:sanctum');
     });
