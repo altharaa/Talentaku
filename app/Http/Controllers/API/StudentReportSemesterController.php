@@ -16,9 +16,4 @@ class StudentReportSemesterController extends Controller
             'data' => $semester,
         ]);
     }
-
-    public function displayStudentReportsBySemester(StudentReportRequest $request)
-    {
-
-    }
 }

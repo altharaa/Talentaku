@@ -6,11 +6,11 @@ use App\Models\Grade;
 use App\Models\StudentReport;
 use App\Models\StudentReportSemester;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
 
 class StudentReportRequest extends FormRequest
 {
     protected $report;
-
     protected $semester;
     /**
      * Determine if the user is authorized to make this request.
@@ -53,6 +53,12 @@ class StudentReportRequest extends FormRequest
                 ->where('grade_id', $this->route('gradeId'))
                 ->with(['media', 'grade.teacher'])
                 ->firstOrFail();
+            if (!$this->report) {
+                throw new HttpResponseException(response()->json([
+                    'status' => 'error',
+                    'message' => 'Student report not found.',
+                ], 404));
+            }
         }
         return $this->report;
     }
@@ -63,5 +69,59 @@ class StudentReportRequest extends FormRequest
             $this->semester = StudentReportSemester::all();
         }
         return $this->semester;
+    }
+
+    public function getReportForTeacher()
+    {
+        if (!$this->report) {
+            $user = $this->user();
+            $this->report = StudentReport::where('teacher_id', $user->id)
+                ->where('grade_id', $this->route('gradeId'))
+                ->where('student_id', $this->route('studentId'))
+                ->with('media')
+                ->latest()
+                ->get();
+        }
+        return $this->report;
+    }
+
+    public function getReportBySemesterTeacher()
+    {
+        if (!$this->report) {
+            $this->report = StudentReport::where('grade_id', $this->route('gradeId'))
+                ->where('student_id', $this->route('studentId'))
+                ->where('semester_id', $this->route('semesterId'))
+                ->with(['media', 'semester'])
+                ->latest()
+                ->get();
+        }
+        return $this->report;
+    }
+
+    public function getReportForStudent()
+    {
+        if (!$this->report) {
+            $user = $this->user();
+            $this->report = StudentReport::where('grade_id', $this->route('gradeId'))
+                ->where('student_id', $user->id)
+                ->with('media')
+                ->latest()
+                ->get();
+        }
+        return $this->report;
+    }
+
+    public function getReportBySemesterStudent()
+    {
+        if (!$this->report) {
+            $user = $this->user();
+            $this->report = StudentReport::where('grade_id', $this->route('gradeId'))
+                ->where('student_id', $user->id)
+                ->where('semester_id',  $this->route('semesterId'))
+                ->with(['media', 'semester'])
+                ->latest()
+                ->get();
+        }
+        return $this->report;
     }
 }

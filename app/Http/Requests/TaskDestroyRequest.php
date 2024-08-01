@@ -30,13 +30,6 @@ class TaskDestroyRequest extends FormRequest
             ], 404));
         }
 
-        if ($this->grade->isactive == 2) {
-            throw new HttpResponseException(response()->json([
-                'status' => 'error',
-                'message' => 'Cannot update task. The associated grade is not active.',
-            ], 403));
-        }
-
         $this->task = Task::where('id', $taskId)->where('grade_id', $gradeId)->first();
         if (!$this->task) {
             throw new HttpResponseException(response()->json([

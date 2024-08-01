@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class TaskStoreRequest extends FormRequest
+class GradeDeleteRequest extends FormRequest
 {
     protected $grade;
     /**
@@ -17,6 +17,7 @@ class TaskStoreRequest extends FormRequest
     {
         $user = $this->user();
         $gradeId = $this->route('gradeId');
+        $roles = $user->roles()->pluck('name')->toArray();
 
         try {
             $this->grade = Grade::findOrFail($gradeId);
@@ -25,15 +26,6 @@ class TaskStoreRequest extends FormRequest
                 'status' => 'error',
                 'message' => 'Grade not found.',
             ], 404));
-        }
-
-        $roles = $user->roles()->pluck('name')->toArray();
-
-        if ($this->grade->isactive == 0) {  
-            throw new HttpResponseException(response()->json([
-                'status' => 'error',
-                'message' => 'Cannot create task. The associated grade is not active.',
-            ], 403));
         }
 
         return (in_array('Guru SD', $roles) || in_array('Guru KB', $roles))
@@ -48,13 +40,16 @@ class TaskStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|string',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'desc' => 'required|string',
-            'media' => 'nullable|array',
-            'media.*' => 'file|mimes:jpg,jpeg,png,mp4,avi,mov,pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048',
-            'links' => 'nullable|array',
-            'links.*' => 'url',
+            //
         ];
+    }
+
+    public function getGrade()
+    {
+        if(!$this->grade)
+        {
+            Grade::findOrFail($this->route('gradeId'));
+        }
+        return $this->grade;
     }
 }

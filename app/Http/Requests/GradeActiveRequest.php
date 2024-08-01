@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StudentReportStoreRequest extends FormRequest
+class GradeActiveRequest extends FormRequest
 {
     protected $grade;
     /**
@@ -41,28 +41,16 @@ class StudentReportStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'created' => 'required|date',
-            'semester_id' => 'required|exists:student_report_semesters,id',
-            'kegiatan_awal' => 'required|string',
-            'awal_point' => 'required|in:Muncul,Kurang,Belum Muncul',
-            'kegiatan_inti' => 'required|string',
-            'inti_point' => 'required|in:Muncul,Kurang,Belum Muncul',
-            'snack' => 'required|string',
-            'snack_point' => 'required|in:Muncul,Kurang,Belum Muncul',
-            'inklusi' => 'required|string',
-            'inklusi_point' => 'required|in:Muncul,Kurang,Belum Muncul',
-            'catatan' => 'required|string',
-            'student_id' => [
-                'required',
-                'exists:users,id',
-                function ($attribute, $value, $fail) {
-                    if (!$this->grade->members()->where('users.id', $value)->exists()) {
-                        $fail('The specified student is not in this grade.');
-                    }
-                },
-            ],
-            'media' => 'nullable|array',
-            'media.*' => 'file|mimes:jpeg,png,jpg,gif,svg,mp4,mov,avi|max:20480',
+            //
         ];
+    }
+
+    public function getGrade()
+    {
+        if(!$this->grade)
+        {
+            Grade::findOrFail($this->route('gradeId'));
+        }
+        return $this->grade;
     }
 }

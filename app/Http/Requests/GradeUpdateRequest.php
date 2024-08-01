@@ -3,11 +3,12 @@
 namespace App\Http\Requests;
 
 use App\Models\Grade;
+use App\Models\GradeLevel;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
-class StudentReportStoreRequest extends FormRequest
+class GradeUpdateRequest extends FormRequest
 {
     protected $grade;
     /**
@@ -28,6 +29,26 @@ class StudentReportStoreRequest extends FormRequest
         }
 
         $roles = $user->roles()->pluck('name')->toArray();
+        $level = GradeLevel::findOrFail($this->level_id);
+
+        $authorizedRoles = [
+            'SD' => ['Guru SD'],
+            'KB' => ['Guru KB'],
+        ];
+
+        if (!isset($authorizedRoles[$level->name]) || !array_intersect($roles, $authorizedRoles[$level->name])) {
+            throw new HttpResponseException(response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to create a class for this level.',
+            ], 403));
+        }
+
+        if ($this->grade->isactive == 0) {
+            throw new HttpResponseException(response()->json([
+                'status' => 'error',
+                'message' => 'Cannot update grade. The associated grade is not active.',
+            ], 403));
+        }
 
         return (in_array('Guru SD', $roles) || in_array('Guru KB', $roles))
             && $user->id == $this->grade->teacher_id;
@@ -41,28 +62,18 @@ class StudentReportStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'created' => 'required|date',
-            'semester_id' => 'required|exists:student_report_semesters,id',
-            'kegiatan_awal' => 'required|string',
-            'awal_point' => 'required|in:Muncul,Kurang,Belum Muncul',
-            'kegiatan_inti' => 'required|string',
-            'inti_point' => 'required|in:Muncul,Kurang,Belum Muncul',
-            'snack' => 'required|string',
-            'snack_point' => 'required|in:Muncul,Kurang,Belum Muncul',
-            'inklusi' => 'required|string',
-            'inklusi_point' => 'required|in:Muncul,Kurang,Belum Muncul',
-            'catatan' => 'required|string',
-            'student_id' => [
-                'required',
-                'exists:users,id',
-                function ($attribute, $value, $fail) {
-                    if (!$this->grade->members()->where('users.id', $value)->exists()) {
-                        $fail('The specified student is not in this grade.');
-                    }
-                },
-            ],
-            'media' => 'nullable|array',
-            'media.*' => 'file|mimes:jpeg,png,jpg,gif,svg,mp4,mov,avi|max:20480',
+            'name' => 'required|string|max:255',
+            'desc' => 'required|string',
+            'level_id' => 'required|exists:grade_levels,id',
         ];
+    }
+
+    public function getGrade()
+    {
+        if(!$this->grade)
+        {
+            Grade::findOrFail($this->route('gradeId'));
+        }
+        return $this->grade;
     }
 }
