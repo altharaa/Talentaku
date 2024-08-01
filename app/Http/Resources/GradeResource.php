@@ -18,7 +18,7 @@ class GradeResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'desc' => $this->desc,
-            'code' => $this->unique_code,
+            'unique_code' => $this->unique_code,
             'is_active' => $this->isactive ? 1 : 0,
             'is_active_status' => $this->isactive ? 'active' : 'inactive',
             'teacher' => new UserResource($this->teacher),

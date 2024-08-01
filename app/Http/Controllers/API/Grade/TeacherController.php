@@ -55,38 +55,6 @@ class TeacherController extends Controller
         ]);
     }
 
-    public function toggleActive(Request $request, $id)
-    {
-        $grade = Grade::findOrFail($id);
-
-        $user = $request->user();
-        $roles = $user->roles()->pluck('name')->toArray();
-        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Only "Guru SD" or "Guru KB" can toggle grade status.',
-            ], 403);
-        }
-
-        if ($grade->teacher_id != $user->id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You can only toggle status for grades you are teaching.',
-            ], 403);
-        }
-
-        $grade->isactive = !$grade->isactive;
-        $grade->save();
-
-        $statusMessage = $grade->isactive ? 'activated' : 'deactivated';
-
-        return response()->json([
-            'status' => 'success',
-            'message' => "Grade has been successfully {$statusMessage}.",
-            'data' => $grade,
-        ], 200);
-    }
-
     public function detail(Request $request, $id) {
         $user = $request->user();
         $grade = Grade::with(['teacher', 'members'])->find($id);
