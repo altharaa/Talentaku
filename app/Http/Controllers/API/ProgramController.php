@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class ProgramController extends Controller
 {
-    public function show() 
+    public function show()
     {
         $programs = Program::all();
 
@@ -53,8 +53,8 @@ class ProgramController extends Controller
         $validatedData = $request->all();
 
         if ($request->hasFile('photo')) {
-            $photo = $request->file('photo')->storePublicly('photos', 'public');
-            $validatedData['photo'] = Storage::url($photo);
+            $photo = $request->file('photo')->store('public/photos');
+            $validatedData['photo'] = basename($photo);
         }
 
         if ($program->update($validatedData)) {
