@@ -7,6 +7,7 @@ use App\Http\Controllers\API\Comment\DisplayController;
 use App\Http\Controllers\API\Comment\ReplyController;
 use App\Http\Controllers\API\GradeActiveController;
 use App\Http\Controllers\API\GradeController;
+use App\Http\Controllers\API\GradeDisplayController;
 use App\Http\Controllers\API\GradeMemberController;
 use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
@@ -68,9 +69,9 @@ Route::prefix('grades')->group(function () {
     Route::patch('/{gradeId}/toggle-active', [GradeActiveController::class, 'toggleActive'])->middleware('auth:sanctum');;
     Route::put('/member-join', [GradeMemberController::class, 'join'])->middleware('auth:sanctum');
     Route::delete('/{gradeId}/members/{memberId}', [GradeMemberController::class, 'deleteMember'])->middleware('auth:sanctum');
-//    Route::get('/teacher', [GradeTeacherController::class, 'index'])->middleware('auth:sanctum');
-//    Route::get('/student', [GradeStudentController::class, 'index'])->middleware('auth:sanctum');
-//    Route::get('/{id}', [GradeTeacherController::class, 'detail'])->middleware('auth:sanctum');
+    Route::get('/teacher', [GradeDisplayController::class, 'getAllGradeTeacher'])->middleware('auth:sanctum');
+    Route::get('/member', [GradeDisplayController::class, 'getAllGradeMember'])->middleware('auth:sanctum');
+    Route::get('/{gradeId}', [GradeDisplayController::class, 'detail'])->middleware('auth:sanctum');
 
     Route::prefix('/{gradeId}/student-report')->group(function () {
         Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');
