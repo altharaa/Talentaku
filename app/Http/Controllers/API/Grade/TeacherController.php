@@ -21,7 +21,7 @@ class TeacherController extends Controller
         } else {
             return response()->json([
                 'message' => 'You are not allowed to perform this action'
-            ], 403);  
+            ], 403);
         }
 
         if ($grades->isEmpty()) {
@@ -53,112 +53,6 @@ class TeacherController extends Controller
         return response()->json([
             'grades' => $formattedGrades
         ]);
-    }
-
-    public function store(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'desc' => 'required|string',
-            'level_id' => 'required|exists:grade_levels,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $user = $request->user();
-        $roles = $user->roles()->pluck('name')->toArray();
-        $level = GradeLevel::findOrFail($request->level_id);
-
-        $authorizedRoles = [
-            'SD' => ['Guru SD'],
-            'KB' => ['Guru KB'],
-        ];
-    
-        if (!isset($authorizedRoles[$level->name]) || !array_intersect($roles, $authorizedRoles[$level->name])) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not authorized to create a class for this level.',
-            ], 403);
-        }
-
-        try {
-            $grade = Grade::create([
-                'name' => $request->name,
-                'desc' => $request->desc,
-                'level_id' => $request->level_id,
-                'unique_code' => Str::random(5),
-                'teacher_id' => $user->id,
-            ]);
-
-            $grade->load('level');
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Grade created successfully.',
-                'data' => $grade,
-            ], 201);
-        } catch (\Exception $e) {
-            Log::error('Error creating grade: ' . $e->getMessage());
-            return response()->json([
-                'status' => 'error',
-                'message' => 'An error occurred while creating the grade.',
-            ], 500);
-        } 
-    }
-
-    public function update(Request $request, $id)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'desc' => 'required|string',
-            'level_id' => 'required|exists:grade_levels,id',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $grade = Grade::findOrFail($id);
-
-        if (!$grade->isactive) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'The class is not active. You cannot update an inactive class.',
-            ], 403);
-        }
-
-        $user = $request->user();
-        $roles = $user->roles()->pluck('name')->toArray();
-        if (!in_array('Guru SD', $roles) && !in_array('Guru KB', $roles)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Only "Guru SD" or "Guru KB" can update grades.',
-            ], 403);
-        }
-
-        if ($grade->teacher_id != $user->id) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You can only update grades you are teaching.',
-            ], 403);
-        }
-
-        $grade->update($request->only(['name', 'desc', 'level_id']));
-        $grade->load('level');
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Grade updated successfully.',
-            'data' => $grade,
-        ], 200);
     }
 
     public function toggleActive(Request $request, $id)
@@ -206,7 +100,7 @@ class TeacherController extends Controller
 
         $isTeacher = $grade->teacher_id == $user->id;
         $isMember = $grade->members->contains('id', $user->id);
-    
+
         if (!$isTeacher && !$isMember) {
             return response()->json([
                 'status' => 'error',

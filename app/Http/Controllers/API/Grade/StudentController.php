@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\API\Grade;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\GradeCollectionResource;
 use App\Http\Resources\GradeResource;
 use App\Models\Grade;
 use Illuminate\Http\Request;
@@ -30,29 +29,7 @@ class StudentController extends Controller
             ], 404);
         }
 
-        $formattedGrades = $grades->map(function ($grade) {
-            return [
-                'id' => $grade->id,
-                'name' => $grade->name,
-                'desc' => $grade->desc,
-                'isactive' => $grade->isactive,
-                'teacher' => $grade->teacher ? [
-                    'id' => $grade->teacher->id,
-                    'name' => $grade->teacher->name,
-                ] : null,
-                'members' => $grade->members->map(function ($member) {
-                    return [
-                        'id' => $member->id,
-                        'email' => $member->email,
-                        'identification_number' => $member->identification_number,
-                        'name' => $member->name,
-                        'photo' => $member->photo,
-                    ];
-                }),
-            ];
-        });
-
-        return new GradeCollectionResource($grades);
+        return GradeResource::collection($grades);
     }
 
     public function join(Request $request)
