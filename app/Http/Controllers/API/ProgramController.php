@@ -31,8 +31,8 @@ class ProgramController extends Controller
         $validatedData = $request->all();
 
         if ($request->hasFile('photo')) {
-            $photo = $request->file('photo')->storePublicly('photos', 'public');
-            $validatedData['photo'] = url(Storage::url($photo));
+            $photo = $request->file('photo')->store('public/photos');
+            $validatedData['photo'] = basename($photo);
         }
 
         if ($program = Program::create($validatedData)) {
