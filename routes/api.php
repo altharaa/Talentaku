@@ -66,7 +66,7 @@ Route::prefix('grades')->group(function () {
     Route::post('/', [GradeController::class, 'store'])->middleware('auth:sanctum');
     Route::post('/{gradeId}', [GradeController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{gradeId}', [GradeController::class, 'delete'])->middleware('auth:sanctum');
-    Route::patch('/{id}/toggle-active', [GradeActiveController::class, 'toggleActive'])->middleware('auth:sanctum');;
+    Route::patch('/{gradeId}/toggle-active', [GradeActiveController::class, 'toggleActive'])->middleware('auth:sanctum');;
 //    Route::post('/join', [GradeStudentController::class, 'join'])->middleware('auth:sanctum');
 //    Route::get('/teacher', [GradeTeacherController::class, 'index'])->middleware('auth:sanctum');
 //    Route::get('/student', [GradeStudentController::class, 'index'])->middleware('auth:sanctum');
