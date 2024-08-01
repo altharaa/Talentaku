@@ -29,13 +29,6 @@ class StudentReportStoreRequest extends FormRequest
 
         $roles = $user->roles()->pluck('name')->toArray();
 
-        if ($this->grade->isactive == 2) {  
-            throw new HttpResponseException(response()->json([
-                'status' => 'error',
-                'message' => 'Cannot create student reports. The associated grade is not active.',
-            ], 403));
-        }
-
         return (in_array('Guru SD', $roles) || in_array('Guru KB', $roles))
             && $user->id == $this->grade->teacher_id;
     }

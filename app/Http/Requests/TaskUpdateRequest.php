@@ -30,7 +30,7 @@ class TaskUpdateRequest extends FormRequest
             ], 404));
         }
         
-        if ($this->grade->isactive == 2) {
+        if ($this->grade->isactive == 0) {
             throw new HttpResponseException(response()->json([
                 'status' => 'error',
                 'message' => 'Cannot update task. The associated grade is not active.',

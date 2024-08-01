@@ -43,7 +43,7 @@ class GradeUpdateRequest extends FormRequest
             ], 403));
         }
 
-        if ($this->grade->isactive == 2) {
+        if ($this->grade->isactive == 0) {
             throw new HttpResponseException(response()->json([
                 'status' => 'error',
                 'message' => 'Cannot update grade. The associated grade is not active.',

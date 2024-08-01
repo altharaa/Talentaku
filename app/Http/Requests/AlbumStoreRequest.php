@@ -29,7 +29,7 @@ class AlbumStoreRequest extends FormRequest
 
         $roles = $user->roles()->pluck('name')->toArray();
 
-        if ($this->grade->isactive == 2) {  
+        if ($this->grade->isactive == 0) {  
             throw new HttpResponseException(response()->json([
                 'status' => 'error',
                 'message' => 'Cannot create task. The associated grade is not active.',
