@@ -24,9 +24,9 @@ class GradeDisplayRequest extends FormRequest
     {
         $user = $this->user();
 
-        if ($role === 'teacher') {
+        if ($role == 'teacher') {
             $grades = Grade::where('teacher_id', $user->id)->with('teacher', 'members')->get();
-        } elseif ($role === 'member') {
+        } elseif ($role == 'member') {
             $grades = $user->grades()->with(['teacher:id,name'])->get();
         } else {
             throw ValidationException::withMessages(['role' => 'Invalid role specified']);
