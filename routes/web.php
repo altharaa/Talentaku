@@ -1,9 +1,7 @@
 <?php
 
-use App\Http\Controllers\MemberController;
-use App\Models\Information;
-use App\Models\Member;
-use App\Models\User;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,16 +16,86 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+
+    return bcrypt('dimas1234');
 });
 
-// Route::get('/test', function () {
-//     $info = User::find(1);
-//    $list = [1,2];
+Route::get('/image/profile/{filename}', function ($filename) {
+    $path = storage_path('app/public/profile/' . $filename);
 
-//    $info->roles()->sync($list);
+    if (!File::exists($path)) {
+        abort(404);
+    }
 
-//     echo 'berhasil';
-// });
+    $file = File::get($path);
+    $type = File::mimeType($path);
 
-// Route::post('/grades/{gradeId}/students', [MemberController::class, 'store']);
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});
+
+Route::get('/image/album-media/{filename}', function ($filename) {
+    $path = storage_path('app/public/album-media/' . $filename);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});
+
+Route::get('/image/task/{filename}', function ($filename) {
+    $path = storage_path('app/public/tasks/' . $filename);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});
+
+Route::get('/image/task-submission/{filename}', function ($filename) {
+    $path = storage_path('app/public/task-submissions/' . $filename);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});
+
+Route::get('/image/student-report/{filename}', function ($filename) {
+    $path = storage_path('app/public/student-reports/' . $filename);
+
+    if (!File::exists($path)) {
+        abort(404);
+    }
+
+    $file = File::get($path);
+    $type = File::mimeType($path);
+
+    $response = Response::make($file, 200);
+    $response->header("Content-Type", $type);
+
+    return $response;
+});

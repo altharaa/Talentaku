@@ -1,10 +1,28 @@
 <?php
 
+use App\Http\Controllers\API\AlbumController;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\Comment\CommentController;
+use App\Http\Controllers\API\Comment\DisplayController;
+use App\Http\Controllers\API\Comment\ReplyController;
+use App\Http\Controllers\API\GradeActiveController;
+use App\Http\Controllers\API\GradeController;
+use App\Http\Controllers\API\GradeDisplayController;
+use App\Http\Controllers\API\GradeMemberController;
 use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
+use App\Http\Controllers\API\StreamController;
+use App\Http\Controllers\API\StudentReportController;
+use App\Http\Controllers\API\StudentReportDisplayController;
+use App\Http\Controllers\API\StudentReportDisplayForStudentController;
+use App\Http\Controllers\API\StudentReportDisplayForTeacherController;
+use App\Http\Controllers\API\StudentReportSemesterController;
+use App\Http\Controllers\API\TaskController;
+use App\Http\Controllers\API\TaskDisplayController;
+use App\Http\Controllers\API\TaskSubmissionController;
+use App\Http\Controllers\API\TaskSubmissionCorrectionController;
+use App\Http\Controllers\API\TaskSubmissionDisplayController;
 use App\Http\Controllers\API\UserController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -18,16 +36,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//     return $request->user();
-// });
-
 Route::prefix('auth')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
-    Route::post('/logout', [AuthController::class, 'destroy'])->middleware('auth:sanctum');
+    Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 });
 
-Route::prefix('/user')->group(function () {
+Route::prefix('user')->group(function () {
     Route::get('/', [UserController::class, 'show'])->middleware('auth:sanctum');
     Route::post('/update-photo', [UserController::class, 'updatePhoto'])->middleware('auth:sanctum');
     Route::post('/update-password', [UserController::class, 'updatePassword'])->middleware('auth:sanctum');
@@ -48,18 +62,60 @@ Route::prefix('information')->group(function () {
     Route::get('/list', [InformationController::class, 'get']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
-   Route::prefix('/grades')->group(function () {
-        Route::get('/', 'App\Http\Controllers\API\GradeController@show');
-        Route::post('/add', 'App\Http\Controllers\API\GradeController@store');
-        Route::put('/{id}', 'App\Http\Controllers\API\GradeController@update');
-        Route::patch('{id}/toggle-active', 'App\Http\Controllers\API\GradeController@toggleActive' );
-        Route::post('/join', 'App\Http\Controllers\API\GradeController@join');
-       
-        Route::group(['prefix' => '{id}/albums'], function () {
-            Route::post('/add', 'App\Http\Controllers\API\AlbumController@store');
-            Route::delete('/{albumId}', 'App\Http\Controllers\API\AlbumController@destroy');
-        });
-   });
+Route::prefix('grades')->group(function () {
+    Route::post('/', [GradeController::class, 'store'])->middleware('auth:sanctum');
+    Route::post('/{gradeId}', [GradeController::class, 'update'])->middleware('auth:sanctum');
+    Route::delete('/{gradeId}', [GradeController::class, 'delete'])->middleware('auth:sanctum');
+    Route::patch('/{gradeId}/toggle-active', [GradeActiveController::class, 'toggleActive'])->middleware('auth:sanctum');;
+    Route::put('/member-join', [GradeMemberController::class, 'join'])->middleware('auth:sanctum');
+    Route::delete('/{gradeId}/members/{memberId}', [GradeMemberController::class, 'deleteMember'])->middleware('auth:sanctum');
+    Route::get('/teacher', [GradeDisplayController::class, 'getAllGradeTeacher'])->middleware('auth:sanctum');
+    Route::get('/member', [GradeDisplayController::class, 'getAllGradeMember'])->middleware('auth:sanctum');
+    Route::get('/{gradeId}', [GradeDisplayController::class, 'detail'])->middleware('auth:sanctum');
+
+    Route::prefix('/{gradeId}/student-report')->group(function () {
+        Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{studentReportId}', [StudentReportController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{studentReportId}', [StudentReportController::class, 'destroy'])->middleware('auth:sanctum');
+        Route::get('/student/{studentId}', [StudentReportDisplayForTeacherController::class, 'displayAll'])->middleware('auth:sanctum');
+        Route::get('/student/{studentId}/semester/{semesterId}', [StudentReportDisplayForTeacherController::class, 'displayBySemester'])->middleware('auth:sanctum');
+        Route::get('/student', [StudentReportDisplayForStudentController::class, 'displayAll'])->middleware('auth:sanctum');
+        Route::get('/student/semester/{semesterId}', [StudentReportDisplayForStudentController::class, 'displayBySemester'])->middleware('auth:sanctum');
+        Route::get('/{studentReportId}', [StudentReportDisplayController::class, 'detail'])->middleware('auth:sanctum');
+    });
+
+    Route::prefix('/{gradeId}/albums')->group(function () {
+        Route::get('/', [AlbumController::class, 'showbyGrade'])->middleware('auth:sanctum');
+        Route::post('/', [AlbumController::class, 'store'])->middleware('auth:sanctum');
+        Route::get('/{albumId}', [AlbumController::class, 'showById'])->middleware('auth:sanctum');
+        Route::delete('/{albumId}', [AlbumController::class, 'destroy'])->middleware('auth:sanctum');
+    });
+
+    Route::prefix('/{gradeId}/comments')->group(function () {
+        Route::post('/', [CommentController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{commentId}', [CommentController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{commentId}', [CommentController::class, 'destroy'])->middleware('auth:sanctum');
+        Route::get('/{commentId}', [DisplayController::class, 'detail'])->middleware('auth:sanctum');
+        Route::post('/{commentId}/replies', [ReplyController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{commentId}/replies/{replyId}', [ReplyController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{commentId}/replies/{replyId}', [ReplyController::class, 'destroy'])->middleware('auth:sanctum');
+    });
+
+    Route::prefix('/{gradeId}/tasks')->group(function (){
+        Route::get('/', [TaskDisplayController::class, 'showByGrade'])->middleware('auth:sanctum');
+        Route::post('/', [TaskController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{taskId}', [TaskController::class, 'update'])->middleware('auth:sanctum');
+        Route::get('/{taskId}', [TaskDisplayController::class, 'showById'])->middleware('auth:sanctum');
+        Route::delete('/{taskId}', [TaskController::class, 'destroy'])->middleware('auth:sanctum');
+        Route::post('/{taskId}/submit', [TaskSubmissionController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{taskId}/submission/{submissionId}', [TaskSubmissionCorrectionController::class, 'correction'])->middleware('auth:sanctum');
+        Route::get('/{taskId}/completions', [TaskSubmissionDisplayController::class, 'completions'])->middleware('auth:sanctum');
+        Route::get('/{taskId}/completions/{submissionId}', [TaskSubmissionDisplayController::class, 'show'])->middleware('auth:sanctum');
+        Route::get('/{taskId}/completions-with-scores', [TaskSubmissionDisplayController::class, 'completionsWithScores'])->middleware('auth:sanctum');
+    });
+
+    Route::get('/{gradeId}/stream', [StreamController::class, 'index'])->middleware('auth:sanctum');
+    Route::get('/{gradeId}/stream/{streamId}', [StreamController::class, 'show'])->middleware('auth:sanctum');
 });
 
+Route::get('student-report/semesters', [StudentReportSemesterController::class, 'displaySemesters'])->middleware('auth:sanctum');

@@ -34,9 +34,13 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    // or
+    protected $visible = ['id', 'name', 'roles', 'grades', 'identification_number', 'photo'];
     protected $hidden = [
         'password',
         'remember_token',
+        'email', 
+        'address',
     ];
 
     /**
@@ -53,13 +57,40 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'user_roles')->withTimeStamps();
     }
 
-    public function grades() : HasMany
+    public function members()
     {
-        return $this->hasMany(Grade::class);
+        return $this->hasMany(GradeMember::class, 'student_id');
     }
 
-    public function members(): HasMany
+    public function grades()
     {
-        return $this->hasMany(Member::class, 'student_id');
+        return $this->belongsToMany(Grade::class, 'grade_members', 'student_id', 'grade_id');
     }
+
+    public function getGrade()
+    {
+        return $this->grades()->get();
+    }
+
+    public function albums()
+    {
+        return $this->hasMany(Album::class);
+    }
+
+    public function isTeacher() 
+    {
+        return $this->roles()->where('name', 'Guru SD')->exists() || $this->roles()->where('name', 'Guru KB')->exists();
+    }
+
+    public function isStudent() 
+    {
+        return $this->roles()->where('name', 'Murid SD')->exists() || $this->roles()->where('name', 'Murid KB')->exists();
+    }
+
+    public function isMember($gradeId)
+    {
+        return $this->grades()->where('grade_id', $gradeId)->exists();
+    }
+
+
 }

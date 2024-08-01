@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Models\Program;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 class ProgramController extends Controller
@@ -13,14 +14,15 @@ class ProgramController extends Controller
     {
         $programs = Program::all();
 
-        if ($programs) {
+        if($programs) {
             return response()->json([
+                'message' => 'Programs retrieved successfully',
                 'programs' => $programs
             ]);
         } else {
             return response()->json([
-                'message' => 'No programs found'
-            ], 404);
+                'message' => 'Failed to retrieve programs'
+            ], 500);
         }
     }
 
@@ -30,7 +32,7 @@ class ProgramController extends Controller
 
         if ($request->hasFile('photo')) {
             $photo = $request->file('photo')->storePublicly('photos', 'public');
-            $validatedData['photo'] = Storage::url($photo);
+            $validatedData['photo'] = url(Storage::url($photo));
         }
 
         if ($program = Program::create($validatedData)) {
