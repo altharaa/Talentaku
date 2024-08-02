@@ -12,7 +12,10 @@ class Controller extends BaseController
 
     public function resStoreData($data)
     {
-        return response(['message' => $data], 201);
+        return response([
+            'message' => 'success',
+            'data' => $data
+        ], 201);
     }
 
     public function resUpdateData($data)
@@ -27,6 +30,9 @@ class Controller extends BaseController
 
     public function resError($data, $code)
     {
-        return response(['message' => $data], $code);
+        return response([
+            'message' => 'failed',
+            'data' => $data
+        ], $code);
     }
 }

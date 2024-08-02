@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Log;
 class TaskShowByGradeRequest extends FormRequest
 {
     protected $grade;
+
+    protected $task;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -51,15 +53,18 @@ class TaskShowByGradeRequest extends FormRequest
                 'message' => 'You are not a member of this grade.',
             ], 403);
         }
-        
+
         return response()->json([
             'status' => 'error',
             'message' => 'You are not authorized to view tasks for this grade.',
         ], 403);
     }
 
-    public function getGrade()
+    public function getTask()
     {
-        return $this->grade;
+        if (!$this->task) {
+            $this->task = $this->grade->tasks()->with('media', 'links')->latest()->get();
+        }
+        return $this->task;
     }
 }

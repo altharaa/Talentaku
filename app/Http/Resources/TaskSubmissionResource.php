@@ -44,7 +44,12 @@ class TaskSubmissionResource extends JsonResource
         return [
             'id' => $submission->id,
             'task_id' => $submission->task_id,
-            'task' => new TaskResource($this->task),
+            'task' => [
+                'id' => $task->id,
+                'title' => $task->title,
+                'start_date' => $task->start_date,
+                'end_date' => $task->end_date,
+            ],
             'student_submitted' => $submission->student ,
             'submmision_media' => $submission->media ? TaskSubmissionMediaResource::collection($submission->media) : [],
             'submitted_at' => $submissionDate->toDateString(),
