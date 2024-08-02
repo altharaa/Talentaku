@@ -19,9 +19,9 @@ class AlbumController extends Controller
     public function showByGrade(AlbumShowByGradeRequest $request)
     {
         $grade = $request->getGrade();
-    
+
         $albums = $grade->albums()->with('media')->get();
-    
+
         return response()->json([
             'status' => 'success',
             'message' => $albums->isEmpty() ? 'No albums found for this grade.' : 'Albums retrieved successfully.',
@@ -70,7 +70,7 @@ class AlbumController extends Controller
             return $this->resStoreData(new AlbumResource($album));
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->resError($e, 500);
+            return $this->resError($e->getMessage(), 500);
         }
     }
 
