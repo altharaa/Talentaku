@@ -36,10 +36,10 @@ class TaskSubmissionController extends Controller
         return $mediaData;
     }
 
-    public function store(TaskSubmissionRequest $request, $taskId)
+    public function store(TaskSubmissionRequest $request, $gradeId, $taskId)
     {
         $user = $request->user();
-        $task = Task::findOrFail($taskId);
+        $task = Task::where('id', $taskId)->where('grade_id', $gradeId)->firstOrFail();
 
         DB::beginTransaction();
         try {

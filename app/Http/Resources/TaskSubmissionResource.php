@@ -35,7 +35,7 @@ class TaskSubmissionResource extends JsonResource
     {
         $task = $submission->task;
         $submissionDate = Carbon::parse($submission->created_at);
-        
+
         $isLate = false;
         if ($task && $task->end_date) {
             $isLate = $submissionDate->gt(Carbon::parse($task->end_date));
@@ -44,6 +44,7 @@ class TaskSubmissionResource extends JsonResource
         return [
             'id' => $submission->id,
             'task_id' => $submission->task_id,
+            'task' => new TaskResource($this->task),
             'student_submitted' => $submission->student ,
             'submmision_media' => $submission->media ? TaskSubmissionMediaResource::collection($submission->media) : [],
             'submitted_at' => $submissionDate->toDateString(),
