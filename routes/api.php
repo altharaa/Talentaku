@@ -48,8 +48,9 @@ Route::prefix('user')->group(function () {
 });
 
 Route::prefix('programs')->group(function () {
-    Route::get('/', [ProgramController::class, 'show']);
-    Route::post('/add', [ProgramController::class, 'store'])->middleware('auth:sanctum');
+    Route::get('/', [ProgramController::class, 'index']);
+    Route::get('/category/{categoryId}', [ProgramController::class, 'showByCategory']);
+    Route::post('/', [ProgramController::class, 'store'])->middleware('auth:sanctum');
     Route::post('/{id}', [ProgramController::class, 'update'])->middleware('auth:sanctum');
     Route::delete('/{id}', [ProgramController::class, 'destroy'])->middleware('auth:sanctum');
 });
@@ -107,7 +108,7 @@ Route::prefix('grades')->group(function () {
         Route::post('/{taskId}', [TaskController::class, 'update'])->middleware('auth:sanctum');
         Route::get('/{taskId}', [TaskDisplayController::class, 'showById'])->middleware('auth:sanctum');
         Route::delete('/{taskId}', [TaskController::class, 'destroy'])->middleware('auth:sanctum');
-        Route::post('/{taskId}/submit', [TaskSubmissionController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{taskId}/submission', [TaskSubmissionController::class, 'store'])->middleware('auth:sanctum');
         Route::post('/{taskId}/submission/{submissionId}', [TaskSubmissionCorrectionController::class, 'correction'])->middleware('auth:sanctum');
         Route::get('/{taskId}/completions', [TaskSubmissionDisplayController::class, 'completions'])->middleware('auth:sanctum');
         Route::get('/{taskId}/completions/{submissionId}', [TaskSubmissionDisplayController::class, 'show'])->middleware('auth:sanctum');
