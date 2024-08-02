@@ -20,8 +20,15 @@ class TaskResource extends JsonResource
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
             'desc' => explode(PHP_EOL, $this->desc),
-            'grade' => new GradeResource($this->grade),
-            'teacher' => new UserResource($this->teacher),
+            'grade' => [
+                'id' => optional($this->grade)->id,
+                'name' => optional($this->grade)->name,
+                'is_active_status' => $this->isactive ? 'active' : 'inactive',
+            ],
+            'teacher' => [
+                'id' => optional($this->teacher)->id,
+                'name' => optional($this->teacher)->name,
+            ],
             'media' => TaskMediaResource::collection($this->media),
             'links' => TaskLinkResource::collection($this->links),
         ];

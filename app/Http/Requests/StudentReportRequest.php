@@ -79,7 +79,6 @@ class StudentReportRequest extends FormRequest
                 ->where('grade_id', $this->route('gradeId'))
                 ->where('student_id', $this->route('studentId'))
                 ->with('media')
-                ->latest()
                 ->get();
         }
         return $this->report;
