@@ -23,6 +23,7 @@ class TaskResource extends JsonResource
             'grade' => [
                 'id' => optional($this->grade)->id,
                 'name' => optional($this->grade)->name,
+                'is_active' => $this->isactive ? 1 : 0,
                 'is_active_status' => $this->isactive ? 'active' : 'inactive',
             ],
             'teacher' => [

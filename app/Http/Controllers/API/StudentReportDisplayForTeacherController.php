@@ -14,8 +14,13 @@ use Illuminate\Http\Request;
 class StudentReportDisplayForTeacherController extends Controller
 {
     public function displayAll(StudentReportRequest $request) {
-        $studentReports = $request->getReportForTeacher();
-        return StudentReportResource::collection($studentReports);
+
+        try {
+            $studentReports = $request->getReportForTeacher();
+            return StudentReportResource::collection($studentReports);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
     }
 
     public function displayBySemester(StudentReportRequest $request)

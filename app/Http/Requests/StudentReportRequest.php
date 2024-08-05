@@ -80,6 +80,9 @@ class StudentReportRequest extends FormRequest
                 ->where('student_id', $this->route('studentId'))
                 ->with('media')
                 ->get();
+            if ($this->report->isEmpty()) {
+                throw new \Exception("Didn't have student report");
+            }
         }
         return $this->report;
     }
