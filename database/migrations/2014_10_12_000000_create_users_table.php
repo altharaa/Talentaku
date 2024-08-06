@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('address');
             $table->string('place_of_birth');
             $table->date('birth_date');
-            $table->date('joining_year')->nullable();
+            $table->date('joining_year');
             $table->string('password');
             $table->string('photo')->nullable();
             $table->rememberToken();
