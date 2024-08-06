@@ -25,6 +25,7 @@ class GradeController extends Controller
                 'level_id' => $request->level_id,
                 'unique_code' => Str::random(5),
                 'teacher_id' => $user->id,
+                'isactive' => true,
             ]);
             $grade->load('level');
             return $this->resStoreData(new GradeResource($grade));

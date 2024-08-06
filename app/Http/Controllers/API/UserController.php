@@ -21,7 +21,7 @@ class UserController extends Controller
     {
         $user = $request->user();
         if ($request->hasFile('photo')) {
-            $imagePath = $request->file('photo')->store('public/photos');
+            $imagePath = $request->file('photo')->store('public/profile');
             $fileName = basename($imagePath);
             $user->photo = $fileName;
         }
@@ -37,5 +37,5 @@ class UserController extends Controller
         }
         $user->save();
         return $this->resStoreData(new UserResource($user));
-    }  
+    }
 }

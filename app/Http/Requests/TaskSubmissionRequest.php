@@ -3,10 +3,12 @@
 namespace App\Http\Requests;
 
 use App\Models\Grade;
+use App\Models\Task;
 use Illuminate\Foundation\Http\FormRequest;
 
 class TaskSubmissionRequest extends FormRequest
 {
+    protected $task;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -14,6 +16,9 @@ class TaskSubmissionRequest extends FormRequest
     {
         $user = $this->user();
         $grade = Grade::findOrFail($this->route('gradeId'));
+        $task = Task::where('id', $this->route('taskId'))
+            ->where('grade_id', $grade->id)
+            ->firstOrFail();
         $roles = $user->roles()->pluck('name')->toArray();
 
         return (in_array('Murid SD', $roles) || in_array('Murid KB', $roles))
@@ -31,5 +36,16 @@ class TaskSubmissionRequest extends FormRequest
             'media' => 'nullable|array',
             'media.*' => 'file|mimes:jpg,jpeg,png,mp4,avi,mov,pdf,doc,docx,xls,xlsx,ppt,pptx|max:2048'
         ];
+    }
+
+    public function getTask()
+    {
+        if(!$this->task)
+        {
+            $this->task = Task::where('id', $this->route('taskId'))
+                ->where('grade_id', $this->route('gradeId'))
+                ->firstOrFail();
+        }
+        return $this->task;
     }
 }

@@ -46,6 +46,7 @@ class TaskSubmissionResource extends JsonResource
             'task_id' => $submission->task_id,
             'task' => [
                 'id' => $task->id,
+                'grade_id' => $task->grade_id,
                 'title' => $task->title,
                 'start_date' => $task->start_date,
                 'end_date' => $task->end_date,
