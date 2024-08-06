@@ -16,8 +16,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-
-    return bcrypt('dimas1234');
+    return view('welcome');
 });
 
 Route::get('/image/profile/{filename}', function ($filename) {
