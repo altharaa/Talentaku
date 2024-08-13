@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\StudentResource\Pages;
-use App\Models\Student;
+use App\Filament\Resources\TeacherResource\Pages;
+use App\Models\Teacher;
 use App\Models\Role;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,16 +15,15 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\Hash;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 
-class StudentResource extends Resource
+class TeacherResource extends Resource
 {
-    protected static ?string $model = Student::class;
+    protected static ?string $model = Teacher::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
 
-    protected static ?string $navigationLabel = 'Students';
+    protected static ?string $navigationLabel = 'Teachers';
 
     public static function form(Form $form): Form
     {
@@ -57,7 +56,7 @@ class StudentResource extends Resource
                 FileUpload::make('photo')
                     ->label('Photo')
                     ->image()
-                    ->directory('students/photos')
+                    ->directory('teachers/photos')
                     ->nullable(),
                 TextInput::make('password')
                     ->password()
@@ -67,8 +66,9 @@ class StudentResource extends Resource
                     ->label('Password'),
                 Select::make('roles')
                     ->relationship('roles', 'name')
-                    ->options(Role::whereIn('name', ['Murid SD', 'Murid KB'])->pluck('name', 'id'))
+                    ->options(Role::whereIn('name', ['Guru SD', 'Guru KB'])->pluck('name', 'id'))
                     ->required()
+                    ->multiple()
                     ->label('Role')
                     ->searchable()
                     ->preload(),
@@ -90,33 +90,28 @@ class StudentResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('role')
-                    ->label('Student Type')
+                    ->label('Teacher Type')
                     ->options([
-                        'Murid SD' => 'Murid SD',
-                        'Murid KB' => 'Murid KB',
+                        'Guru SD' => 'Guru SD',
+                        'Guru KB' => 'Guru KB',
+                        'Both' => 'Keduanya',
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query->when(
                             $data['value'],
-                            fn (Builder $query, $role): Builder => $query->whereHas('roles', fn ($q) => $q->where('name', $role))
+                            function (Builder $query, $role) {
+                                if ($role === 'Both') {
+                                    return $query->whereHas('roles', function ($q) {
+                                        $q->where('name', 'Guru SD');
+                                    })->whereHas('roles', function ($q) {
+                                        $q->where('name', 'Guru KB');
+                                    });
+                                } else {
+                                    return $query->whereHas('roles', fn ($q) => $q->where('name', $role));
+                                }
+                            }
                         );
                     }),
-
-//                Filter::make('joining_year')
-//                    ->form([
-//                        DatePicker::make('joining_year')
-//                            ->label('Joining Year')
-//                            ->displayFormat('Y')
-//                            ->maxDate(now())
-//                            ->default(now()),
-//                    ])
-//                    ->query(function (Builder $query, array $data): Builder {
-//                        return $query
-//                            ->when(
-//                                $data['joining_year'],
-//                                fn (Builder $query, $date): Builder => $query->whereYear('joining_year', $date),
-//                            );
-//                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -139,9 +134,9 @@ class StudentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListStudents::route('/'),
-            'create' => Pages\CreateStudent::route('/create'),
-            'edit' => Pages\EditStudent::route('/{record}/edit'),
+            'index' => Pages\ListTeachers::route('/'),
+            'create' => Pages\CreateTeacher::route('/create'),
+            'edit' => Pages\EditTeacher::route('/{record}/edit'),
         ];
     }
 }
