@@ -13,25 +13,31 @@ class Controller extends BaseController
     public function resStoreData($data)
     {
         return response([
-            'message' => 'success',
+            'message' => 'Created Succesfully',
             'data' => $data
         ], 201);
     }
 
     public function resUpdateData($data)
     {
-        return response(['message' => $data], 200);
+        return response([
+            'message' => 'Updated Succesfully',
+            'data' => $data
+        ], 200);
     }
 
     public function resDeleteData($data)
     {
-        return response(['message' => $data . ' Deleted'], 200);
+        return response([
+            'message' => 'Deleted Succesfully',
+            'data' => $data
+        ], 200);
     }
 
     public function resError($data, $code)
     {
         return response([
-            'message' => 'failed',
+            'message' => 'Error',
             'data' => $data
         ], $code);
     }

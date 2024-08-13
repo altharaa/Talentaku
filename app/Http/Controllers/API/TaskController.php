@@ -38,12 +38,11 @@ class TaskController extends Controller
         if (is_array($newMedia)) {
             foreach ($newMedia as $mediaFile) {
                 $path = $mediaFile->store('public/tasks');
-                $fileName = basename($path);
                 if (!$path) {
                     throw new \Exception('Failed to upload file : ' . $mediaFile->getClientOriginalName());
                 }
                 $media = $task->media()->create([
-                    'file_name' => $fileName,
+                    'file_name' => $path,
                 ]);
                 $mediaData[] = [
                     'id' => $media->id,
@@ -151,19 +150,19 @@ class TaskController extends Controller
     public function destroy(TaskDestroyRequest $request)
     {
         $task = $request->getTask();
-        
+
         DB::beginTransaction();
         try {
             foreach ($task->media as $media) {
                 Storage::disk('public')->delete(str_replace('/storage/', '', $media->file_path));
                 $media->delete();
             }
-            
+
             $task->links()->delete();
             $task->delete();
-            
+
             DB::commit();
-            
+
             return $this->resDeleteData('Task');
         } catch (\Exception $e) {
             DB::rollBack();

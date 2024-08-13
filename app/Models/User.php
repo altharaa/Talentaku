@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
@@ -39,7 +36,7 @@ class User extends Authenticatable
     protected $hidden = [
         'password',
         'remember_token',
-        'email', 
+        'email',
         'address',
     ];
 
@@ -77,12 +74,12 @@ class User extends Authenticatable
         return $this->hasMany(Album::class);
     }
 
-    public function isTeacher() 
+    public function isTeacher()
     {
         return $this->roles()->where('name', 'Guru SD')->exists() || $this->roles()->where('name', 'Guru KB')->exists();
     }
 
-    public function isStudent() 
+    public function isStudent()
     {
         return $this->roles()->where('name', 'Murid SD')->exists() || $this->roles()->where('name', 'Murid KB')->exists();
     }
