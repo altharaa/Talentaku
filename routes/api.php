@@ -92,14 +92,14 @@ Route::prefix('grades')->group(function () {
         Route::delete('/{albumId}', [AlbumController::class, 'destroy'])->middleware('auth:sanctum');
     });
 
-    Route::prefix('/{gradeId}/comments')->group(function () {
-        Route::post('/', [CommentController::class, 'store'])->middleware('auth:sanctum');
-        Route::post('/{commentId}', [CommentController::class, 'update'])->middleware('auth:sanctum');
-        Route::delete('/{commentId}', [CommentController::class, 'destroy'])->middleware('auth:sanctum');
-        Route::get('/{commentId}', [DisplayController::class, 'detail'])->middleware('auth:sanctum');
-        Route::post('/{commentId}/replies', [ReplyController::class, 'store'])->middleware('auth:sanctum');
-        Route::post('/{commentId}/replies/{replyId}', [ReplyController::class, 'update'])->middleware('auth:sanctum');
-        Route::delete('/{commentId}/replies/{replyId}', [ReplyController::class, 'destroy'])->middleware('auth:sanctum');
+    Route::prefix('/{gradeId}/announcements')->group(function () {
+        Route::post('/', [\App\Http\Controllers\API\AnnouncementController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{announcementId}', [\App\Http\Controllers\API\AnnouncementController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{announcementId}', [\App\Http\Controllers\API\AnnouncementController::class, 'destroy'])->middleware('auth:sanctum');
+        Route::get('/{announcementId}', [\App\Http\Controllers\API\AnnouncementReplyDisplayController::class, 'detail'])->middleware('auth:sanctum');
+        Route::post('/{announcementId}/replies', [\App\Http\Controllers\API\AnnouncementReplyController::class, 'store'])->middleware('auth:sanctum');
+        Route::put('/{announcementId}/replies/{replyId}', [\App\Http\Controllers\API\AnnouncementReplyController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{announcementId}/replies/{replyId}', [\App\Http\Controllers\API\AnnouncementReplyController::class, 'destroy'])->middleware('auth:sanctum');
     });
 
     Route::prefix('/{gradeId}/tasks')->group(function (){

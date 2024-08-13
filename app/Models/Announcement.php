@@ -5,11 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Comment extends Model
+class Announcement extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['comments', 'grade_id', 'user_id'];
+    protected $fillable = ['announcements', 'grade_id', 'user_id'];
 
     public function user()
     {
@@ -23,11 +23,11 @@ class Comment extends Model
 
     public function media()
     {
-        return $this->hasMany(CommentMedia::class);
+        return $this->hasMany(AnnouncementMedia::class, 'announce_id');
     }
 
     public function reply()
     {
-        return $this->hasMany(CommentReply::class);
+        return $this->hasMany(AnnouncementReply::class, 'announce_id');
     }
 }

@@ -18,12 +18,11 @@ class TaskSubmissionController extends Controller
         if (is_array($newMedia)) {
             foreach ($newMedia as $mediaFile) {
                 $path = $mediaFile->store('public/task-submissions');
-                $fileName = basename($path);
                 if (!$path) {
                     throw new \Exception('Failed to upload file');
                 }
                 $media = $submission->media()->create([
-                    'file_name' => $fileName,
+                    'file_name' => $path,
                 ]);
                 $mediaData[] = [
                     'id' => $media->id,
