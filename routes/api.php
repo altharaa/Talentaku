@@ -115,8 +115,7 @@ Route::prefix('grades')->group(function () {
         Route::get('/{taskId}/completions-with-scores', [TaskSubmissionDisplayController::class, 'completionsWithScores'])->middleware('auth:sanctum');
     });
 
-    Route::get('/{gradeId}/stream', [StreamController::class, 'index'])->middleware('auth:sanctum');
-    Route::get('/{gradeId}/stream/{streamId}', [StreamController::class, 'show'])->middleware('auth:sanctum');
+    Route::get('/{gradeId}/grade-content', [\App\Http\Controllers\API\GradeContentController::class, 'index'])->middleware('auth:sanctum');
 });
 
 Route::get('student-report/semesters', [StudentReportSemesterController::class, 'displaySemesters'])->middleware('auth:sanctum');

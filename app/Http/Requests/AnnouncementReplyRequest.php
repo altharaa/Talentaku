@@ -15,7 +15,6 @@ class AnnouncementReplyRequest extends FormRequest
      */
     public function authorize(): bool
     {
-
         $user = $this->user();
         $grade = Grade::findOrFail($this->route('gradeId'));
 
