@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\GradeContentResource;
 use App\Models\Announcement;
 use App\Models\Grade;
 use App\Models\Task;
@@ -39,10 +38,15 @@ class StreamController extends Controller
                     'created_at' => $item->created_at,
                 ];
 
-                if ($contentType === 'task') {
+                if ($contentType == 'task') {
                     $baseData['preview'] = $item->title;
                 } else {
-                    new GradeContentResource($comments);
+                    $baseData['preview'] = substr(explode(PHP_EOL, $item->comments)[0], 0, 75) . '...';
+                    $baseData['user'] = [
+                        'id' => $item->user->id,
+                        'name' => $item->user->name,
+                        'photo' => $item->user->photo,
+                    ];
                 }
 
                 return $baseData;

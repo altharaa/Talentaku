@@ -15,86 +15,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
-Route::get('/image/profile/{filename}', function ($filename) {
-    $path = storage_path('app/public/profile/' . $filename);
-
+function serveFile($path)
+{
     if (!File::exists($path)) {
         abort(404);
     }
 
-    $file = File::get($path);
-    $type = File::mimeType($path);
+    return Response::file($path);
+}
 
-    $response = Response::make($file, 200);
-    $response->header("Content-Type", $type);
+$imageRoutes = [
+    'profile' => 'profile',
+    'album-media' => 'album-media',
+    'task' => 'tasks',
+    'task-submission' => 'task-submissions',
+    'student-report' => 'student-reports',
+    'program' => 'programs',
+    'announcement_media' => 'announcement-media'
+];
 
-    return $response;
-});
-
-Route::get('/image/album-media/{filename}', function ($filename) {
-    $path = storage_path('app/public/album-media/' . $filename);
-
-    if (!File::exists($path)) {
-        abort(404);
-    }
-
-    $file = File::get($path);
-    $type = File::mimeType($path);
-
-    $response = Response::make($file, 200);
-    $response->header("Content-Type", $type);
-
-    return $response;
-});
-
-Route::get('/image/task/{filename}', function ($filename) {
-    $path = storage_path('app/public/tasks/' . $filename);
-
-    if (!File::exists($path)) {
-        abort(404);
-    }
-
-    $file = File::get($path);
-    $type = File::mimeType($path);
-
-    $response = Response::make($file, 200);
-    $response->header("Content-Type", $type);
-
-    return $response;
-});
-
-Route::get('/image/task-submission/{filename}', function ($filename) {
-    $path = storage_path('app/public/task-submissions/' . $filename);
-
-    if (!File::exists($path)) {
-        abort(404);
-    }
-
-    $file = File::get($path);
-    $type = File::mimeType($path);
-
-    $response = Response::make($file, 200);
-    $response->header("Content-Type", $type);
-
-    return $response;
-});
-
-Route::get('/image/student-report/{filename}', function ($filename) {
-    $path = storage_path('app/public/student-reports/' . $filename);
-
-    if (!File::exists($path)) {
-        abort(404);
-    }
-
-    $file = File::get($path);
-    $type = File::mimeType($path);
-
-    $response = Response::make($file, 200);
-    $response->header("Content-Type", $type);
-
-    return $response;
-});
+foreach ($imageRoutes as $route => $folder) {
+    Route::get("/image/{$route}/{filename}", fn ($filename) =>
+    serveFile(storage_path("app/public/{$folder}/{$filename}"))
+    );
+}

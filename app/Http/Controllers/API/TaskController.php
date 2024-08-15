@@ -42,7 +42,7 @@ class TaskController extends Controller
                     throw new \Exception('Failed to upload file : ' . $mediaFile->getClientOriginalName());
                 }
                 $media = $task->media()->create([
-                    'file_name' => $path,
+                    'file_name' => basename($path),
                 ]);
                 $mediaData[] = [
                     'id' => $media->id,
