@@ -22,7 +22,7 @@ class UserController extends Controller
         $user = $request->user();
         if ($request->hasFile('photo')) {
             $imagePath = $request->file('photo')->store('public/profile');
-            $user->photo = $imagePath;
+            $user->photo = basename($imagePath);
         }
         $user->save();
         return $this->resStoreData(new UserResource($user));

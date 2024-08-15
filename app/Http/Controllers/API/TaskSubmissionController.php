@@ -22,7 +22,7 @@ class TaskSubmissionController extends Controller
                     throw new \Exception('Failed to upload file');
                 }
                 $media = $submission->media()->create([
-                    'file_name' => $path,
+                    'file_name' => basename($path),
                 ]);
                 $mediaData[] = [
                     'id' => $media->id,

@@ -16,7 +16,7 @@ class GradeContentController extends Controller
     public function index(GradeContentRequest $request, $gradeId): AnonymousResourceCollection
     {
 
-        $tasks = $request->getTasks();
+        $tasks = Task::where('grade_id', $gradeId)->get();
         $comments = Announcement::where('grade_id', $gradeId)
             ->with('user:id,name,photo')
             ->get();

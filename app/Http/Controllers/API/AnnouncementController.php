@@ -30,10 +30,10 @@ class AnnouncementController extends Controller
 
             if ($request->hasFile('media')) {
                 foreach ($request->file('media') as $file) {
-                    $path = $file->store('announcement_media', 'public');
+                    $path = $file->store('announcement-media', 'public');
                     AnnouncementMedia::create([
                         'announce_id' => $announcement->id,
-                        'file_name' => $path,
+                        'file_name' => basename($path),
                     ]);
                 }
             }
@@ -66,10 +66,10 @@ class AnnouncementController extends Controller
 
             if ($request->hasFile('media')) {
                 foreach ($request->file('media') as $file) {
-                    $path = $file->store('announcement_media', 'public');
+                    $path = $file->store('announcement-media', 'public');
                     AnnouncementMedia::create([
                         'announce_id' => $announcement->id,
-                        'file_name' => $path,
+                        'file_name' => basename($path),
                     ]);
                 }
             }

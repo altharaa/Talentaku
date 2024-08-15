@@ -30,7 +30,7 @@ class ProgramController extends Controller
         $validatedData = $request->validated();
 
         if ($request->hasFile('photo')) {
-            $photo = $request->file('photo')->store('public/photos');
+            $photo = $request->file('photo')->store('public/programs');
             $validatedData['photo'] = basename($photo);
         }
 
@@ -45,9 +45,9 @@ class ProgramController extends Controller
 
         if ($request->hasFile('photo')) {
             if ($program->photo) {
-                Storage::delete('public/photos/' . $program->photo);
+                Storage::delete('public/programs/' . $program->photo);
             }
-            $photo = $request->file('photo')->store('public/photos');
+            $photo = $request->file('photo')->store('public/programs');
             $validatedData['photo'] = basename($photo);
         }
 
@@ -65,7 +65,7 @@ class ProgramController extends Controller
 
         $program = Program::findOrFail($id);
         if ($program->photo) {
-            Storage::delete('public/photos/' . $program->photo);
+            Storage::delete('public/programs/' . $program->photo);
         }
         $program->delete();
 

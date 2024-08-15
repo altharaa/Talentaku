@@ -39,7 +39,7 @@ class StudentReportController extends Controller
                     throw new \Exception('Failed to upload file');
                 }
                 $studentReportMedia = $studentReport->media()->create([
-                    'file_path' => $path,
+                    'file_path' => basename($path),
                 ]);
                 $mediaData[] = [
                     'id' => $studentReportMedia->id,

@@ -57,7 +57,7 @@ class AlbumController extends Controller
                 }
                 $albumMedia = new AlbumMedia([
                     'album_id' => $album->id,
-                    'file_name' => $path,
+                    'file_name' => basename($path),
                 ]);
                 $albumMedia->save();
                 $mediaData[] = $albumMedia;
