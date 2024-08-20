@@ -17,12 +17,15 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'username',
         'name',
-        'email',
-        'identification_number',
+        'nomor_induk',
         'address',
+        'place_of_brith',
         'birth_date',
+        'joining_year',
         'photo',
+        'status',
         'password',
     ];
 
@@ -32,12 +35,11 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     // or
-    protected $visible = ['id', 'name', 'roles', 'grades', 'identification_number', 'photo'];
+    protected $visible = ['id', 'username', 'name', 'roles', 'grades', 'identification_number', 'photo'];
     protected $hidden = [
         'password',
         'remember_token',
         'email',
-        'address',
     ];
 
     /**

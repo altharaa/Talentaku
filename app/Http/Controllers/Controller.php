@@ -13,6 +13,7 @@ class Controller extends BaseController
     public function resStoreData($data)
     {
         return response([
+            'success' => true,
             'message' => 'Created Succesfully',
             'data' => $data
         ], 201);
@@ -21,6 +22,7 @@ class Controller extends BaseController
     public function resUpdateData($data)
     {
         return response([
+            'success' => true,
             'message' => 'Updated Succesfully',
             'data' => $data
         ], 200);
@@ -29,6 +31,7 @@ class Controller extends BaseController
     public function resDeleteData($data)
     {
         return response([
+            'success' => true,
             'message' => 'Deleted Succesfully',
             'data' => $data
         ], 200);
@@ -37,8 +40,8 @@ class Controller extends BaseController
     public function resError($data, $code)
     {
         return response([
-            'message' => 'Error',
-            'data' => $data
+            'success' => false,
+            'message' => $data,
         ], $code);
     }
 }
