@@ -10,10 +10,18 @@ class StudentReport extends Model
     use HasFactory;
 
     protected $fillable = [
-        'created', 'semester_id', 'kegiatan_awal', 'awal_point', 
-        'kegiatan_inti', 'inti_point', 'snack', 'snack_point', 
-        'inklusi', 'inklusi_point', 'catatan', 'teacher_id', 
-        'student_id', 'grade_id'
+        'created', 'semester_id',
+        'kegiatan_awal_dihalaman', 'dihalaman_hasil',
+        'kegiatan_awal_berdoa', 'berdoa_hasil',
+        'kegiatan_inti_satu', 'inti_satu_hasil',
+        'kegiatan_inti_dua', 'inti_dua_hasil',
+        'kegiatan_inti_tiga', 'inti_tiga_hasil',
+        'snack',
+        'inklusi', 'inklusi_hasil',
+        'inklusi_penutup', 'inklusi_penutup_hasil',
+        'inklusi_doa', 'inklusi_doa_hasil',
+        'catatan',
+        'teacher_id', 'student_id', 'grade_id'
     ];
 
     public function teacher()
