@@ -82,39 +82,19 @@ class AnnouncementController extends Controller
         }
     }
 
-    public function destroy( Request $request,$gradeId, $commentId)
+    public function destroy(AnnouncementRequest $request)
     {
         $user = $request->user();
-        $grade = Grade::findOrFail($gradeId);
-
-        if (($user->id != $grade->teacher_id) && (!$grade->members->contains($user->id))) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'You are not authorized to create comments for this grade.',
-            ], 403);
-        }
-
         try{
-            $comment = Announcement::find($commentId);
-            $comment->delete();
-
-            if ($comment->user_id != $user->id) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'You are not authorized to delete this reply.',
-                ], 403);
-            }
+            $announcement = $request->getAnnouncement();
+            $announcement->delete();
 
             return response()->json([
                 'message' => 'Comment deleted successfully',
             ]);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Failed to create comment',
-                'error' => $e->getMessage()
-            ], 500);
+            return $this->resError($e->getMessage(), 500);
         }
     }
 }

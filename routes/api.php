@@ -93,6 +93,7 @@ Route::prefix('grades')->group(function () {
     });
 
     Route::prefix('/{gradeId}/announcements')->group(function () {
+        Route::get('/', [\App\Http\Controllers\API\AnnouncementDisplayController::class, 'index'])->middleware('auth:sanctum');
         Route::post('/', [\App\Http\Controllers\API\AnnouncementController::class, 'store'])->middleware('auth:sanctum');
         Route::post('/{announcementId}', [\App\Http\Controllers\API\AnnouncementController::class, 'update'])->middleware('auth:sanctum');
         Route::delete('/{announcementId}', [\App\Http\Controllers\API\AnnouncementController::class, 'destroy'])->middleware('auth:sanctum');
@@ -115,7 +116,6 @@ Route::prefix('grades')->group(function () {
         Route::get('/{taskId}/completions-with-scores', [TaskSubmissionDisplayController::class, 'completionsWithScores'])->middleware('auth:sanctum');
     });
 
-    Route::get('/{gradeId}/grade-content', [\App\Http\Controllers\API\GradeContentController::class, 'index'])->middleware('auth:sanctum');
 });
 
 Route::get('student-report/semesters', [StudentReportSemesterController::class, 'displaySemesters'])->middleware('auth:sanctum');
