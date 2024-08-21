@@ -4,33 +4,27 @@ namespace App\Http\Requests;
 
 use App\Models\Announcement;
 use App\Models\Grade;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Http\Exceptions\HttpResponseException;
 
 class AnnouncementRequest extends FormRequest
 {
+    protected $announcement;
     /**
      * Determine if the user is authorized to make this request.
      */
     public function authorize(): bool
     {
         $user = $this->user();
-        $gradeId = $this->route('gradeId');
+        $grade = Grade::findOrFail($this->route('gradeId'));
 
-        try {
-            $this->grade = Grade::findOrFail($gradeId);
-        } catch (ModelNotFoundException $e) {
-            throw new HttpResponseException(response()->json([
-                'status' => 'error',
-                'message' => 'Grade not found.',
-            ], 404));
+        if (($user->id == $grade->teacher_id) || ($grade->members->contains($user->id))) {
+            return true;
         }
 
-        $roles = $user->roles()->pluck('name')->toArray();
-
-        return (in_array('Guru SD', $roles) || in_array('Guru KB', $roles))
-            && $user->id == $this->grade->teacher_id;
+        throw new \HttpResponseException(response()->json([
+            'status' => 'error',
+            'message' => 'You are not authorized to perform this action.',
+        ], 403));
     }
 
     /**
@@ -43,5 +37,28 @@ class AnnouncementRequest extends FormRequest
         return [
             //
         ];
+    }
+
+    public function getAnnouncement()
+    {
+        $announcement = Announcement::find($this->route('announcementId'));
+
+        if (!$announcement) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Announcement not found.',
+            ], 404);
+        }
+
+        $user = auth()->user();
+
+        if ($announcement->user_id != $user->id && $announcement->grade->teacher_id != $user->id) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'You are not authorized to access this announcement.',
+            ], 403);
+        }
+
+        return $announcement;
     }
 }
