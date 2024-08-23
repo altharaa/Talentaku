@@ -18,8 +18,7 @@ class AnnouncementDisplayController extends Controller
             $formattedAnnouncements = $announcements->map(function ($announcement) {
                 return [
                     'id' => $announcement->id,
-                    'title' => $announcement->title,
-                    'content' => $announcement->content,
+                    'announcements' => explode(PHP_EOL, $announcement->announcements),
                     'created_at' => $announcement->created_at,
                     'updated_at' => $announcement->updated_at,
                     'user' => [

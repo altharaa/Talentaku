@@ -31,7 +31,7 @@ $imageRoutes = [
     'task-submission' => 'task-submissions',
     'student-report' => 'student-reports',
     'program' => 'programs',
-    'announcement_media' => 'announcement-media'
+    'announcement-media' => 'announcement-media'
 ];
 
 foreach ($imageRoutes as $route => $folder) {
