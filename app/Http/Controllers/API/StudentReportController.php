@@ -35,12 +35,11 @@ class StudentReportController extends Controller
         if (is_array($newMedia)) {
             foreach ($newMedia as $mediaFile) {
                 $path = $mediaFile->store('public/student-reports');
-                $fileName = basename($path);
                 if (!$path) {
                     throw new \Exception('Failed to upload file');
                 }
                 $studentReportMedia = $studentReport->media()->create([
-                    'file_path' => $fileName,
+                    'file_path' => basename($path),
                 ]);
                 $mediaData[] = [
                     'id' => $studentReportMedia->id,
@@ -71,7 +70,7 @@ class StudentReportController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->resError($e->getMessage(),500);
-        } 
+        }
     }
 
     public function update(StudentReportUpdateRequest $request)
@@ -85,7 +84,7 @@ class StudentReportController extends Controller
             $studentReport->teacher_id =  $request->user()->id;
             $studentReport->grade_id = $request->route('gradeId');
             $studentReport->save();
-    
+
             $this->deleteMedia($request->delete_media, $studentReport);
             $this->uploadNewMedia($request->file('media'), $studentReport);
 
@@ -94,13 +93,13 @@ class StudentReportController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return $this->resError($e->getMessage(),500);
-        } 
+        }
     }
 
     public function destroy(StudentReportRequest $request)
     {
         $studentReport = $request->getReport();
-        
+
         DB::beginTransaction();
         try {
             foreach ($studentReport->media as $item) {

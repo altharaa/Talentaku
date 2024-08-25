@@ -11,13 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('comment_media', function (Blueprint $table) {
+        Schema::create('announcement_media', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('comment_id');
-            $table->string('file_path');
+            $table->unsignedBigInteger('announce_id');
+            $table->string('file_name');
             $table->timestamps();
 
-            $table->foreign('comment_id')->references('id')->on('comments')->onDelete('cascade');
+            $table->foreign('announce_id')->references('id')->on('announcements')->onDelete('cascade');
         });
     }
 
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('comment_media');
+        Schema::dropIfExists('announcement_media');
     }
 };

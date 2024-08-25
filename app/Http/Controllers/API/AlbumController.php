@@ -52,13 +52,12 @@ class AlbumController extends Controller
             foreach ($request->file('media') as $file) {
                 $originalName = $file->getClientOriginalName();
                 $path = $file->store('public/album-media');
-                $fileName = basename($path);
                 if (!$path) {
                     throw new Exception('Failed to upload file: ' . $originalName);
                 }
                 $albumMedia = new AlbumMedia([
                     'album_id' => $album->id,
-                    'file_name' => $fileName,
+                    'file_name' => basename($path),
                 ]);
                 $albumMedia->save();
                 $mediaData[] = $albumMedia;

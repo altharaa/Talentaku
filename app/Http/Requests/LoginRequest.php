@@ -25,20 +25,21 @@ class LoginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => [
+            'username' => [
                 'required',
-                'email',
+                'string',
                 function ($attribute, $value, $fail) {
-                    $user = User::where('email', $value)->first();
+                    $user = User::where('username', $value)->first();
                     if (!$user) {
-                        $fail('The email is not registered.');
+                        $fail('The user is not registered.');
                     }
                 },
             ],
             'password' => [
                 'required',
+                'string',
                 function ($attribute, $value, $fail) {
-                    $user = User::where('email', $this->email)->first();
+                    $user = User::where('username', $this->username)->first();
                     if ($user && !Hash::check($value, $user->password)) {
                         $fail('The password is incorrect.');
                     }
@@ -47,12 +48,5 @@ class LoginRequest extends FormRequest
         ];
     }
 
-    public function withValidator($validator)
-    {
-        $validator->after(function ($validator) {
-            if (!Auth::attempt($this->only('email', 'password'))) {
-                $validator->errors()->add('auth', 'The provided credentials are incorrect.');
-            }
-        });
-    }
+
 }
