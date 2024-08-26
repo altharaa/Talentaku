@@ -21,43 +21,49 @@ class TeacherResource extends Resource
 {
     protected static ?string $model = Teacher::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
-    protected static ?string $navigationLabel = 'Teachers';
+    protected static ?string $navigationLabel = 'Guru';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                TextInput::make('username')
+                    ->required()
+                    ->label('Username'),
                 TextInput::make('name')
                     ->required()
                     ->label('Name'),
-                TextInput::make('email')
-                    ->required()
-                    ->email()
-                    ->unique(ignorable: fn ($record) => $record)
-                    ->label('Email'),
-                TextInput::make('identification_number')
+                TextInput::make('nomor_induk')
                     ->required()
                     ->unique(ignorable: fn ($record) => $record)
-                    ->label('Identification Number'),
+                    ->label('Nomor Induk'),
                 TextInput::make('address')
                     ->required()
-                    ->label('Address'),
+                    ->label('Alamat'),
                 TextInput::make('place_of_birth')
                     ->required()
-                    ->label('Place of Birth'),
+                    ->label('Tempat Lahir'),
                 DatePicker::make('birth_date')
                     ->required()
-                    ->label('Birth Date'),
+                    ->label('Tanggal Lahir'),
                 DatePicker::make('joining_year')
                     ->required()
-                    ->label('Joining Year'),
+                    ->label('Tahun Masuk'),
                 FileUpload::make('photo')
                     ->label('Photo')
                     ->image()
                     ->directory('teachers/photos')
                     ->nullable(),
+                Select::make('status')
+                    ->label('Status')
+                    ->options([
+                        'aktif' => 'Aktif',
+                        'non-aktif' => 'Tidak Aktif',
+                    ])
+                    ->required()
+                    ->default('aktif'),
                 TextInput::make('password')
                     ->password()
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
@@ -79,13 +85,18 @@ class TeacherResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('username')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('email')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('identification_number')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('nomor_induk')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('address')->limit(30),
                 Tables\Columns\TextColumn::make('birth_date')->date()->sortable(),
                 Tables\Columns\TextColumn::make('joining_year')->date()->sortable(),
                 Tables\Columns\ImageColumn::make('photo'),
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
+                    ->formatStateUsing(fn ($state) => $state === 'aktif' ? 'Aktif' : 'Tidak Aktif')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('roles.name')->wrap(),
             ])
             ->filters([

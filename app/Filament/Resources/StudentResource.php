@@ -24,41 +24,47 @@ class StudentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
 
-    protected static ?string $navigationLabel = 'Students';
+    protected static ?string $navigationLabel = 'Murid SD';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                TextInput::make('username')
+                    ->required()
+                    ->label('Username'),
                 TextInput::make('name')
                     ->required()
-                    ->label('Name'),
-                TextInput::make('email')
-                    ->required()
-                    ->email()
-                    ->unique(ignorable: fn ($record) => $record)
-                    ->label('Email'),
-                TextInput::make('identification_number')
+                    ->label('Nama'),
+                TextInput::make('nomor_induk')
                     ->required()
                     ->unique(ignorable: fn ($record) => $record)
-                    ->label('Identification Number'),
+                    ->label('Nomor Induk'),
                 TextInput::make('address')
                     ->required()
-                    ->label('Address'),
+                    ->label('Alamat'),
                 TextInput::make('place_of_birth')
                     ->required()
-                    ->label('Place of Birth'),
+                    ->label('Tempat Lahir'),
                 DatePicker::make('birth_date')
                     ->required()
-                    ->label('Birth Date'),
+                    ->label('Tanggal Lahir'),
                 DatePicker::make('joining_year')
                     ->required()
-                    ->label('Joining Year'),
+                    ->label('Tanggal Masuk'),
                 FileUpload::make('photo')
                     ->label('Photo')
                     ->image()
                     ->directory('students/photos')
                     ->nullable(),
+                Select::make('status')
+                    ->label('Status')
+                    ->options([
+                        'aktif' => 'Aktif',
+                        'non-aktif' => 'Tidak Aktif',
+                    ])
+                    ->required()
+                    ->default('aktif'),
                 TextInput::make('password')
                     ->password()
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
@@ -79,44 +85,25 @@ class StudentResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('username')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('email')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('identification_number')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('nomor_induk')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('address')->limit(30),
                 Tables\Columns\TextColumn::make('birth_date')->date()->sortable(),
                 Tables\Columns\TextColumn::make('joining_year')->date()->sortable(),
                 Tables\Columns\ImageColumn::make('photo'),
-                Tables\Columns\TextColumn::make('roles.name')->wrap(),
+                Tables\Columns\TextColumn::make('status')
+                    ->label('Status')
+                    ->formatStateUsing(fn ($state) => $state === 'aktif' ? 'Aktif' : 'Tidak Aktif')
+                    ->sortable()
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->wrap()
+                    ->getStateUsing(function ($record) {
+                        return $record->roles->pluck('name')->implode(', ') ?? 'No roles';
+                    }),
             ])
             ->filters([
-                SelectFilter::make('role')
-                    ->label('Student Type')
-                    ->options([
-                        'Murid SD' => 'Murid SD',
-                        'Murid KB' => 'Murid KB',
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query->when(
-                            $data['value'],
-                            fn (Builder $query, $role): Builder => $query->whereHas('roles', fn ($q) => $q->where('name', $role))
-                        );
-                    }),
-
-//                Filter::make('joining_year')
-//                    ->form([
-//                        DatePicker::make('joining_year')
-//                            ->label('Joining Year')
-//                            ->displayFormat('Y')
-//                            ->maxDate(now())
-//                            ->default(now()),
-//                    ])
-//                    ->query(function (Builder $query, array $data): Builder {
-//                        return $query
-//                            ->when(
-//                                $data['joining_year'],
-//                                fn (Builder $query, $date): Builder => $query->whereYear('joining_year', $date),
-//                            );
-//                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -134,6 +121,13 @@ class StudentResource extends Resource
         return [
             // Define your relations here if needed
         ];
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->whereHas('roles', function ($query) {
+            $query->where('name', 'Murid SD');
+        });
     }
 
     public static function getPages(): array

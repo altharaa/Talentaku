@@ -10,9 +10,9 @@ class Student extends Model
     protected $table = 'users';
 
     protected $fillable = [
+        'username',
         'name',
-        'email',
-        'identification_number',
+        'nomor_induk',
         'address',
         'place_of_birth',
         'birth_date',
