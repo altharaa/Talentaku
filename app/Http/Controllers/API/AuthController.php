@@ -26,6 +26,7 @@ class AuthController extends Controller
         return response([
             'data' => $userResource,
             'token' => $token,
+            'fcm_token' => $user->fcm_token,
         ], 200);
     }
 

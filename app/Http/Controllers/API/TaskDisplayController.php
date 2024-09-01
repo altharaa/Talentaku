@@ -50,7 +50,26 @@ class TaskDisplayController extends Controller
     public function showById(TaskShowByIdRequest $request)
     {
         $task = $request->getTask();
-        return new TaskResource($task);
-    }
+        $user = $request->user();
+        $roles = $user->roles()->pluck('name')->toArray();
 
+        if (in_array('Guru SD', $roles) || in_array('Guru KB', $roles)) {
+            return new TaskResource($task);
+        } else if (in_array('Murid SD', $roles) || in_array('Murid KB', $roles)) {
+            $submission = TaskSubmission::where('task_id', $task->id)
+                ->where('student_id', $user->id)
+                ->latest()
+                ->first();
+
+            if ($submission) {
+                return (new TaskResource($task))->additional([
+                    'submission' => new TaskSubmission($submission)
+                ]);
+            } else {
+                return new TaskResource($task);
+            }
+        }
+
+        abort(403, 'Unauthorized action.');
+    }
 }

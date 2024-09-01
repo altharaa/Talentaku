@@ -52,6 +52,9 @@ class TaskSubmissionDisplayRequest extends FormRequest
                 ->latest()
                 ->get();
         }
+        if ($this->completions->isEmpty()) {
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException('Tidak ada tugas yang belum dinilai');
+        }
         return $this->completions;
     }
 
@@ -74,6 +77,9 @@ class TaskSubmissionDisplayRequest extends FormRequest
                 ->with(['student:id,name', 'task', 'task.grade'])
                 ->latest()
                 ->get();
+        }
+        if ($this->completions->isEmpty()) {
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException('Belum ada tugas yang sudah dinilai');
         }
         return $this->completions;
     }

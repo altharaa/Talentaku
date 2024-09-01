@@ -8,11 +8,19 @@ use App\Http\Requests\StudentReportStoreRequest;
 use App\Http\Requests\StudentReportUpdateRequest;
 use App\Http\Resources\StudentReportResource;
 use App\Models\StudentReport;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Laravel\Firebase\Facades\Firebase;
 
 class StudentReportController extends Controller
 {
+    protected $notification;
+    public function __construct()
+    {
+        $this->notification = Firebase::messaging();
+    }
     private function deleteMedia($mediaToDelete, $studentReport)
     {
         $deletedMedia = [];
@@ -66,6 +74,15 @@ class StudentReportController extends Controller
             $this->uploadNewMedia($request->file('media'), $studentReport);
 
             DB::commit();
+            $user = User::where("id",$validatedData["student_id"])->first();
+            $message = CloudMessage::fromArray([
+                'token' => $user->fcm_token,
+                'notification' => [
+                    'title' => "Laporan Harian Siswa",
+                    'body' => "Guru Menambahkan Laporan Harian Kepada Ananda",
+                ],
+            ]);
+            $this->notification->send($message);
             return $this->resStoreData(new StudentReportResource($studentReport));
         } catch (\Exception $e) {
             DB::rollBack();
