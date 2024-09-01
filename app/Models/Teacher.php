@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 
-class Student extends Model
+class Teacher extends Model
 {
     protected $table = 'users';
 
     protected $fillable = [
-        'username',
         'name',
-        'nomor_induk',
+        'email',
+        'identification_number',
         'address',
         'place_of_birth',
         'birth_date',
@@ -39,9 +39,9 @@ class Student extends Model
 
     protected static function booted()
     {
-        static::addGlobalScope('student', function (Builder $query) {
+        static::addGlobalScope('teacher', function (Builder $query) {
             $query->whereHas('roles', function ($q) {
-                $q->whereIn('name', ['Murid SD', 'Murid KB']);
+                $q->whereIn('name', ['Guru SD', 'Guru KB']);
             });
         });
     }

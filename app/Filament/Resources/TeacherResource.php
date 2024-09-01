@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\StudentResource\Pages;
-use App\Models\Student;
+use App\Filament\Resources\TeacherResource\Pages;
+use App\Models\Teacher;
 use App\Models\Role;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,16 +15,15 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\FileUpload;
 use Illuminate\Support\Facades\Hash;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
 
-class StudentResource extends Resource
+class TeacherResource extends Resource
 {
-    protected static ?string $model = Student::class;
+    protected static ?string $model = Teacher::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
+    protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
-    protected static ?string $navigationLabel = 'Murid SD';
+    protected static ?string $navigationLabel = 'Guru';
 
     public static function form(Form $form): Form
     {
@@ -35,7 +34,7 @@ class StudentResource extends Resource
                     ->label('Username'),
                 TextInput::make('name')
                     ->required()
-                    ->label('Nama'),
+                    ->label('Name'),
                 TextInput::make('nomor_induk')
                     ->required()
                     ->unique(ignorable: fn ($record) => $record)
@@ -51,11 +50,11 @@ class StudentResource extends Resource
                     ->label('Tanggal Lahir'),
                 DatePicker::make('joining_year')
                     ->required()
-                    ->label('Tanggal Masuk'),
+                    ->label('Tahun Masuk'),
                 FileUpload::make('photo')
                     ->label('Photo')
                     ->image()
-                    ->directory('students/photos')
+                    ->directory('teachers/photos')
                     ->nullable(),
                 Select::make('status')
                     ->label('Status')
@@ -73,8 +72,9 @@ class StudentResource extends Resource
                     ->label('Password'),
                 Select::make('roles')
                     ->relationship('roles', 'name')
-                    ->options(Role::whereIn('name', ['Murid SD', 'Murid KB'])->pluck('name', 'id'))
+                    ->options(Role::whereIn('name', ['Guru SD', 'Guru KB'])->pluck('name', 'id'))
                     ->required()
+                    ->multiple()
                     ->label('Role')
                     ->searchable()
                     ->preload(),
@@ -97,13 +97,32 @@ class StudentResource extends Resource
                     ->formatStateUsing(fn ($state) => $state === 'aktif' ? 'Aktif' : 'Tidak Aktif')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('roles.name')
-                    ->wrap()
-                    ->getStateUsing(function ($record) {
-                        return $record->roles->pluck('name')->implode(', ') ?? 'No roles';
-                    }),
+                Tables\Columns\TextColumn::make('roles.name')->wrap(),
             ])
             ->filters([
+                SelectFilter::make('role')
+                    ->label('Teacher Type')
+                    ->options([
+                        'Guru SD' => 'Guru SD',
+                        'Guru KB' => 'Guru KB',
+                        'Both' => 'Keduanya',
+                    ])
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'],
+                            function (Builder $query, $role) {
+                                if ($role === 'Both') {
+                                    return $query->whereHas('roles', function ($q) {
+                                        $q->where('name', 'Guru SD');
+                                    })->whereHas('roles', function ($q) {
+                                        $q->where('name', 'Guru KB');
+                                    });
+                                } else {
+                                    return $query->whereHas('roles', fn ($q) => $q->where('name', $role));
+                                }
+                            }
+                        );
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -123,19 +142,12 @@ class StudentResource extends Resource
         ];
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
-    {
-        return parent::getEloquentQuery()->whereHas('roles', function ($query) {
-            $query->where('name', 'Murid SD');
-        });
-    }
-
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListStudents::route('/'),
-            'create' => Pages\CreateStudent::route('/create'),
-            'edit' => Pages\EditStudent::route('/{record}/edit'),
+            'index' => Pages\ListTeachers::route('/'),
+            'create' => Pages\CreateTeacher::route('/create'),
+            'edit' => Pages\EditTeacher::route('/{record}/edit'),
         ];
     }
 }
