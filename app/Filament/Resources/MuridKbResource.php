@@ -101,7 +101,7 @@ class MuridKbResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('joining_year')->label('Tahun Masuk')->date()->sortable(),
                 Tables\Columns\ImageColumn::make('photo')
-                    ->baseUrl('https://talentaku.site/image/')
+                    ->url(fn ($record) => "https://talentaku.site/image/{$record->photo}")
                     ->width(150)
                     ->height(150),
                 Tables\Columns\TextColumn::make('status')
