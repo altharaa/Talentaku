@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\TaskShowByGradeRequest;
 use App\Http\Requests\TaskShowByIdRequest;
 use App\Http\Resources\TaskResource;
+use App\Http\Resources\TaskSubmissionResource;
 use App\Models\Grade;
 use App\Models\Task;
 use App\Models\TaskSubmission;
@@ -63,7 +64,7 @@ class TaskDisplayController extends Controller
 
             if ($submission) {
                 return (new TaskResource($task))->additional([
-                    'submission' => new TaskSubmission($submission)
+                    'submission' => new TaskSubmissionResource($submission)
                 ]);
             } else {
                 return new TaskResource($task);

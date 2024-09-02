@@ -75,13 +75,14 @@ class StudentReportController extends Controller
 
             DB::commit();
             $user = User::where("id",$validatedData["student_id"])->first();
-            $message = CloudMessage::fromArray([
-                'token' => $user->fcm_token,
-                'notification' => [
-                    'title' => "Laporan Harian Siswa",
-                    'body' => "Guru Menambahkan Laporan Harian Kepada Ananda",
-                ],
-            ]);
+            if ($user->fcm_token != null) {
+                $message = CloudMessage::withTarget('token', $user->fcm_token)
+                    ->withNotification([
+                        'title' => 'Album Kegiatan Siswa',
+                        'body' => 'Guru Menambahkan Album Kegiatan Siswa',
+                    ]);
+                $this->notification->send($message);
+            }
             $this->notification->send($message);
             return $this->resStoreData(new StudentReportResource($studentReport));
         } catch (\Exception $e) {

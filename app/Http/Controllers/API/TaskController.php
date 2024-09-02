@@ -7,10 +7,13 @@ use App\Http\Requests\TaskDestroyRequest;
 use App\Http\Requests\TaskStoreRequest;
 use App\Http\Requests\TaskUpdateRequest;
 use App\Http\Resources\TaskResource;
+use App\Models\Grade;
 use App\Models\Task;
 use App\Models\TaskLink;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Kreait\Firebase\Messaging\CloudMessage;
 
 class TaskController extends Controller
 {
@@ -87,6 +90,19 @@ class TaskController extends Controller
 
             DB::commit();
 
+            $grade = Grade::findOrFail($gradeId);
+            $users = User::whereIn('id', $grade->members->pluck('id'))->get();
+
+            foreach ($users as $user) {
+                if ($user->fcm_token != null) {
+                    $message = CloudMessage::withTarget('token', $user->fcm_token)
+                        ->withNotification([
+                            'title' => 'Tugas Kelas',
+                            'body' => 'Guru Membuat Tugas Baru',
+                        ]);
+                    $this->notification->send($message);
+                }
+            }
             $task = Task::with(['grade', 'teacher', 'media', 'links'])->find($task->id);
             return new TaskResource($task);
 
