@@ -16,17 +16,14 @@ class AuthController extends Controller
     {
         $request->validated();
         $user = User::where('username', $request->username)->first();
-        $userResource = new UserResource($user);
-
-        if ($request->fcm_token) {
-            $user->update(['fcm_token' => $request->fcm_token]);
-        }
+        User::query()->where("username", $request->username)->update(["fcm_token" => $request->fcm_token ?? null]);
         $token = $user->createToken('talentaku')->plainTextToken;
+        $userResource = new UserResource($user);
 
         return response([
             'data' => $userResource,
             'token' => $token,
-            'fcm_token' => $user->fcm_token,
+            'fcm_token' => $request->fcm_token,
         ], 200);
     }
 

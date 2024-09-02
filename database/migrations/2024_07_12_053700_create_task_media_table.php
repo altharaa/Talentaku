@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('task_media', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('task_id');
+            $table->string('original_file_name');
             $table->string('file_name');
             $table->timestamps();
 

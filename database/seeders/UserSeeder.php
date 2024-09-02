@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use Carbon\Carbon;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -17,7 +16,6 @@ class UserSeeder extends Seeder
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
 
         DB::table('user_roles')->delete();
-
         DB::table('users')->delete();
 
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
@@ -34,6 +32,7 @@ class UserSeeder extends Seeder
                 'joining_year' => '2022-06-01',
                 'status' => 'aktif',
                 'password' => bcrypt('ita1234'),
+                'email' => null,  // Email not provided, so set to null
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
@@ -48,6 +47,7 @@ class UserSeeder extends Seeder
                 'joining_year' => '2022-06-01',
                 'status' => 'aktif',
                 'password' => bcrypt('moza1234'),
+                'email' => null,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
@@ -62,6 +62,7 @@ class UserSeeder extends Seeder
                 'joining_year' => '2022-06-01',
                 'status' => 'aktif',
                 'password' => bcrypt('rani1234'),
+                'email' => null,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
@@ -76,6 +77,7 @@ class UserSeeder extends Seeder
                 'joining_year' => '2022-06-01',
                 'status' => 'aktif',
                 'password' => bcrypt('nurul1234'),
+                'email' => null,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
@@ -90,6 +92,7 @@ class UserSeeder extends Seeder
                 'joining_year' => '2022-06-01',
                 'status' => 'aktif',
                 'password' => bcrypt('sekar1234'),
+                'email' => null,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
@@ -104,6 +107,7 @@ class UserSeeder extends Seeder
                 'joining_year' => '2022-06-01',
                 'status' => 'aktif',
                 'password' => bcrypt('athi1234'),
+                'email' => null,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],
@@ -118,6 +122,67 @@ class UserSeeder extends Seeder
                 'joining_year' => '2023-06-18',
                 'status' => 'aktif',
                 'password' => bcrypt('dimas1234'),
+                'email' => null,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'id' => 8,
+                'username' => 'Faqih',
+                'name' =>"M Faqih Naufal",
+                'nomor_induk' => '0102',
+                'address' => 'Kauman RT 04/RW 09, Kec. Jekulo, Kudus',
+                'place_of_birth' => 'Kudus',
+                'birth_date' => '2014-11-15',
+                'joining_year' => '2023-06-18',
+                'status' => 'aktif',
+                'password' => bcrypt('faqih1234'),
+                'email' => null,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'id' => 9,
+                'username' => 'Nabil',
+                'name' =>"M Nabil Rabbani",
+                'nomor_induk' => '0201',
+                'address' => 'Prambatan Kidul RT 07/RW 03, Kudus',
+                'place_of_birth' => 'Kudus',
+                'birth_date' => '2018-11-05',
+                'joining_year' => '2023-06-18',
+                'status' => 'aktif',
+                'password' => bcrypt('nabil1234'),
+                'email' => null,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'id' => 10,
+                'username' => 'Raffa',
+                'name' =>"M Raffasya Athary",
+                'nomor_induk' => '0202',
+                'address' => ' Wates RT 02/RW 02, Kec. Undaan, Kudus',
+                'place_of_birth' => 'Kudus',
+                'birth_date' => '2018-05-31',
+                'joining_year' => '2023-06-18',
+                'status' => 'aktif',
+                'password' => bcrypt('raffa1234'),
+                'email' => null,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'id' => 11,
+                'username' => 'Admin',
+                'name' =>"Admin Talentaku",
+                'nomor_induk' => null,
+                'address' => null,
+                'place_of_birth' => null,
+                'birth_date' => null,
+                'joining_year' => null,
+                'status' => 'aktif',
+                'password' => bcrypt('admin1234'),
+                'email' => "sekolahinklusitalenta@gmail.com",
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ],

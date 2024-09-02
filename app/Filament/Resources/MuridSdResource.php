@@ -6,6 +6,7 @@ use App\Filament\Resources\MuridSdResource\Pages;
 use App\Filament\Resources\MuridSdResource\RelationManagers;
 use App\Models\Role;
 use App\Models\Student;
+use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
@@ -15,6 +16,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Support\Facades\Hash;
+use PhpParser\Node\Expr\Array_;
 
 class MuridSdResource extends Resource
 {
@@ -63,7 +65,7 @@ class MuridSdResource extends Resource
                     ])
                     ->required()
                     ->default('aktif'),
-                PasswordInput::make('password')
+                TextInput::make('password')
                     ->label('Password')
                     ->placeholder('Enter new password to change')
                     ->required(fn (string $context): bool => $context === 'create')
@@ -72,6 +74,7 @@ class MuridSdResource extends Resource
                 Select::make('roles')
                     ->relationship('roles', 'name')
                     ->options(Role::whereIn('name', ['Murid SD', 'Murid KB'])->pluck('name', 'id'))
+                    ->default( Role::where('name', 'Murid SD')->value('id'))
                     ->required()
                     ->label('Tipe')
                     ->searchable()
@@ -84,11 +87,15 @@ class MuridSdResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('username')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('name')->label('Nama')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('nomor_induk')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('address')->limit(30),
-                Tables\Columns\TextColumn::make('birth_date')->date()->sortable(),
-                Tables\Columns\TextColumn::make('joining_year')->date()->sortable(),
+                Tables\Columns\TextColumn::make('address')->label('Alamat')->limit(30),Tables\Columns\TextColumn::make('birth_date')
+                    ->label('Tempat, Tanggal Lahir')
+                    ->getStateUsing(function ($record) {
+                        return $record->place_of_birth . ', ' . \Carbon\Carbon::parse($record->birth_date)->format('d M Y');
+                    })
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('joining_year')->label('Tahun Masuk')->date()->sortable(),
                 Tables\Columns\ImageColumn::make('photo'),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
@@ -96,13 +103,27 @@ class MuridSdResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Peran')
                     ->wrap()
                     ->getStateUsing(function ($record) {
                         return $record->roles->pluck('name')->implode(', ') ?? 'No roles';
                     }),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('joining_year')
+                    ->label('Tahun Masuk')
+                    ->options(function () {
+                        return Student::selectRaw('YEAR(joining_year) as year')
+                            ->distinct()
+                            ->orderBy('year')
+                            ->pluck('year', 'year')
+                            ->toArray();
+                    })
+                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, $state) {
+                        return $query->when($state, function ($query, $year) {
+//                            return $query->whereYear('joining_year', $year);
+                       });
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

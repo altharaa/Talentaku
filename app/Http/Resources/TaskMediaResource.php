@@ -17,6 +17,7 @@ class TaskMediaResource extends JsonResource
         return [
             'id' => $this->id,
             'task_id' => $this->task_id,
+            'original_name' => $this->original_file_name,
             'file_name' => $this->file_name,
         ];
     }

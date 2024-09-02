@@ -7,10 +7,8 @@ use App\Http\Requests\TaskDestroyRequest;
 use App\Http\Requests\TaskStoreRequest;
 use App\Http\Requests\TaskUpdateRequest;
 use App\Http\Resources\TaskResource;
-use App\Models\Grade;
 use App\Models\Task;
 use App\Models\TaskLink;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -42,6 +40,7 @@ class TaskController extends Controller
                     throw new \Exception('Failed to upload file : ' . $mediaFile->getClientOriginalName());
                 }
                 $media = $task->media()->create([
+                    'original_file_name' => $mediaFile->getClientOriginalName(),
                     'file_name' => basename($path),
                 ]);
                 $mediaData[] = [
@@ -88,9 +87,8 @@ class TaskController extends Controller
 
             DB::commit();
 
-             $task = Task::with(['grade', 'teacher', 'media', 'links'])->find($task->id);
-
-            return $this->resStoreData($task);
+            $task = Task::with(['grade', 'teacher', 'media', 'links'])->find($task->id);
+            return new TaskResource($task);
 
         } catch (\Exception $e) {
             DB::rollBack();
