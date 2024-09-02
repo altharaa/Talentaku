@@ -10,9 +10,11 @@ use App\Http\Resources\AnnouncementResource;
 use App\Models\Announcement;
 use App\Models\AnnouncementMedia;
 use App\Models\Grade;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Kreait\Firebase\Messaging\CloudMessage;
 
 class AnnouncementController extends Controller
 {
@@ -39,6 +41,19 @@ class AnnouncementController extends Controller
                 }
             }
             DB::commit();
+            $grade = Grade::findOrFail($gradeId);
+            $users = User::whereIn('id', $grade->members->pluck('id'))->get();
+
+            foreach ($users as $user) {
+                if ($user->fcm_token != null) {
+                    $message = CloudMessage::withTarget('token', $user->fcm_token)
+                        ->withNotification([
+                            'title' => 'Pemberitahuan Kelas Siswa',
+                            'body' => 'Guru Menambahkan Pemberitahuan Kelas',
+                        ]);
+                    $this->notification->send($message);
+                }
+            }
             return $this->resStoreData(new AnnouncementResource($announcement));
         } catch (\Exception $e) {
             DB::rollBack();

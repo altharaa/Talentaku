@@ -10,12 +10,21 @@ use App\Http\Requests\AlbumStoreRequest;
 use App\Http\Resources\AlbumResource;
 use App\Models\Album;
 use App\Models\AlbumMedia;
+use App\Models\Grade;
+use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Laravel\Firebase\Facades\Firebase;
 
 class AlbumController extends Controller
 {
+    protected $notification;
+    public function __construct()
+    {
+        $this->notification = Firebase::messaging();
+    }
     public function showByGrade(AlbumShowByGradeRequest $request)
     {
         $grade = $request->getGrade();
@@ -66,6 +75,19 @@ class AlbumController extends Controller
             $album->media = $mediaData;
             DB::commit();
 
+            $grade = Grade::findOrFail($gradeId);
+            $users = User::whereIn('id', $grade->members->pluck('id'))->get();
+
+            foreach ($users as $user) {
+                if ($user->fcm_token != null) {
+                    $message = CloudMessage::withTarget('token', $user->fcm_token)
+                        ->withNotification([
+                            'title' => 'Album Kegiatan Siswa',
+                            'body' => 'Guru Menambahkan Album Kegiatan Siswa',
+                        ]);
+                    $this->notification->send($message);
+                }
+            }
             return $this->resStoreData(new AlbumResource($album));
         } catch (Exception $e) {
             DB::rollBack();
