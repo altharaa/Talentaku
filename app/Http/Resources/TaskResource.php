@@ -30,7 +30,7 @@ class TaskResource extends JsonResource
                 'id' => optional($this->teacher)->id,
                 'name' => optional($this->teacher)->name,
             ],
-            'media' => TaskMediaResource::collection($this->media),
+            'media' => TaskMediaResource::collection($this->whenLoaded('media')),
             'links' => TaskLinkResource::collection($this->links),
         ];
     }

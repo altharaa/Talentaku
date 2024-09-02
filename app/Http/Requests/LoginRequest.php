@@ -45,9 +45,6 @@ class LoginRequest extends FormRequest
                     }
                 },
             ],
-            'fcm_token'
         ];
     }
-
-
 }

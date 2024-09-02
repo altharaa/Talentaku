@@ -15,7 +15,7 @@ class UserRoleSeeder extends Seeder
     public function run(): void
     {
         DB::table('user_roles')->delete();
-        
+
         DB::table('user_roles')->insert([
             [
                 'id' => 1,
@@ -84,6 +84,27 @@ class UserRoleSeeder extends Seeder
                 'id' => 10,
                 'user_id' => 7,
                 'role_id' => 3,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'id' => 11,
+                'user_id' => 8,
+                'role_id' => 3,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'id' => 12,
+                'user_id' => 9,
+                'role_id' => 4,
+                'created_at' => Carbon::now(),
+                'updated_at' => Carbon::now(),
+            ],
+            [
+                'id' => 13,
+                'user_id' => 10,
+                'role_id' => 4,
                 'created_at' => Carbon::now(),
                 'updated_at' => Carbon::now(),
             ]

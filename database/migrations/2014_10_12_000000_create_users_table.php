@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('nomor_induk')->unique();
-            $table->string('address');
-            $table->string('place_of_birth');
-            $table->date('birth_date');
-            $table->date('joining_year');
+            $table->string('nomor_induk')->unique()->nullable();
+            $table->string('address')->nullable();
+            $table->string('place_of_birth')->nullable();
+            $table->date('birth_date')->nullable();
+            $table->date('joining_year')->nullable();
             $table->string('password');
             $table->string('photo')->nullable();
             $table->enum('status', ['aktif', 'non-aktif'])->default('aktif');

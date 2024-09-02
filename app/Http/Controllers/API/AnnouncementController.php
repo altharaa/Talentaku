@@ -33,6 +33,7 @@ class AnnouncementController extends Controller
                     $path = $file->store('announcement-media', 'public');
                     AnnouncementMedia::create([
                         'announce_id' => $announcement->id,
+                        'original_file_name' => $file->getClientOriginalName(),
                         'file_name' => basename($path),
                     ]);
                 }

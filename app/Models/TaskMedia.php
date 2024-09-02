@@ -11,6 +11,7 @@ class TaskMedia extends Model
 
     protected $fillable = [
         'task_id',
+        'original_file_name',
         'file_name',
     ];
 }

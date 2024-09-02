@@ -52,6 +52,7 @@ return [
 
             'credentials' => [
                 'file' => env('FIREBASE_CREDENTIALS', base_path('firebase-auth.json')),
+
                 'auto_discovery' => false,
             ],
 

@@ -119,3 +119,4 @@ Route::prefix('grades')->group(function () {
 });
 
 Route::get('student-report/semesters', [StudentReportSemesterController::class, 'displaySemesters'])->middleware('auth:sanctum');
+Route::get('/notification', [\App\Http\Controllers\API\NotificationController::class, 'notification'])->middleware('auth:sanctum');

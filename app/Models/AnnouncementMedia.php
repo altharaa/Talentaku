@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class AnnouncementMedia extends Model
 {
-    protected $fillable = ['announce_id', 'file_name'];
+    protected $fillable = ['announce_id', 'original_file_name', 'file_name'];
 
     public function announcement()
     {

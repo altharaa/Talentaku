@@ -34,7 +34,7 @@ class TeacherResource extends Resource
                     ->label('Username'),
                 TextInput::make('name')
                     ->required()
-                    ->label('Name'),
+                    ->label('Nama'),
                 TextInput::make('nomor_induk')
                     ->required()
                     ->unique(ignorable: fn ($record) => $record)
@@ -75,7 +75,7 @@ class TeacherResource extends Resource
                     ->options(Role::whereIn('name', ['Guru SD', 'Guru KB'])->pluck('name', 'id'))
                     ->required()
                     ->multiple()
-                    ->label('Role')
+                    ->label('Peran')
                     ->searchable()
                     ->preload(),
             ]);
@@ -86,18 +86,27 @@ class TeacherResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('username')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('name')->label('Nama')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('nomor_induk')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('address')->limit(30),
-                Tables\Columns\TextColumn::make('birth_date')->date()->sortable(),
-                Tables\Columns\TextColumn::make('joining_year')->date()->sortable(),
+                Tables\Columns\TextColumn::make('address')->label('Alamat')->limit(30),Tables\Columns\TextColumn::make('birth_date')
+                    ->label('Tempat, Tanggal Lahir')
+                    ->getStateUsing(function ($record) {
+                        return $record->place_of_birth . ', ' . \Carbon\Carbon::parse($record->birth_date)->format('d M Y');
+                    })
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('joining_year')->label('Tahun Masuk')->date()->sortable(),
                 Tables\Columns\ImageColumn::make('photo'),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
                     ->formatStateUsing(fn ($state) => $state === 'aktif' ? 'Aktif' : 'Tidak Aktif')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('roles.name')->wrap(),
+                Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Peran')
+                    ->wrap()
+                    ->getStateUsing(function ($record) {
+                        return $record->roles->pluck('name')->implode(', ') ?? 'No roles';
+                    }),
             ])
             ->filters([
                 SelectFilter::make('role')

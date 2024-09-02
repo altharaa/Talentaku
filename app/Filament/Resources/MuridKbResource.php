@@ -18,6 +18,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Illuminate\Support\Facades\Hash;
 
 class MuridKbResource extends Resource
 {
@@ -74,10 +75,13 @@ class MuridKbResource extends Resource
                     ->label('Password'),
                 Select::make('roles')
                     ->relationship('roles', 'name')
-                    ->options(Role::whereIn('name', ['Murid SD', 'Murid KB'])->pluck('name', 'id'))
+                    ->options(Role::whereIn('name', [
+                        'Murid SD' => 'Murid SD',
+                        'Murid KB' => 'Murid KB'
+                    ])->pluck('name', 'id'))
+                    ->default( Role::where('name', 'Murid KB')->value('id'))
                     ->required()
                     ->label('Role')
-                    ->searchable()
                     ->preload(),
             ]);
     }
@@ -87,11 +91,15 @@ class MuridKbResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('username')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('name')->searchable()->sortable(),
+                Tables\Columns\TextColumn::make('name')->label('Nama')->searchable()->sortable(),
                 Tables\Columns\TextColumn::make('nomor_induk')->searchable()->sortable(),
-                Tables\Columns\TextColumn::make('address')->limit(30),
-                Tables\Columns\TextColumn::make('birth_date')->date()->sortable(),
-                Tables\Columns\TextColumn::make('joining_year')->date()->sortable(),
+                Tables\Columns\TextColumn::make('address')->label('Alamat')->limit(30),Tables\Columns\TextColumn::make('birth_date')
+                    ->label('Tempat, Tanggal Lahir')
+                    ->getStateUsing(function ($record) {
+                        return $record->place_of_birth . ', ' . \Carbon\Carbon::parse($record->birth_date)->format('d M Y');
+                    })
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('joining_year')->label('Tahun Masuk')->date()->sortable(),
                 Tables\Columns\ImageColumn::make('photo'),
                 Tables\Columns\TextColumn::make('status')
                     ->label('Status')
@@ -99,6 +107,7 @@ class MuridKbResource extends Resource
                     ->sortable()
                     ->searchable(),
                 Tables\Columns\TextColumn::make('roles.name')
+                    ->label('Peran')
                     ->wrap()
                     ->getStateUsing(function ($record) {
                         return $record->roles->pluck('name')->implode(', ') ?? 'No roles';
