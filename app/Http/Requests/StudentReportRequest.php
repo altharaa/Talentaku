@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Models\Grade;
 use App\Models\StudentReport;
 use App\Models\StudentReportSemester;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
@@ -79,7 +80,12 @@ class StudentReportRequest extends FormRequest
                 ->where('grade_id', $this->route('gradeId'))
                 ->where('student_id', $this->route('studentId'))
                 ->with('media')
-                ->get();
+                ->get()
+                ->groupBy(function($report) {
+                    return Carbon::parse($report->created)->format('Y-m');
+                })
+                ->sortKeys();
+
             if ($this->report->isEmpty()) {
                 throw new \Exception("Didn't have student report");
             }
@@ -95,7 +101,11 @@ class StudentReportRequest extends FormRequest
                 ->where('semester_id', $this->route('semesterId'))
                 ->with(['media', 'semester'])
                 ->latest()
-                ->get();
+                ->get()
+                ->groupBy(function($report) {
+                    return Carbon::parse($report->created)->format('Y-m');
+                })
+                ->sortKeys();
         }
         return $this->report;
     }
@@ -108,7 +118,11 @@ class StudentReportRequest extends FormRequest
                 ->where('student_id', $user->id)
                 ->with('media')
                 ->latest()
-                ->get();
+                ->get()
+                ->groupBy(function($report) {
+                    return Carbon::parse($report->created)->format('Y-m');
+                })
+                ->sortKeys();
         }
         return $this->report;
     }
@@ -122,7 +136,11 @@ class StudentReportRequest extends FormRequest
                 ->where('semester_id',  $this->route('semesterId'))
                 ->with(['media', 'semester'])
                 ->latest()
-                ->get();
+                ->get()
+                ->groupBy(function($report) {
+                    return Carbon::parse($report->created)->format('Y-m');
+                })
+                ->sortKeys();
         }
         return $this->report;
     }

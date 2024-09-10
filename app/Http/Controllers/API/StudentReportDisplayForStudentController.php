@@ -5,20 +5,40 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StudentReportRequest;
 use App\Http\Resources\StudentReportResource;
-use App\Models\Grade;
-use App\Models\StudentReport;
-use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class StudentReportDisplayForStudentController extends Controller
 {
     public function displayAll(StudentReportRequest $request) {
-        $studentReports = $request->getReportForStudent();
-        return StudentReportResource::collection($studentReports);
+        try {
+            $studentReports = $request->getReportForStudent();
+            $formattedReports = $studentReports->map(function ($reports, $yearMonth) {
+                return [
+                    'month' => Carbon::parse($yearMonth)->format('F Y'),
+                    'reports' => StudentReportResource::collection($reports)
+                ];
+            })->values();
+    
+            return response()->json($formattedReports);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
     }
 
     public function displayBySemester(StudentReportRequest $request)
     {
-        $studentReports = $request->getReportBySemesterStudent();
-        return StudentReportResource::collection($studentReports);
+        try {
+            $studentReports = $request->getReportBySemesterStudent();
+            $formattedReports = $studentReports->map(function ($reports, $yearMonth) {
+                return [
+                    'month' => Carbon::parse($yearMonth)->format('F Y'),
+                    'reports' => StudentReportResource::collection($reports)
+                ];
+            })->values();
+    
+            return response()->json($formattedReports);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 404);
+        }
     }
 }
