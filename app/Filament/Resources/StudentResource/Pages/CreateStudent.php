@@ -14,10 +14,8 @@ class CreateStudent extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $roleName = request('role') ? '';
-        Log::info($roleName);
+        $roleName = request('role');
         $role = Role::where('name', $roleName)->first();
-        Log::info($role);
         $data['status'] = 'aktif';
        
         return $data;
