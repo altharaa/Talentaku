@@ -16,4 +16,14 @@ class ListTeachers extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    public function getHeading(): string|\Illuminate\Contracts\Support\Htmlable
+    {
+        return 'Daftar Guru';
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->previousUrl;
+    }
 }

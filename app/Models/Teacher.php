@@ -10,6 +10,7 @@ class Teacher extends Model
     protected $table = 'users';
 
     protected $fillable = [
+        'username',
         'name',
         'email',
         'identification_number',

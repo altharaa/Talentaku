@@ -4,22 +4,16 @@ namespace App\Filament\Resources\TeacherResource\Pages;
 
 use App\Filament\Resources\TeacherResource;
 use Filament\Actions;
-use Filament\Resources\Pages\EditRecord;
+use Filament\Resources\Pages\ViewRecord;
 
-class EditTeacher extends EditRecord
+class ViewTeacher extends ViewRecord
 {
     protected static string $resource = TeacherResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            Actions\ViewAction::make(),
-            Actions\DeleteAction::make(),
+            Actions\EditAction::make(),
         ];
-    }
-
-    protected function getRedirectUrl(): string
-    {
-        return $this->previousUrl;
     }
 }

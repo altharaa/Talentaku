@@ -28,7 +28,7 @@ class StudentReportDisplayForTeacherController extends Controller
     public function displayBySemester(StudentReportRequest $request)
     {
         try {
-            $studentReports = $request->getReportBySemesterTeacher();
+            $studentReports = $request->getReportBySemesterStudent();
             $formattedReports = $studentReports->map(function ($reports, $yearMonth) {
                 return [
                     'month' => Carbon::parse($yearMonth)->format('F Y'),
