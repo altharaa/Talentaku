@@ -67,7 +67,6 @@ class TaskController extends Controller
                 }
             }
 
-
             $students = $task->grade->members;
             foreach ($students as $student) {
                 if ($student->fcm_token != null) {

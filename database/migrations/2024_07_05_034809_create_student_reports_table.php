@@ -14,34 +14,31 @@ return new class extends Migration
         Schema::create('student_reports', function (Blueprint $table) {
             $table->id();
             $table->date('created');
-            $table->unsignedBigInteger('semester_id');
+            $table->string('semester');
             $table->text('kegiatan_awal_dihalaman');
-            $table->enum('dihalaman_hasil', ['Muncul', 'Kurang', 'Belum Muncul']);
+            $table->string('dihalaman_hasil');
             $table->text('kegiatan_awal_berdoa');
-            $table->enum('berdoa_hasil', ['Muncul', 'Kurang', 'Belum Muncul']);
+            $table->string('berdoa_hasil');
             $table->text('kegiatan_inti_satu');
-            $table->enum('inti_satu_hasil', ['Muncul', 'Kurang', 'Belum Muncul']);
+            $table->string('inti_satu_hasil');
             $table->text('kegiatan_inti_dua')->nullable();
-            $table->enum('inti_dua_hasil', ['Muncul', 'Kurang', 'Belum Muncul'])->nullable();
+            $table->string('inti_dua_hasil')->nullable();
             $table->text('kegiatan_inti_tiga')->nullable();
-            $table->enum('inti_tiga_hasil', ['Muncul', 'Kurang', 'Belum Muncul'])->nullable();
+            $table->string('inti_tiga_hasil')->nullable();
             $table->text('snack');
             $table->text('inklusi');
-            $table->enum('inklusi_hasil', ['Muncul', 'Kurang', 'Belum Muncul']);
-            $table->enum('inklusi_penutup', ['Menyanyi', 'Ulasan', 'Icebreak']);
-            $table->enum('inklusi_penutup_hasil', ['Muncul', 'Kurang', 'Belum Muncul']);
+            $table->string('inklusi_hasil');
+            $table->string('inklusi_penutup');
+            $table->string('inklusi_penutup_hasil');
             $table->text('inklusi_doa');
-            $table->enum('inklusi_doa_hasil', ['Muncul', 'Kurang', 'Belum Muncul']);
+            $table->string('inklusi_doa_hasil');
             $table->text('catatan');
             $table->unsignedBigInteger('teacher_id');
             $table->unsignedBigInteger('student_id');
-            $table->unsignedBigInteger('grade_id');
             $table->timestamps();
 
-            $table->foreign('semester_id')->references('id')->on('student_report_semesters')->onDelete('cascade');
             $table->foreign('teacher_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('student_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('grade_id')->references('id')->on('grades')->onDelete('cascade');
         });
     }
 

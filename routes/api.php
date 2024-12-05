@@ -23,6 +23,7 @@ use App\Http\Controllers\API\V2\AlbumController as V2AlbumController;
 use App\Http\Controllers\API\V2\AnnouncementController;
 use App\Http\Controllers\API\V2\AuthController as V2AuthController;
 use App\Http\Controllers\API\V2\GradeController as V2GradeController;
+use App\Http\Controllers\API\V2\StudentReportController as V2StudentReportController;
 use App\Http\Controllers\API\V2\TaskController as V2TaskController;
 use App\Http\Controllers\API\V2\UserController as V2UserController;
 use Illuminate\Support\Facades\Route;
@@ -156,11 +157,11 @@ Route::prefix('/v2/grade')->group(function () {
     });
 
     Route::prefix('/{gradeId}/student-report')->group(function () {
-        Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');
-        Route::post('/{studentReportId}', [StudentReportController::class, 'update'])->middleware('auth:sanctum');
-        Route::delete('/{studentReportId}', [StudentReportController::class, 'delete'])->middleware('auth:sanctum');
-        Route::get('/student/{studentId}', [StudentReportDisplayForTeacherController::class, 'getAllByTeacher'])->middleware('auth:sanctum');
-        Route::get('/student/{studentId}', [StudentReportDisplayForTeacherController::class, 'getDetail'])->middleware('auth:sanctum');
+        Route::post('/', [V2StudentReportController::class, 'store'])->middleware(['auth:sanctum', 'teacher']);
+        Route::post('/{studentReportId}', [V2StudentReportController::class, 'update'])->middleware(['auth:sanctum', 'teacher']);
+        Route::delete('/{studentReportId}', [V2StudentReportController::class, 'delete'])->middleware('auth:sanctum');
+        Route::get('/student/{studentId}', [V2StudentReportController::class, 'getAllByTeacher'])->middleware('auth:sanctum');
+        Route::get('/{studentReportId}/student/{studentId}', [V2StudentReportController::class, 'getDetailByTeacher'])->middleware('auth:sanctum');
         // Route::get('/student', [StudentReportDisplayForStudentController::class, 'getAllByStudent'])->middleware('auth:sanctum');
         // Route::get('/{studentReportId}', [StudentReportDisplayController::class, 'getDetail'])->middleware('auth:sanctum');
     });

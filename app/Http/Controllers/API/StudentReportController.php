@@ -83,7 +83,6 @@ class StudentReportController extends Controller
                     ]);
                 $this->notification->send($message);
             }
-            $this->notification->send($message);
             return $this->resStoreData(new StudentReportResource($studentReport));
         } catch (\Exception $e) {
             DB::rollBack();
