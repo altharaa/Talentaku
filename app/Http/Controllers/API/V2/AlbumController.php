@@ -82,7 +82,6 @@ class AlbumController extends Controller
                 }
             }
            
-
             return $this->resStoreData(new AlbumResource($album));
         } catch (Exception $e) {
             DB::rollBack();

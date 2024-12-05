@@ -18,7 +18,7 @@ class AnnouncementResource extends JsonResource
             'id' => $this->id,
             'user' => $this->user ? [
                 'id' => $this->user->id,
-                'name' => $this->user->name,
+                'name' => $this->user->fullname,
                 'photo' => $this->user->photo
             ] : null,
             'grade' => $this->grade ? [
@@ -29,7 +29,6 @@ class AnnouncementResource extends JsonResource
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'media' => $this->media ? AnnouncementMediaResource::collection($this->media) : [],
-            'replies' => $this->reply ? AnnouoncementReplyResource::collection($this->reply) : [],
         ];
     }
 }
