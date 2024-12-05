@@ -24,7 +24,7 @@ class UserSeeder extends Seeder
             [
                 'id' => 1,
                 'username' => 'Ita',
-                'name' =>'Anita Fauzah',
+                'fullname' =>'Anita Fauzah',
                 'nomor_induk' => '0106202202050474',
                 'address' => 'Mlati Kidul RT 01/RW 01 No. 2B, Kudus',
                 'place_of_birth' => 'Jombang',
@@ -39,7 +39,7 @@ class UserSeeder extends Seeder
             [
                 'id' => 2,
                 'username' => 'Moza',
-                'name' =>"Siti Muzaro'ah",
+                'fullname' =>"Siti Muzaro'ah",
                 'nomor_induk' => '0106202202260698',
                 'address' => ' ds. Talun RT 01/RW 04',
                 'place_of_birth' => 'Pati',
@@ -54,7 +54,7 @@ class UserSeeder extends Seeder
             [
                 'id' => 3,
                 'username' => 'Rani',
-                'name' =>"Rani Puspitasari",
+                'fullname' =>"Rani Puspitasari",
                 'nomor_induk' => '0106202202120996',
                 'address' => 'Jl. Ganesha Selatan, Pasuruhan lor RT 02/ RW 10, Jati, kudus',
                 'place_of_birth' => 'Kudus',
@@ -69,7 +69,7 @@ class UserSeeder extends Seeder
             [
                 'id' => 4,
                 'username' => 'Nurul',
-                'name' =>"Nurul Hikmah",
+                'fullname' =>"Nurul Hikmah",
                 'nomor_induk' => '0106202202080797',
                 'address' => 'Ds. Jepang Pakis RT 01/Rw 01, Kudus',
                 'place_of_birth' => 'Kudus',
@@ -84,7 +84,7 @@ class UserSeeder extends Seeder
             [
                 'id' => 5,
                 'username' => 'Sekar',
-                'name' =>"Sekar Anisa",
+                'fullname' =>"Sekar Anisa",
                 'nomor_induk' => '0102202402170300',
                 'address' => 'Kauman RT 09/RW 01, Batang',
                 'place_of_birth' => 'Batang',
@@ -99,7 +99,7 @@ class UserSeeder extends Seeder
             [
                 'id' => 6,
                 'username' => 'Athi',
-                'name' =>"Athi' Mufarrihah",
+                'fullname' =>"Athi' Mufarrihah",
                 'nomor_induk' => '0102202402070684',
                 'address' => 'Samirejo',
                 'place_of_birth' => 'Kudus',
@@ -114,7 +114,7 @@ class UserSeeder extends Seeder
             [
                 'id' => 7,
                 'username' => 'Dimas',
-                'name' =>"M Dimas Prayoga",
+                'fullname' =>"M Dimas Prayoga",
                 'nomor_induk' => '0101',
                 'address' => 'Tenggeles RT 02/RW 04, Kec. Mejobo, Kudus',
                 'place_of_birth' => 'Kudus',
@@ -129,7 +129,7 @@ class UserSeeder extends Seeder
             [
                 'id' => 8,
                 'username' => 'Faqih',
-                'name' =>"M Faqih Naufal",
+                'fullname' =>"M Faqih Naufal",
                 'nomor_induk' => '0102',
                 'address' => 'Kauman RT 04/RW 09, Kec. Jekulo, Kudus',
                 'place_of_birth' => 'Kudus',
@@ -144,7 +144,7 @@ class UserSeeder extends Seeder
             [
                 'id' => 9,
                 'username' => 'Nabil',
-                'name' =>"M Nabil Rabbani",
+                'fullname' =>"M Nabil Rabbani",
                 'nomor_induk' => '0201',
                 'address' => 'Prambatan Kidul RT 07/RW 03, Kudus',
                 'place_of_birth' => 'Kudus',
@@ -159,7 +159,7 @@ class UserSeeder extends Seeder
             [
                 'id' => 10,
                 'username' => 'Raffa',
-                'name' =>"M Raffasya Athary",
+                'fullname' =>"M Raffasya Athary",
                 'nomor_induk' => '0202',
                 'address' => ' Wates RT 02/RW 02, Kec. Undaan, Kudus',
                 'place_of_birth' => 'Kudus',
@@ -174,7 +174,7 @@ class UserSeeder extends Seeder
             [
                 'id' => 11,
                 'username' => 'Admin',
-                'name' =>"Admin Talentaku",
+                'fullname' =>"Admin Talentaku",
                 'nomor_induk' => null,
                 'address' => null,
                 'place_of_birth' => null,

@@ -2,16 +2,12 @@
 
 use App\Http\Controllers\API\AlbumController;
 use App\Http\Controllers\API\AuthController;
-use App\Http\Controllers\API\Comment\CommentController;
-use App\Http\Controllers\API\Comment\DisplayController;
-use App\Http\Controllers\API\Comment\ReplyController;
 use App\Http\Controllers\API\GradeActiveController;
 use App\Http\Controllers\API\GradeController;
 use App\Http\Controllers\API\GradeDisplayController;
 use App\Http\Controllers\API\GradeMemberController;
 use App\Http\Controllers\API\InformationController;
 use App\Http\Controllers\API\ProgramController;
-use App\Http\Controllers\API\StreamController;
 use App\Http\Controllers\API\StudentReportController;
 use App\Http\Controllers\API\StudentReportDisplayController;
 use App\Http\Controllers\API\StudentReportDisplayForStudentController;
@@ -23,6 +19,8 @@ use App\Http\Controllers\API\TaskSubmissionController;
 use App\Http\Controllers\API\TaskSubmissionCorrectionController;
 use App\Http\Controllers\API\TaskSubmissionDisplayController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\V2\AuthController as V2AuthController;
+use App\Http\Controllers\API\V2\UserController as V2UserController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -120,3 +118,14 @@ Route::prefix('grades')->group(function () {
 
 Route::get('student-report/semesters', [StudentReportSemesterController::class, 'displaySemesters'])->middleware('auth:sanctum');
 Route::get('/notification', [\App\Http\Controllers\API\NotificationController::class, 'notification'])->middleware('auth:sanctum');
+
+//versi 2
+Route::prefix('/v2/auth')->group(function () {
+    Route::post('/login', [V2AuthController::class, 'login']);
+    Route::post('/logout', [V2AuthController::class, 'logout'])->middleware('auth:sanctum');
+});
+Route::prefix('/v2/user')->group(function () {
+    Route::get('/', [V2UserController::class, 'show'])->middleware('auth:sanctum');
+    Route::post('/update-photo', [V2UserController::class, 'updatePhoto'])->middleware('auth:sanctum');
+    Route::post('/update-password', [V2UserController::class, 'updatePassword'])->middleware('auth:sanctum');
+});
