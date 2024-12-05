@@ -23,6 +23,7 @@ use App\Http\Controllers\API\V2\AlbumController as V2AlbumController;
 use App\Http\Controllers\API\V2\AnnouncementController;
 use App\Http\Controllers\API\V2\AuthController as V2AuthController;
 use App\Http\Controllers\API\V2\GradeController as V2GradeController;
+use App\Http\Controllers\API\V2\TaskController as V2TaskController;
 use App\Http\Controllers\API\V2\UserController as V2UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -154,16 +155,26 @@ Route::prefix('/v2/grade')->group(function () {
         Route::delete('/{announcementId}', [AnnouncementController::class, 'delete'])->middleware(['auth:sanctum', 'teacher']);
     });
 
+    Route::prefix('/{gradeId}/student-report')->group(function () {
+        Route::post('/', [StudentReportController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{studentReportId}', [StudentReportController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{studentReportId}', [StudentReportController::class, 'delete'])->middleware('auth:sanctum');
+        Route::get('/student/{studentId}', [StudentReportDisplayForTeacherController::class, 'getAllByTeacher'])->middleware('auth:sanctum');
+        Route::get('/student/{studentId}', [StudentReportDisplayForTeacherController::class, 'getDetail'])->middleware('auth:sanctum');
+        // Route::get('/student', [StudentReportDisplayForStudentController::class, 'getAllByStudent'])->middleware('auth:sanctum');
+        // Route::get('/{studentReportId}', [StudentReportDisplayController::class, 'getDetail'])->middleware('auth:sanctum');
+    });
+
     Route::prefix('/{gradeId}/task')->group(function (){
-        Route::get('/', [TaskDisplayController::class, 'showByGrade'])->middleware('auth:sanctum');
-        Route::post('/', [TaskController::class, 'store'])->middleware('auth:sanctum');
-        Route::post('/{taskId}', [TaskController::class, 'update'])->middleware('auth:sanctum');
-        Route::get('/{taskId}', [TaskDisplayController::class, 'showById'])->middleware('auth:sanctum');
-        Route::delete('/{taskId}', [TaskController::class, 'destroy'])->middleware('auth:sanctum');
-        Route::post('/{taskId}/submission', [TaskSubmissionController::class, 'store'])->middleware('auth:sanctum');
-        Route::post('/{taskId}/submission/{submissionId}', [TaskSubmissionCorrectionController::class, 'correction'])->middleware('auth:sanctum');
-        Route::get('/{taskId}/completions', [TaskSubmissionDisplayController::class, 'completions'])->middleware('auth:sanctum');
-        Route::get('/{taskId}/completions/{submissionId}', [TaskSubmissionDisplayController::class, 'show'])->middleware('auth:sanctum');
-        Route::get('/{taskId}/completions-with-scores', [TaskSubmissionDisplayController::class, 'completionsWithScores'])->middleware('auth:sanctum');
+        Route::get('/', [V2TaskController::class, 'getAll'])->middleware(['auth:sanctum', 'teacher']);
+        Route::post('/', [V2TaskController::class, 'store'])->middleware(['auth:sanctum', 'teacher']);
+        Route::post('/{taskId}', [V2TaskController::class, 'update'])->middleware(['auth:sanctum', 'teacher']);
+        Route::get('/{taskId}', [V2TaskController::class, 'getDetail'])->middleware(['auth:sanctum', 'teacher']);
+        Route::delete('/{taskId}', [V2TaskController::class, 'delete'])->middleware(['auth:sanctum', 'teacher']);
+        // Route::post('/{taskId}/submission', [TaskSubmissionController::class, 'store'])->middleware('auth:sanctum');
+        // Route::post('/{taskId}/submission/{submissionId}', [TaskSubmissionCorrectionController::class, 'correction'])->middleware('auth:sanctum');
+        // Route::get('/{taskId}/completions', [TaskSubmissionDisplayController::class, 'completions'])->middleware('auth:sanctum');
+        // Route::get('/{taskId}/completions/{submissionId}', [TaskSubmissionDisplayController::class, 'show'])->middleware('auth:sanctum');
+        // Route::get('/{taskId}/completions-with-scores', [TaskSubmissionDisplayController::class, 'completionsWithScores'])->middleware('auth:sanctum');
     });
 });

@@ -77,7 +77,7 @@ class AnnouncementController extends Controller
             'media' => 'nullable|array',
             'media.*' => 'nullable|file|mimes:jpeg,png,jpg,svg,mp4,mov,pdf,docx,ppt|max:10480',
             'delete_media' => 'nullable|array', 
-            'delete_media.*' => 'integer|exists:announcement_media,id', 
+            'delete_media.*' => 'nullable|integer|exists:announcement_media,id', 
         ]);
 
         DB::beginTransaction();

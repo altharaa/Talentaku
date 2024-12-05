@@ -14,9 +14,17 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Laravel\Firebase\Facades\Firebase;
 
 class TaskController extends Controller
 {
+    protected $notification;
+
+    public function __construct()
+    {
+        $this->notification = Firebase::messaging();
+    }
+
     private function deleteMedia($mediaToDelete, $task)
     {
         $deletedMedia = [];
