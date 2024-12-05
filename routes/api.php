@@ -19,6 +19,7 @@ use App\Http\Controllers\API\TaskSubmissionController;
 use App\Http\Controllers\API\TaskSubmissionCorrectionController;
 use App\Http\Controllers\API\TaskSubmissionDisplayController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\V2\AlbumController as V2AlbumController;
 use App\Http\Controllers\API\V2\AuthController as V2AuthController;
 use App\Http\Controllers\API\V2\GradeController as V2GradeController;
 use App\Http\Controllers\API\V2\UserController as V2UserController;
@@ -139,10 +140,10 @@ Route::prefix('/v2/grade')->group(function () {
     Route::get('/{gradeId}', [V2GradeController::class, 'getDetail'])->middleware(['auth:sanctum', 'teacher']);
 
     Route::prefix('/{gradeId}/album')->group(function () {
-        Route::get('/', [AlbumController::class, 'getAll'])->middleware(['auth:sanctum', 'teacher']);
-        Route::post('/', [AlbumController::class, 'store'])->middleware(['auth:sanctum', 'teacher']);
-        Route::get('/{albumId}', [AlbumController::class, 'getDetail'])->middleware(['auth:sanctum', 'teacher']);
-        Route::delete('/{albumId}', [AlbumController::class, 'delete'])->middleware(['auth:sanctum', 'teacher']);
+        Route::get('/', [V2AlbumController::class, 'getAll'])->middleware(['auth:sanctum', 'teacher']);
+        Route::post('/', [V2AlbumController::class, 'store'])->middleware(['auth:sanctum', 'teacher']);
+        Route::get('/{albumId}', [V2AlbumController::class, 'getById'])->middleware(['auth:sanctum', 'teacher']);
+        Route::delete('/{albumId}', [V2AlbumController::class, 'delete'])->middleware(['auth:sanctum', 'teacher']);
     });
 
     Route::prefix('/{gradeId}/announcement')->group(function () {

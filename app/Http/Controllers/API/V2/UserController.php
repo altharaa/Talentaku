@@ -32,7 +32,7 @@ class UserController extends Controller
             }
     
             $imagePath = $request->file('photo')->store('public/profile');
-            $user->photo = $imagePath;
+            $user->photo = basename($imagePath);
         }
     
         $user->save(); 
