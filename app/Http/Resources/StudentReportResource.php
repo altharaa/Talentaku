@@ -17,8 +17,7 @@ class StudentReportResource extends JsonResource
         return [
             'id' => $this->id,
             'created' => $this->created,
-            'semester_id' => $this->semester_id,
-            'semester_name' => optional($this->semester)->name,
+            'semester' => $this->semester,
             'kegiatan_awal_dihalaman' => explode(PHP_EOL, $this->kegiatan_awal_dihalaman),
             'dihalaman_hasil' => $this->dihalaman_hasil,
             'kegiatan_awal_berdoa' => explode(PHP_EOL, $this->kegiatan_awal_berdoa),
@@ -39,7 +38,6 @@ class StudentReportResource extends JsonResource
             'catatan' => explode(PHP_EOL, $this->catatan),
             'student_id' => $this->student_id,
             'teacher_id' => $this->teacher_id,
-            'grade_id' => $this->grade_id,
             'media' => StudentReportMediaResource::collection($this->media),
         ];
     }

@@ -18,13 +18,17 @@ class GradeResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'desc' => $this->desc,
-            'unique_code' => $this->unique_code,
             'is_active' => $this->isactive ? true : false,
-            'teacher' => new UserResource($this->teacher),
+            'teacher' => $this->teacher->only(['id', 'fullname']),
             'level' => $this->level->only(['id', 'name']),
-            'members' => $this->members->map(function ($member) {
-                return new UserResource($member);
-            })
+            'members' =>$this->members->isNotEmpty() 
+            ? $this->members->map(function ($member) {
+                return [
+                    'id' => $member->id,
+                    'fullname' => $member->fullname,
+                ];
+            }) 
+            : 'This grade does not have any members yet.',
         ];
     }
 }

@@ -14,7 +14,6 @@ class Grade extends Model
     protected $fillable = [
         'name',
         'desc',
-        'unique_code',
         'isactive',
         'teacher_id',
         'level_id'
