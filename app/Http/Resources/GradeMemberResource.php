@@ -18,9 +18,8 @@ class GradeMemberResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'desc' => $this->desc,
-            'unique_code' => $this->unique_code,
             'is_active' => $this->isactive ? 'true' : 'false',
-            'teacher' => optional($this->teacher)->name,
+            'teacher' => optional($this->teacher)->fullname,
             'level' => $this->level->only(['id', 'name']),
             'members' => $this->members->map(function ($member) {
                 return new UserResource($member);

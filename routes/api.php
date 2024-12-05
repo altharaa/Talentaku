@@ -20,6 +20,7 @@ use App\Http\Controllers\API\TaskSubmissionCorrectionController;
 use App\Http\Controllers\API\TaskSubmissionDisplayController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\API\V2\AuthController as V2AuthController;
+use App\Http\Controllers\API\V2\GradeController as V2GradeController;
 use App\Http\Controllers\API\V2\UserController as V2UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -128,4 +129,40 @@ Route::prefix('/v2/user')->group(function () {
     Route::get('/', [V2UserController::class, 'show'])->middleware('auth:sanctum');
     Route::post('/update-photo', [V2UserController::class, 'updatePhoto'])->middleware('auth:sanctum');
     Route::post('/update-password', [V2UserController::class, 'updatePassword'])->middleware('auth:sanctum');
+});
+
+Route::prefix('/v2/grade')->group(function () {
+    Route::post('/{gradeId}', [V2GradeController::class, 'update'])->middleware(['auth:sanctum', 'teacher']);
+    Route::patch('/{gradeId}/toggle-active', [V2GradeController::class, 'patchActive'])->middleware(['auth:sanctum', 'teacher']);;
+    Route::get('/show-teacher', [V2GradeController::class, 'getTeacher'])->middleware(['auth:sanctum']);
+    // Route::get('/show-student', [GradeDisplayController::class, 'getStudent'])->middleware('auth:sanctum');
+    Route::get('/{gradeId}', [V2GradeController::class, 'getDetail'])->middleware(['auth:sanctum', 'teacher']);
+
+    Route::prefix('/{gradeId}/album')->group(function () {
+        Route::get('/', [AlbumController::class, 'getAll'])->middleware(['auth:sanctum', 'teacher']);
+        Route::post('/', [AlbumController::class, 'store'])->middleware(['auth:sanctum', 'teacher']);
+        Route::get('/{albumId}', [AlbumController::class, 'getDetail'])->middleware(['auth:sanctum', 'teacher']);
+        Route::delete('/{albumId}', [AlbumController::class, 'delete'])->middleware(['auth:sanctum', 'teacher']);
+    });
+
+    Route::prefix('/{gradeId}/announcement')->group(function () {
+        Route::get('/', [\App\Http\Controllers\API\AnnouncementDisplayController::class, 'show'])->middleware('auth:sanctum');
+        Route::post('/', [\App\Http\Controllers\API\AnnouncementController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{announcementId}', [\App\Http\Controllers\API\AnnouncementController::class, 'update'])->middleware('auth:sanctum');
+        Route::delete('/{announcementId}', [\App\Http\Controllers\API\AnnouncementController::class, 'delete'])->middleware('auth:sanctum');
+        Route::get('/{announcementId}', [\App\Http\Controllers\API\AnnouncementReplyDisplayController::class, 'detail'])->middleware('auth:sanctum');
+    });
+
+    Route::prefix('/{gradeId}/task')->group(function (){
+        Route::get('/', [TaskDisplayController::class, 'showByGrade'])->middleware('auth:sanctum');
+        Route::post('/', [TaskController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{taskId}', [TaskController::class, 'update'])->middleware('auth:sanctum');
+        Route::get('/{taskId}', [TaskDisplayController::class, 'showById'])->middleware('auth:sanctum');
+        Route::delete('/{taskId}', [TaskController::class, 'destroy'])->middleware('auth:sanctum');
+        Route::post('/{taskId}/submission', [TaskSubmissionController::class, 'store'])->middleware('auth:sanctum');
+        Route::post('/{taskId}/submission/{submissionId}', [TaskSubmissionCorrectionController::class, 'correction'])->middleware('auth:sanctum');
+        Route::get('/{taskId}/completions', [TaskSubmissionDisplayController::class, 'completions'])->middleware('auth:sanctum');
+        Route::get('/{taskId}/completions/{submissionId}', [TaskSubmissionDisplayController::class, 'show'])->middleware('auth:sanctum');
+        Route::get('/{taskId}/completions-with-scores', [TaskSubmissionDisplayController::class, 'completionsWithScores'])->middleware('auth:sanctum');
+    });
 });
