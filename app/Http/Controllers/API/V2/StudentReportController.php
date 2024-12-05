@@ -189,4 +189,16 @@ class StudentReportController extends Controller
         $studentReport = StudentReport::findOrFail($request->studentReportId);
         return new StudentReportResource($studentReport);
     }
+
+    public function getAllByStudent(Request $request)
+    {
+        $studentReports = StudentReport::where('student_id', $request->user()->id)->get();
+        return StudentReportResource::collection($studentReports);
+    }
+
+    public function getDetailByStudent(Request $request)
+    {
+        $studentReport = StudentReport::findOrFail($request->studentReportId);
+        return new StudentReportResource($studentReport);
+    }
 }
