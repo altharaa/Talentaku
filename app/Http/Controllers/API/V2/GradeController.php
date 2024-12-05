@@ -57,18 +57,21 @@ class GradeController extends Controller
     public function getTeacher(Request $request)
     {
         $user = $request->user()->id;
-        $grades =  Grade::where('teacher_id', $user)
+        $grades = Grade::where('teacher_id', $user)
                     ->with( 'teacher', 'members')
                     ->get();       
         return GradeResource::collection($grades);   
     }
 
-    // public function getStudent(Request $request)
-    // {
-    //     $user = $request->user()->id;
-    //     $grades =  $user->grades()->with(['teacher:id,name'])->get();     
-    //     return GradeResource::collection($grades);   
-    // }
+    public function getStudent(Request $request)
+    {
+        $userId = $request->user()->id;
+        $grades = Grade::whereHas('members', function ($query) use ($userId) {
+            $query->where('users.id', $userId);
+        })->get();        
+        
+        return GradeResource::collection($grades);   
+    }
 
     public function getDetail(Request $request)
     {
